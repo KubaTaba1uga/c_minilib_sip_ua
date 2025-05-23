@@ -34,7 +34,12 @@ c_minilib_init_dep = dependency('c_minilib_init',
   required: true,
 )
 
-c_minilib_sip_ua_deps = []
+c_minilib_config_dep = dependency('c_minilib_config',
+  fallback: ['c_minilib_config', 'c_minilib_config_dep'],
+  required: true,
+)
+
+c_minilib_sip_ua_deps = [c_minilib_init_dep, c_minilib_config_dep]
 c_minilib_sip_ua_inc = include_directories('include', 'src')
 c_minilib_sip_ua_lib = library('c_minilib_sip_ua',
                          sources,
