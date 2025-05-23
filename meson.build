@@ -1,8 +1,8 @@
-# C Minilib Sip Codec
+# C Minilib Sip UA
 # ******************************************************************************
 # *    Project
 # ******************************************************************************
-project('c_minilib_sip_codec', 'c',
+project('c_minilib_sip_ua', 'c',
          version: '0.0.1',
 	 meson_version: '>=1.0.1',
 	 default_options: [
@@ -21,10 +21,6 @@ if get_option('buildtype').startswith('debug')
   add_project_arguments(['-fno-inline', '-fno-inline-functions'], language : 'c')
 endif
 
-
-# Enable posix functions
-add_project_arguments('-D_POSIX_C_SOURCE=200809L', language: 'c')
-
 subdir('src')
 
 c_minilib_error_sub = subproject('c_minilib_error', default_options: ['tests=false'])
@@ -33,18 +29,24 @@ c_minilib_error_dep = dependency('c_minilib_error',
   required: true,
 )
 
-c_minilib_sip_codec_deps = [c_minilib_error_dep]
-c_minilib_sip_codec_inc = include_directories('include', 'src')
-c_minilib_sip_codec_lib = library('c_minilib_sip_codec',
-                         sources,
-			 include_directories: c_minilib_sip_codec_inc,
-                         dependencies: c_minilib_sip_codec_deps,
+c_minilib_init_sub = subproject('c_minilib_init', default_options: ['tests=false'])
+c_minilib_init_dep = dependency('c_minilib_init',
+  fallback: ['c_minilib_init', 'c_minilib_init_dep'],
+  required: true,
 )
 
-c_minilib_sip_codec_dep = declare_dependency(
-  link_with: c_minilib_sip_codec_lib,
-  include_directories: c_minilib_sip_codec_inc,
-  dependencies: c_minilib_sip_codec_deps,  
+c_minilib_sip_ua_deps = [c_minilib_error_dep]
+c_minilib_sip_ua_inc = include_directories('include', 'src')
+c_minilib_sip_ua_lib = library('c_minilib_sip_ua',
+                         sources,
+			 include_directories: c_minilib_sip_ua_inc,
+                         dependencies: c_minilib_sip_ua_deps,
+)
+
+c_minilib_sip_ua_dep = declare_dependency(
+  link_with: c_minilib_sip_ua_lib,
+  include_directories: c_minilib_sip_ua_inc,
+  dependencies: c_minilib_sip_ua_deps,  
 )
 
 
