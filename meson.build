@@ -23,19 +23,18 @@ endif
 
 subdir('src')
 
-c_minilib_error_sub = subproject('c_minilib_error', default_options: ['tests=false'])
-c_minilib_error_dep = dependency('c_minilib_error',
-  fallback: ['c_minilib_error', 'c_minilib_error_dep'],
-  required: true,
-)
+# c_minilib_error_sub = subproject('c_minilib_error', default_options: ['tests=false'])
+# c_minilib_error_dep = dependency('c_minilib_error',
+#   fallback: ['c_minilib_error', 'c_minilib_error_dep'],
+#   required: true,
+# )
 
-c_minilib_init_sub = subproject('c_minilib_init', default_options: ['tests=false'])
 c_minilib_init_dep = dependency('c_minilib_init',
   fallback: ['c_minilib_init', 'c_minilib_init_dep'],
   required: true,
 )
 
-c_minilib_sip_ua_deps = [c_minilib_error_dep]
+c_minilib_sip_ua_deps = []
 c_minilib_sip_ua_inc = include_directories('include', 'src')
 c_minilib_sip_ua_lib = library('c_minilib_sip_ua',
                          sources,
