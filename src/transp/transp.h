@@ -2,15 +2,29 @@
 #define C_MINILIB_SIP_UA_TRANSPORT_H
 
 #include "c_minilib_error.h"
-enum cmsu_TransportSupported {
-  cmsu_TransportSupported_UDP,
-};
 
-struct cmsu_TranspProto {
-  cme_error_t (*init)(void *data);
-  cme_error_t (*create_fd)(void *data, int *fd);
-  cme_error_t (*receive)(const int fd);
-  cme_error_t (*send)(const int fd);
-};
+typedef struct {
+  int sockfd;
+} cmsu_UdpCtx;
+
+typedef struct {
+  int sockfd;
+} cmsu_TcpCtx;
+
+cme_error_t cmsu_udp_create(cmsu_UdpCtx *ctx);
+cme_error_t cmsu_tcp_create(cmsu_TcpCtx *ctx);
+
+#define cmsu_transport_create(ctx)                                             \
+  _Generic((ctx), cmsu_UdpCtx *                                                \
+           : cmsu_udp_create, cmsu_TcpCtx *                                    \
+           : cmsu_tcp_create)(ctx)
+
+cme_error_t cmsu_udp_send(cmsu_UdpCtx *ctx, const void *b, size_t l);
+cme_error_t cmsu_tcp_send(cmsu_TcpCtx *ctx, const void *b, size_t l);
+
+#define transport_send(ctx, buf, len)                                          \
+  _Generic((ctx), cmsu_UdpCtx *                                                \
+           : cmsu_udp_send, cmsu_TcpCtx *                                      \
+           : cmsu_tcp_send)(ctx, buf, len)
 
 #endif
