@@ -1,16 +1,24 @@
-#include "event_loop/linux_poll.h"
+#include <stdio.h>
 #include <unity.h>
 
+#include "event_loop/linux_poll.h"
+static int drop_call_count = 0;
+
+void cmsu_PollFd_drop(cmsu_PollFd *self) {
+  (void)self;
+  drop_call_count++;
+}
+
 void test_push_and_sort(void) {
-  struct vec_cmsu_PollFds vec = {0};
+  cmsu_PollFds vec = {0};
 
-  cmsu_PollFd a = {.fd = 3, .events = POLLIN, .revents = 0};
+  cmsu_PollFd a = {.fd = 5, .events = POLLIN, .revents = 0};
   cmsu_PollFd b = {.fd = 1, .events = POLLOUT, .revents = 0};
-  cmsu_PollFd c = {.fd = 5, .events = POLLIN, .revents = 0};
+  cmsu_PollFd c = {.fd = 3, .events = POLLIN, .revents = 0};
 
-  vec_cmsu_PollFds_push(&vec, cmsu_PollFd_clone(c));
   vec_cmsu_PollFds_push(&vec, cmsu_PollFd_clone(a));
   vec_cmsu_PollFds_push(&vec, cmsu_PollFd_clone(b));
+  vec_cmsu_PollFds_push(&vec, cmsu_PollFd_clone(c));
 
   // Sort using the default cmp (a->fd > b->fd)
   vec_cmsu_PollFds_sort(&vec);
@@ -20,22 +28,22 @@ void test_push_and_sort(void) {
   TEST_ASSERT_EQUAL_INT(5, vec.data[2].fd);
 
   vec_cmsu_PollFds_drop(&vec);
+
+  puts("Blablabla");
+  TEST_PASS_MESSAGE("cmsu_PollFds is working.");
 }
 
-/* void test_drop_closes_fds(void) { */
-/*   struct cmsu_PollFds vec = vec_cmsu_PollFds_init(); */
+void test_drop_calls_drop_function(void) {
+  cmsu_PollFds vec = {0};
+  drop_call_count = 0;
 
-/*   int pipe_fds[2]; */
-/*   pipe(pipe_fds); // pipe_fds[0]: read, pipe_fds[1]: write */
+  cmsu_PollFd a = {.fd = 10, .events = POLLIN, .revents = 0};
+  cmsu_PollFd b = {.fd = 11, .events = POLLOUT, .revents = 0};
 
-/*   cmsu_PollFd pfd = {.fd = pipe_fds[0], .events = POLLIN, .revents = 0}; */
-/*   cmsu_PollFds_push(&vec, cmsu_pollfd_clone(pfd)); */
+  vec_cmsu_PollFds_push(&vec, cmsu_PollFd_clone(a));
+  vec_cmsu_PollFds_push(&vec, cmsu_PollFd_clone(b));
 
-/*   // Drop will call close on pipe_fds[0] */
-/*   cmsu_PollFds_drop(&vec); */
+  vec_cmsu_PollFds_drop(&vec);
 
-/*   // Now read from closed FD should fail */
-/*   char buf; */
-/*   ssize_t res = read(pipe_fds[0], &buf, 1); */
-/*   TEST_ASSERT_EQUAL_INT(-1, res); */
-/* } */
+  TEST_ASSERT_EQUAL_INT(2, drop_call_count);
+}

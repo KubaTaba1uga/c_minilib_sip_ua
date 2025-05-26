@@ -19,6 +19,7 @@ if get_option('backtrace')
 endif
 if get_option('buildtype').startswith('debug')
   add_project_arguments(['-fno-inline', '-fno-inline-functions'], language : 'c')
+  
 endif
 
 subdir('src')
@@ -72,6 +73,7 @@ c_minilib_sip_ua_lib = library('c_minilib_sip_ua',
                          sources,
 			 include_directories: c_minilib_sip_ua_inc,
                          dependencies: c_minilib_sip_ua_deps,
+			 c_args: '-DENABLE_MOCKS'
 )
 
 c_minilib_sip_ua_dep = declare_dependency(

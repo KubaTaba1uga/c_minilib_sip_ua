@@ -27,6 +27,7 @@ foreach test_file : test_files
     ],
     dependencies: test_dependencies,
     include_directories: test_include_dirs,
+    c_args: ['-DENABLE_MOCKS'],
   )
   test(test_name, test_exe)
 endforeach
