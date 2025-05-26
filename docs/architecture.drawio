@@ -1,0 +1,170 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="27.0.8">
+  <diagram name="Page-1" id="DYS4X43bdyaeCCeUCE0n">
+    <mxGraphModel dx="861" dy="2224" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="8oikypdOr_yC_xlXZbeG-5" value="" style="endArrow=classic;html=1;rounded=0;curved=1;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="150" y="-70" as="sourcePoint" />
+            <mxPoint x="170" y="30" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="170" y="-10" />
+              <mxPoint x="210" y="40" />
+              <mxPoint x="360" y="50" />
+              <mxPoint x="420" y="-10" />
+              <mxPoint x="440" y="-100" />
+              <mxPoint x="380" y="-180" />
+              <mxPoint x="210" y="-170" />
+              <mxPoint x="90" y="-110" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-6" value="&lt;font style=&quot;font-size: 26px;&quot;&gt;Event Loop&lt;/font&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="170" y="-110" width="200" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-7" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Main axis of the project is Event Loop.&lt;/h1&gt;&lt;p&gt;&lt;br&gt;&lt;/p&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
+          <mxGeometry x="40" y="-310" width="180" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-9" value="TimerEvent" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="100" y="80" width="140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-10" value="Allow interacting with Ua from the same machine" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="8oikypdOr_yC_xlXZbeG-9" vertex="1">
+          <mxGeometry y="30" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-11" value="Uses linux timerfd" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="8oikypdOr_yC_xlXZbeG-9" vertex="1">
+          <mxGeometry y="80" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-17" value="SocketEvent" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="400" y="80" width="140" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-18" value="Allow interacting with Ua from another machine" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="8oikypdOr_yC_xlXZbeG-17" vertex="1">
+          <mxGeometry y="30" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-19" value="Uses bsd sockets" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="8oikypdOr_yC_xlXZbeG-17" vertex="1">
+          <mxGeometry y="80" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="8oikypdOr_yC_xlXZbeG-22" value="" style="endArrow=none;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="30" y="220" as="sourcePoint" />
+            <mxPoint x="590" y="220" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-1" value="Receive data from another machine" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=17;" vertex="1" parent="1">
+          <mxGeometry x="30" y="230" width="140" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-4" target="awC3xR5aF0oG_H9M2n87-5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-4" value="Other machine wants to send us data" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="270" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-5" target="awC3xR5aF0oG_H9M2n87-7">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-5" value="Event loop wakes up" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="220" y="410" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-12" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-7">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="450" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-7" value="What is event type?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="215" y="520" width="130" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-15" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-8" target="awC3xR5aF0oG_H9M2n87-14">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-8" value="Accept connection&lt;div&gt;and create new socket event for connection&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="780" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-13" value="SocketEvent" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="360" y="535" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-14" target="awC3xR5aF0oG_H9M2n87-17">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-14" value="Create timeout timer&lt;div&gt;event for connection&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="920" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-17" value="Wait for data from another machine" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="390" y="1060" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-19" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-20" target="awC3xR5aF0oG_H9M2n87-22">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-20" value="Other machine send us data" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="235" y="1210" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-21" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-22" target="awC3xR5aF0oG_H9M2n87-24">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-22" value="Event loop wakes up" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="235" y="1350" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-23" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-24" target="awC3xR5aF0oG_H9M2n87-26">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="505" y="1510" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-24" value="What is event type?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="230" y="1460" width="130" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-25" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-26" target="awC3xR5aF0oG_H9M2n87-29">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-26" value="Accept connection&lt;div&gt;and create new socket event for connection&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="405" y="1580" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-27" value="SocketEvent" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="375" y="1475" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-28" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-29" target="awC3xR5aF0oG_H9M2n87-30">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-29" value="Create timeout timer&lt;div&gt;event for connection&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="405" y="1720" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-30" value="Wait for data from another machine" style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="405" y="1860" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-40" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="449.66" y="700" as="sourcePoint" />
+            <mxPoint x="449.66" y="780" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-49" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="awC3xR5aF0oG_H9M2n87-41" target="awC3xR5aF0oG_H9M2n87-44">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="255" y="685" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-41" value="What is socket transport?" style="rhombus;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="392.5" y="640" width="115" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-44" value="Return transp not supported error." style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="240" y="770" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-45" value="UDP" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="450" y="720" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-50" value="We need some kind of transport layer." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="510" y="610" width="130" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-52" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="215.00275862068975" y="570" as="sourcePoint" />
+            <mxPoint x="110.00275862068975" y="640" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-53" value="TimerEvent" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;flipH=1;" vertex="1" parent="1">
+          <mxGeometry x="124.51999999999998" y="535" width="60" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="awC3xR5aF0oG_H9M2n87-54" value="Process timer." style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="50" y="640" width="120" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
