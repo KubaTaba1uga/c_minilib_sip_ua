@@ -48,11 +48,25 @@ c_minilib_sip_codec_dep = dependency('c_minilib_sip_codec',
   required: true,
 )
 
+stc_dep = dependency('stc',
+  fallback: ['stc', 'stc_dep'],
+  default_options: ['checkscoped=disabled'],
+  required: true,
+)
+
+socket99_dep = dependency(
+  'socket99',
+  fallback: ['socket99', 'socket99_dep'],
+  required: true
+)
+
 c_minilib_sip_ua_deps = [c_minilib_error_dep,
                          c_minilib_mock_dep,
 			 c_minilib_init_dep,
 			 c_minilib_config_dep,
-			 c_minilib_sip_codec_dep]
+			 stc_dep,
+			 socket99_dep,
+			 ]
 c_minilib_sip_ua_inc = include_directories('include', 'src')
 c_minilib_sip_ua_lib = library('c_minilib_sip_ua',
                          sources,

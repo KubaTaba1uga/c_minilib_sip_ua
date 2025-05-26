@@ -1,0 +1,41 @@
+diff --git a/meson.build b/meson.build
+new file mode 100644
+index 0000000..c515080
+--- /dev/null
++++ b/meson.build
+@@ -0,0 +1,34 @@
++project(
++  'socket99', 'c',
++  version: '0.2.2',
++  default_options: [
++    'c_std=c99',
++    'warning_level=3',      # -Wall -Wextra by default
++    'buildtype=debugoptimized'
++  ]
++)
++
++# Common flags: POSIX & C99 features, optimizations, debug info, pedantic warnings
++common_c_args = [
++  '-D_POSIX_C_SOURCE=200112L',
++  '-D_C99_SOURCE',
++  '-O3',
++  '-g',
++  '-Wno-padded',
++  '-pedantic'
++]
++add_project_arguments(common_c_args, language: 'c')
++
++inc = include_directories('.')
++
++libsocket99 = static_library(
++  'socket99',
++  'socket99.c',
++  include_directories: inc,
++  install: true           # will install into @PREFIX@/lib by default
++)
++
++socket99_dep = declare_dependency(
++  link_with: libsocket99,
++  include_directories: inc
++)
+\ No newline at end of file

@@ -16,6 +16,8 @@ subprojects/c_minilib_config
 subprojects/c_minilib_init
 subprojects/c_minilib_mock
 subprojects/c_minilib_sip_codec
+subprojects/stc
+subprojects/socket99
 subprojects/unity
 example/subprojects/c_minilib_error
 example/subprojects/c_minilib_config
