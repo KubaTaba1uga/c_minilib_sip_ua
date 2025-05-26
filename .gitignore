@@ -11,10 +11,11 @@ build/*
 .cache
 example/.cache
 compile_commands.json
-subprojects/c_minilib_error*
+subprojects/c_minilib_error
 subprojects/c_minilib_config
 subprojects/c_minilib_init
-subprojects/c_minilib_mock*
+subprojects/c_minilib_mock
+subprojects/c_minilib_sip_codec
 subprojects/unity
 example/subprojects/c_minilib_error
 example/subprojects/c_minilib_config
