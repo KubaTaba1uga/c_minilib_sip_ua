@@ -23,11 +23,15 @@ endif
 
 subdir('src')
 
-# c_minilib_error_sub = subproject('c_minilib_error', default_options: ['tests=false'])
-# c_minilib_error_dep = dependency('c_minilib_error',
-#   fallback: ['c_minilib_error', 'c_minilib_error_dep'],
-#   required: true,
-# )
+c_minilib_error_dep = dependency('c_minilib_error',
+  fallback: ['c_minilib_error', 'c_minilib_error_dep'],
+  required: true,
+)
+
+c_minilib_mock_dep = dependency('c_minilib_mock',
+  fallback: ['c_minilib_mock', 'c_minilib_mock_dep'],
+  required: true,
+)
 
 c_minilib_init_dep = dependency('c_minilib_init',
   fallback: ['c_minilib_init', 'c_minilib_init_dep'],
