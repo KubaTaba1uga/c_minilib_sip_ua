@@ -69,19 +69,31 @@ c_minilib_sip_ua_deps = [c_minilib_error_dep,
 			 socket99_dep,
 			 ]
 c_minilib_sip_ua_inc = include_directories('include', 'src')
+
 c_minilib_sip_ua_lib = library('c_minilib_sip_ua',
-                         sources,
-			 include_directories: c_minilib_sip_ua_inc,
-                         dependencies: c_minilib_sip_ua_deps,
-			 c_args: '-DENABLE_MOCKS'
+  sources,
+  include_directories: c_minilib_sip_ua_inc,
+  dependencies: c_minilib_sip_ua_deps,
+  c_args: ['-DENABLE_MOCKS'], # This should be disabled when tests are disabled
+  
 )
 
 c_minilib_sip_ua_dep = declare_dependency(
   link_with: c_minilib_sip_ua_lib,
   include_directories: c_minilib_sip_ua_inc,
-  dependencies: c_minilib_sip_ua_deps,  
+  dependencies: c_minilib_sip_ua_deps,
 )
 
+
+# ******************************************************************************
+# *    Executable
+# ******************************************************************************
+executable('sipua_demo',
+  sources,
+  include_directories: c_minilib_sip_ua_inc,
+  dependencies: c_minilib_sip_ua_dep,  
+  c_args: ['-DENABLE_MOCKS']
+)
 
 # ******************************************************************************
 # *    Tests

@@ -1,4 +1,7 @@
 sources += files(
-  'event_loop.h', 
-  'linux_poll.h', 'linux_poll.c',
+  'event_loop.h',
+  'event_loop.c',
+  'event_loop_internal.h',     
 )
+
+subdir('poll')
