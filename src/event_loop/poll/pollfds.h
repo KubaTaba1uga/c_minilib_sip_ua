@@ -53,12 +53,4 @@ static inline cme_error_t cmsu_PollFds_push(cmsu_PollFds *pollfds,
   return 0;
 }
 
-static inline cme_error_t cmsu_poll(cmsu_PollFds *pollfds) {
-  int result = poll(pollfds->data, pollfds->size, -1);
-  if (result < 0) {
-    return cme_return(cme_error(ENOMEM, "Unable to poll fd"));
-  }
-  return 0;
-}
-
 #endif

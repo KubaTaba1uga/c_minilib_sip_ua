@@ -30,13 +30,15 @@ int main(void) {
     return err->code;
   }
 
+  puts("App is running...");
+
   // All initial timers and sockets are created during init step. So at this
   // moment we are ready to trigger the event loop as is.
-  /* err = cmsu_event_loop_start(); */
-  /* if (err) { */
-  /*   puts(err->msg); */
-  /*   return err->code; */
-  /* } */
+  err = cmsu_event_loop_start();
+  if (err) {
+    puts(err->msg);
+    return err->code;
+  }
 
   cmi_destroy();
 

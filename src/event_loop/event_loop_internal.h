@@ -2,6 +2,7 @@
 #define C_MINILIB_SIP_UA_EVENT_LOOP_INTERNAL_H
 
 #include "c_minilib_error.h"
+#include "event_loop/poll/poll.h"
 #include "event_loop/poll/pollfds.h"
 #include "transp/transp.h"
 #include "utils/error.h"
