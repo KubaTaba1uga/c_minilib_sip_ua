@@ -1,0 +1,2 @@
+1. drop all unecessary struct typedefs.
+2. Bring all structs names in funcs uppercase in all minilib projects.

@@ -18,9 +18,11 @@ if get_option('backtrace')
   add_project_arguments('-DCME_ENABLE_BACKTRACE', language: 'c')
 endif
 if get_option('buildtype').startswith('debug')
-  add_project_arguments(['-fno-inline', '-fno-inline-functions'], language : 'c')
-  
+  add_project_arguments(['-fno-inline', '-fno-inline-functions'], language : 'c')  
 endif
+
+# We need this for socket99
+add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'c')
 
 subdir('src')
 

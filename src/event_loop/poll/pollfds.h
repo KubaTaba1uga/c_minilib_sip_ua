@@ -2,7 +2,6 @@
 #define C_MINILIB_SIP_UA_POLLFDS_H
 
 #include <errno.h>
-#include <stc/cstr.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <sys/poll.h>
