@@ -1,6 +1,9 @@
 #ifndef C_MINILIB_SIP_UA_INT_UDP_H
 #define C_MINILIB_SIP_UA_INT_UDP_H
 
+#include <stdint.h>
+#include <unistd.h>
+
 #include "c_minilib_error.h"
 #include "socket99.h"
 
@@ -17,7 +20,9 @@ struct cmsu_SocketUdp {
 };
 
 // This should take ip and port
-static inline cme_error_t cmsu_SocketUdp_create(struct cmsu_SocketUdp **sock) {
+static inline cme_error_t cmsu_SocketUdp_create(const char *ipaddr,
+                                                uint32_t port,
+                                                struct cmsu_SocketUdp **sock) {
   cme_error_t err;
   if (!sock) {
     err = cme_error(EINVAL, "`sock` cannot be NULL");
@@ -35,8 +40,8 @@ static inline cme_error_t cmsu_SocketUdp_create(struct cmsu_SocketUdp **sock) {
   socket99_result res;
   bool ok = socket99_open(
       &(socket99_config){
-          .host = "127.0.0.1",
-          .port = 7337,
+          .host = (char *)ipaddr,
+          .port = port,
           .server = true,
           .datagram = true,
           .nonblocking = true,
@@ -99,6 +104,11 @@ static inline cme_error_t cmsu_SocketUdp_recv_callback(void *ctx_) {
 
 static inline int cmsu_SocketUdp_get_fd(void *ctx) {
   return ((struct cmsu_SocketUdp *)ctx)->sockfd;
+};
+
+static inline void cmsu_SocketUdp_destroy(void *ctx) {
+  close(((struct cmsu_SocketUdp *)ctx)->sockfd);
+  free(ctx);
 };
 
 #endif // C_MINILIB_SIP_UA_SOCKET_H

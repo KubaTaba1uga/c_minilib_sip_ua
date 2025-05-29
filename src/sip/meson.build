@@ -1,5 +1,6 @@
 sources += files(
-   'sip.h'
+   'sip.h',
+   'sip.c'
 )
 
 subdir('_internal')

@@ -9,9 +9,11 @@
 #include "c_minilib_error.h"
 #include "socket/socket.h"
 #include "utils/error.h"
+#include <stdint.h>
 
 cme_error_t cmsu_event_loop_start(void);
 
-cme_error_t cmsu_event_loop_insert_udp_socket(cmsu_sock_udp_t socket);
+cme_error_t cmsu_event_loop_insert_udp_socket(const char *ipaddr,
+                                              uint32_t port);
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H
