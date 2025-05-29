@@ -19,6 +19,10 @@ typedef struct cmsu_SocketUdp *cmsu_sock_udp_t;
 typedef struct list_cmsu_Sockets *cmsu_sock_list_t;
 
 // Ops
+void cmsu_sock_destroy(cmsu_sock_t socket);
+int cmsu_sock_get_fd(cmsu_sock_t socket);
 cme_error_t cmsu_sock_list_create(cmsu_sock_list_t *sockets);
 cme_error_t cmsu_sock_list_push(cmsu_sock_list_t sockets, cmsu_sock_t socket);
+void cmsu_sock_list_destroy(cmsu_sock_list_t *sockets);
+
 #endif // C_MINILIB_SIP_UA_SOCKET_H

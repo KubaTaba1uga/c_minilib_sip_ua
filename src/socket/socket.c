@@ -5,7 +5,7 @@
 #include "socket/_internal/socket_list.h"
 #include "socket/socket.h"
 
-int cmsu_Socket_get_fd(struct cmsu_Socket *socket) {
+int cmsu_sock_get_fd(cmsu_sock_t socket) {
   if (!socket || !socket->ctx) {
     return -1;
   }
@@ -13,12 +13,12 @@ int cmsu_Socket_get_fd(struct cmsu_Socket *socket) {
   return socket->get_fd_func(socket->ctx);
 }
 
-void cmsu_Socket_destroy(struct cmsu_Socket *socket) {
+void cmsu_sock_destroy(cmsu_sock_t socket) {
   if (!socket) {
     return;
   }
 
-  int fd = cmsu_Socket_get_fd(socket);
+  int fd = cmsu_sock_get_fd(socket);
   if (fd > 0) {
     close(fd);
   }
@@ -27,7 +27,7 @@ void cmsu_Socket_destroy(struct cmsu_Socket *socket) {
   free(socket);
 }
 
-cme_error_t cmsu_Sockets_create(cmsu_sock_list_t *sockets) {
+cme_error_t cmsu_sock_list_create(cmsu_sock_list_t *sockets) {
   struct list_cmsu_Sockets *list = malloc(sizeof(struct list_cmsu_Sockets));
   if (!list) {
     return cme_return(cme_error(ENOBUFS, "Cannot allocate `socket`"));
@@ -40,13 +40,16 @@ cme_error_t cmsu_Sockets_create(cmsu_sock_list_t *sockets) {
   return 0;
 }
 
-void cmsu_Sockets_destroy(cmsu_sock_list_t *sockets) {
-  if (!sockets) {
+void cmsu_sock_list_destroy(cmsu_sock_list_t *sockets) {
+  if (!sockets || !*sockets) {
     return;
   }
+
+  free(*sockets);
+  *sockets = NULL;
 }
 
-cme_error_t cmsu_Sockets_push(cmsu_sock_list_t sockets, cmsu_sock_t socket) {
+cme_error_t cmsu_sock_list_push(cmsu_sock_list_t sockets, cmsu_sock_t socket) {
   cmsu_sock_t result = list_cmsu_Sockets_push(sockets, *socket);
   if (!result) {
     return cme_return(cme_error(ENOBUFS, "Cannot push to `sockets`"));
