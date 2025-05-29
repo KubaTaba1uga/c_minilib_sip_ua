@@ -28,7 +28,7 @@ cme_error_t cmsu_sock_recv(cmsu_sock_t socket) {
     goto error_out;
   }
 
-  err = socket->recv_clbck(socket->ctx);
+  err = socket->recvh(socket->ctx);
   if (err) {
     goto error_out;
   }
@@ -46,7 +46,7 @@ cme_error_t cmsu_sock_send(cmsu_sock_t socket) {
     goto error_out;
   }
 
-  err = socket->send_clbck(socket->ctx);
+  err = socket->sendh(socket->ctx);
   if (err) {
     goto error_out;
   }
@@ -67,8 +67,9 @@ void cmsu_sock_destroy(cmsu_sock_t *socket) {
     close(fd);
   }
 
-  free((*socket)->ctx);
-  free(socket);
+  (*socket)->destroyh((*socket)->ctx);
+  free(*socket);
+  *socket = NULL;
 }
 
 cme_error_t cmsu_sock_list_create(cmsu_sock_list_t *sockets) {
@@ -88,33 +89,35 @@ void cmsu_sock_list_destroy(cmsu_sock_list_t *sockets) {
   if (!sockets || !*sockets) {
     return;
   }
+  c_foreach(item, list_cmsu_Sockets, **sockets) {
+    cmsu_Socket_destroy(item.ref);
+  }
 
   free(*sockets);
   *sockets = NULL;
 }
 
-cme_error_t cmsu_sock_list_insert_udp(
-    const char *ipaddr, uint32_t port, void *ctx,
-    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *ctx),
-    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *ctx),
-    cmsu_sock_t *out, cmsu_sock_list_t sockets) {
+cme_error_t cmsu_sock_list_insert_udp(const char *ipaddr, uint32_t port,
+                                      struct cmsu_SocketArg sockarg,
+                                      cmsu_sock_t *out,
+                                      cmsu_sock_list_t sockets) {
   struct cmsu_SocketUdp *udp_sock;
   cme_error_t err;
 
-  err = cmsu_SocketUdp_create(ipaddr, port, ctx, recv_calbck, send_calbck,
-                              &udp_sock);
+  err = cmsu_SocketUdp_create(ipaddr, port, sockarg, &udp_sock);
   if (err) {
     goto error_out;
   }
 
-  cmsu_sock_t result = list_cmsu_Sockets_push(
-      sockets, (struct cmsu_Socket){
-                   .ctx = udp_sock,
-                   .send_clbck = NULL,
-                   .proto = cmsu_SupportedSockets_UDP,
-                   .get_fd_func = cmsu_SocketUdp_get_fd,
-                   .recv_clbck = cmsu_SocketUdp_recv_callback,
-               });
+  cmsu_sock_t result =
+      list_cmsu_Sockets_push(sockets, (struct cmsu_Socket){
+                                          .ctx = udp_sock,
+                                          .proto = cmsu_SupportedSockets_UDP,
+                                          .get_fd_func = cmsu_SocketUdp_get_fd,
+                                          .recvh = cmsu_SocketUdp_recv_handler,
+                                          .sendh = cmsu_SocketUdp_send_handler,
+                                          .destroyh = cmsu_SocketUdp_destroy,
+                                      });
   if (!result) {
     err = cme_error(ENOBUFS, "Cannot push to `sockets`");
     goto error_udp_cleanup;

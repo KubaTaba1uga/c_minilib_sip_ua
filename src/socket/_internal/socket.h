@@ -19,10 +19,10 @@ struct cmsu_Socket {
   // Data
   enum cmsu_SupportedSockets proto;
   void *ctx;
-  cme_error_t (*send_clbck)(void *ctx); // This func get called on send event
-  cme_error_t (*recv_clbck)(void *ctx); // This func get called on recv event
-  int (*get_fd_func)(void *ctx); // Every socket requires at least one fd, we
-                                 // use these fd to distinguish among sockets.
+  cme_error_t (*sendh)(void *ctx);
+  cme_error_t (*recvh)(void *ctx);
+  void (*destroyh)(void *ctx);
+  int (*get_fd_func)(void *ctx);
 };
 
 typedef struct cmsu_Socket cmsu_Socket;
@@ -45,7 +45,12 @@ static inline int cmsu_Socket_cmp(const struct cmsu_Socket *a,
 
 static inline void cmsu_Socket_drop(struct cmsu_Socket *self) {
   close(self->get_fd_func(self->ctx));
-  free(self->ctx);
+  self->destroyh(self->ctx);
+  free(self);
+};
+
+static inline void cmsu_Socket_destroy(struct cmsu_Socket *self) {
+  cmsu_Socket_drop(self);
 };
 
 #endif // C_MINILIB_SIP_UA_SOCKET_H

@@ -29,13 +29,21 @@ static inline cme_error_t cmsu_SipCtx_create(struct cmsu_SipCtx **ctx) {
   return 0;
 };
 
-static inline cme_error_t cmsu_sip_recv_calbck(uint32_t buf_len, char *buf,
-                                               void *ctx) {
+static inline void cmsu_SipCtx_destroy(void *ctx) {
+  if (!ctx) {
+    return;
+  }
+
+  free(ctx);
+};
+
+static inline cme_error_t cmsu_sip_recvh(uint32_t buf_len, char *buf,
+                                         void *ctx) {
   puts("HIT receive");
   return 0;
 };
-static inline cme_error_t cmsu_sip_send_calbck(uint32_t buf_len, char *buf,
-                                               void *ctx) {
+static inline cme_error_t cmsu_sip_sendh(uint32_t buf_len, char *buf,
+                                         void *ctx) {
   puts("HIT send");
   return 0;
 };

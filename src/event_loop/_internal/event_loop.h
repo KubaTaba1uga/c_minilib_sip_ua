@@ -50,14 +50,12 @@ error_out:
 };
 
 static inline cme_error_t cmsu_EventLoop_insert_udp_socket(
-    const char *ipaddr, uint32_t port, void *ctx,
-    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *ctx),
-    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *ctx),
+    const char *ipaddr, uint32_t port, struct cmsu_SocketArg sockarg,
     cmsu_sock_t *out, struct cmsu_EventLoop *event_loop) {
   cme_error_t err;
 
-  err = cmsu_sock_list_insert_udp(ipaddr, port, ctx, recv_calbck, send_calbck,
-                                  out, event_loop->sockets);
+  err = cmsu_sock_list_insert_udp(ipaddr, port, sockarg, out,
+                                  event_loop->sockets);
   if (err) {
     goto error_out;
   }

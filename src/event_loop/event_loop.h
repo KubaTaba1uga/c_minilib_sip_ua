@@ -19,10 +19,8 @@
 
 cme_error_t cmsu_event_loop_start(void);
 
-cme_error_t cmsu_event_loop_insert_udp_socket(
-    const char *ipaddr, uint32_t port, void *ctx,
-    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *ctx),
-    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *ctx),
-    cmsu_sock_t *out);
+cme_error_t cmsu_event_loop_insert_udp_socket(const char *ipaddr, uint32_t port,
+                                              struct cmsu_SocketArg sockarg,
+                                              cmsu_sock_t *out);
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

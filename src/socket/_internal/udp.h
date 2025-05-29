@@ -8,9 +8,12 @@
 #define C_MINILIB_SIP_UA_INT_UDP_H
 
 #include <stdint.h>
+#include <sys/socket.h>
 #include <unistd.h>
 
 #include "c_minilib_error.h"
+#include "c_minilib_mock.h"
+#include "socket/socket.h"
 #include "socket99.h"
 
 #include "utils/error.h"
@@ -21,16 +24,23 @@ struct cmsu_SocketUdp {
   int send_timerfd;
 
   void *ctx;
-  cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *data);
-  cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *data);
+  cme_error_t (*recvh)(uint32_t buf_len, char *buf, void *ctx);
+  cme_error_t (*sendh)(uint32_t buf_len, char *buf, void *ctx);
+  void (*destroyh)(void *ctx);
 };
 
+MOCKABLE_STATIC(int cmsu_SocketUdp_recvfrom(int sockfd, void *buf, size_t len,
+                                            int flags,
+                                            struct sockaddr *src_addr,
+                                            socklen_t *addrlen)) {
+  return recvfrom(sockfd, buf, len, flags, src_addr, addrlen);
+}
+
 // This should take ip and port
-static inline cme_error_t cmsu_SocketUdp_create(
-    const char *ipaddr, uint32_t port, void *ctx,
-    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *data),
-    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *data),
-    struct cmsu_SocketUdp **sock) {
+static inline cme_error_t cmsu_SocketUdp_create(const char *ipaddr,
+                                                uint32_t port,
+                                                struct cmsu_SocketArg sockarg,
+                                                struct cmsu_SocketUdp **sock) {
   cme_error_t err;
   if (!sock) {
     err = cme_error(EINVAL, "`sock` cannot be NULL");
@@ -65,9 +75,10 @@ static inline cme_error_t cmsu_SocketUdp_create(
   }
 
   (*sock)->sockfd = res.fd;
-  (*sock)->ctx = ctx;
-  (*sock)->send_calbck = send_calbck;
-  (*sock)->recv_calbck = recv_calbck;
+  (*sock)->ctx = sockarg.ctx;
+  (*sock)->sendh = sockarg.sendh;
+  (*sock)->recvh = sockarg.recvh;
+  (*sock)->destroyh = sockarg.destroyh;
 
   return 0;
 
@@ -89,7 +100,7 @@ static inline void *cmsu_SocketUdp_clone(void *src) {
   return dst;
 }
 
-static inline cme_error_t cmsu_SocketUdp_recv_callback(void *ctx_) {
+static inline cme_error_t cmsu_SocketUdp_recv_handler(void *ctx_) {
   struct cmsu_SocketUdp *ctx = ctx_;
   struct sockaddr sender;
   socklen_t sender_size;
@@ -99,8 +110,8 @@ static inline cme_error_t cmsu_SocketUdp_recv_callback(void *ctx_) {
   errno = 0;
   memset(buffer, 0, 1024);
 
-  int32_t received_bytes =
-      recvfrom(ctx->sockfd, buffer, 1023, MSG_NOSIGNAL, &sender, &sender_size);
+  int32_t received_bytes = cmsu_SocketUdp_recvfrom(
+      ctx->sockfd, buffer, 1023, MSG_NOSIGNAL, &sender, &sender_size);
 
   if (received_bytes > 0) {
     printf("Read %d bytes: %s\n", received_bytes, buffer);
@@ -111,7 +122,7 @@ static inline cme_error_t cmsu_SocketUdp_recv_callback(void *ctx_) {
     return cme_return(cme_error(errno, "Error during reciving data over UDP"));
   }
 
-  err = ctx->recv_calbck(1023, buffer, ctx->ctx);
+  err = ctx->recvh(1023, buffer, ctx->ctx);
   if (err) {
     goto error_out;
   }
@@ -122,12 +133,27 @@ error_out:
   return cme_return(err);
 };
 
+static inline cme_error_t cmsu_SocketUdp_send_handler(void *ctx_) {
+  struct cmsu_SocketUdp *ctx = ctx_;
+
+  cme_error_t err = ctx->sendh(0, "", ctx->ctx);
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
+
 static inline int cmsu_SocketUdp_get_fd(void *ctx) {
   return ((struct cmsu_SocketUdp *)ctx)->sockfd;
 };
 
 static inline void cmsu_SocketUdp_destroy(void *ctx) {
-  close(((struct cmsu_SocketUdp *)ctx)->sockfd);
+  struct cmsu_SocketUdp *data = ctx;
+  data->destroyh(data->ctx);
   free(ctx);
 };
 
