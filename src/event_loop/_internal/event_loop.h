@@ -74,6 +74,28 @@ error_out:
 };
 
 static inline cme_error_t
+cmsu_EventLoop_pop_socket(int fd, struct cmsu_EventLoop *event_loop) {
+  cmsu_sock_t socket;
+  cme_error_t err;
+
+  socket = cmsu_sock_list_find(fd, event_loop->sockets);
+  if (!socket) {
+    err = cme_error(ENODATA, "Cannot find socket");
+    goto error_out;
+  }
+
+  vec_cmsu_PollFds_iter result =
+      vec_cmsu_PollFds_find(&event_loop->poll_fds, (cmsu_PollFd){.fd = fd});
+
+  vec_cmsu_PollFds_erase_at(&event_loop->poll_fds, result);
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+};
+
+static inline cme_error_t
 cmsu_EventLoop_start(struct cmsu_EventLoop *event_loop) {
   cme_error_t err;
 
@@ -86,6 +108,7 @@ cmsu_EventLoop_start(struct cmsu_EventLoop *event_loop) {
 
     err = cmsu_EventLoop_process_events(event_loop);
     if (err) {
+
       goto error_out;
     }
   }
@@ -113,16 +136,19 @@ cmsu_EventLoop_process_events(struct cmsu_EventLoop *event_loop) {
       if (fd.ref->revents & POLLIN) {
         err = cmsu_sock_recv(socket);
         if (err) {
+          cmsu_EventLoop_pop_socket(fd.ref->fd, event_loop);
           goto error_out;
         }
       } else if (fd.ref->revents & POLLOUT) {
         err = cmsu_sock_send(socket);
         if (err) {
+          cmsu_EventLoop_pop_socket(fd.ref->fd, event_loop);
           goto error_out;
         }
       } else {
         err = cme_error(ECONNABORTED,
                         "Error during sockets handling in event loop");
+        cmsu_EventLoop_pop_socket(fd.ref->fd, event_loop);
         goto error_out;
       }
     }
