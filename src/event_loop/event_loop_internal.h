@@ -92,11 +92,7 @@ cmsu_evl_process_events(struct cmsu_EventLoop *event_loop) {
       // We are making assumption that there is no PollFd without TransportCtx.
       cmsu_Transport *transp =
           cmsu_Transports_find(fd.ref->fd, event_loop->transps);
-      if (!transp) {
-        err = cme_error(ENODATA, "Dangling file descriptor found. This "
-                                 "shouldn't happen.");
-        goto error_out;
-      }
+      assert(transp != NULL);
 
       err = transp->process_events_func(fd.ref, transp->ctx);
       if (err) {
