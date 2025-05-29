@@ -21,9 +21,13 @@ error_out:
   return cme_return(err);
 }
 
-cme_error_t cmsu_event_loop_insert_udp_socket(const char *ipaddr,
-                                              uint32_t port) {
-  return cmsu_EventLoop_insert_udp_socket(ipaddr, port, &evl);
+cme_error_t cmsu_event_loop_insert_udp_socket(
+    const char *ipaddr, uint32_t port, void *ctx,
+    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *ctx),
+    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *ctx),
+    cmsu_sock_t *out) {
+  return cmsu_EventLoop_insert_udp_socket(ipaddr, port, ctx, recv_calbck,
+                                          send_calbck, out, &evl);
 }
 
 static int cmsu_event_loop_init(void) {

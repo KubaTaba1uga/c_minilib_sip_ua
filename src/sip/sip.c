@@ -3,13 +3,21 @@
 #include "c_minilib_error.h"
 #include "c_minilib_init.h"
 #include "event_loop/event_loop.h"
+#include "sip/_internal/sip.h"
 #include "socket/socket.h"
 
 static int cmsu_sip_init(void) {
+  struct cmsu_SipCtx *sip_ctx;
   cme_error_t err;
 
-  err = cmsu_event_loop_insert_udp_socket("127.0.0.1", 7337);
+  err = cmsu_SipCtx_create(&sip_ctx);
+  if (err) {
+    goto error_out;
+  }
 
+  err = cmsu_event_loop_insert_udp_socket(
+      "127.0.0.1", 7337, sip_ctx, cmsu_sip_recv_calbck, cmsu_sip_send_calbck,
+      &sip_ctx->socket);
   if (err) {
     goto error_out;
   }

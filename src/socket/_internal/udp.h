@@ -15,14 +15,16 @@ struct cmsu_SocketUdp {
   int send_timerfd;
 
   void *ctx;
-  cme_error_t (*send_clbck)(void *ctx); // This func get called on send event
-  cme_error_t (*recv_clbck)(void *ctx); // This func get called on recv event
+  cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *data);
+  cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *data);
 };
 
 // This should take ip and port
-static inline cme_error_t cmsu_SocketUdp_create(const char *ipaddr,
-                                                uint32_t port,
-                                                struct cmsu_SocketUdp **sock) {
+static inline cme_error_t cmsu_SocketUdp_create(
+    const char *ipaddr, uint32_t port, void *ctx,
+    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *data),
+    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *data),
+    struct cmsu_SocketUdp **sock) {
   cme_error_t err;
   if (!sock) {
     err = cme_error(EINVAL, "`sock` cannot be NULL");
@@ -57,6 +59,9 @@ static inline cme_error_t cmsu_SocketUdp_create(const char *ipaddr,
   }
 
   (*sock)->sockfd = res.fd;
+  (*sock)->ctx = ctx;
+  (*sock)->send_calbck = send_calbck;
+  (*sock)->recv_calbck = recv_calbck;
 
   return 0;
 
@@ -82,16 +87,17 @@ static inline cme_error_t cmsu_SocketUdp_recv_callback(void *ctx_) {
   struct cmsu_SocketUdp *ctx = ctx_;
   struct sockaddr sender;
   socklen_t sender_size;
-  char buf[1024];
+  char buffer[1024];
+  cme_error_t err;
 
   errno = 0;
-  memset(buf, 0, 1024);
+  memset(buffer, 0, 1024);
 
   int32_t received_bytes =
-      recvfrom(ctx->sockfd, buf, 1023, MSG_NOSIGNAL, &sender, &sender_size);
+      recvfrom(ctx->sockfd, buffer, 1023, MSG_NOSIGNAL, &sender, &sender_size);
 
   if (received_bytes > 0) {
-    printf("Read %d bytes: %s\n", received_bytes, buf);
+    printf("Read %d bytes: %s\n", received_bytes, buffer);
   } else if (received_bytes == 0) {
     printf("Connection closed by peer\n");
     return 0;
@@ -99,7 +105,15 @@ static inline cme_error_t cmsu_SocketUdp_recv_callback(void *ctx_) {
     return cme_return(cme_error(errno, "Error during reciving data over UDP"));
   }
 
+  err = ctx->recv_calbck(1023, buffer, ctx->ctx);
+  if (err) {
+    goto error_out;
+  }
+
   return 0;
+
+error_out:
+  return cme_return(err);
 };
 
 static inline int cmsu_SocketUdp_get_fd(void *ctx) {

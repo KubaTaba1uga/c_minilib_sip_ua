@@ -87,13 +87,16 @@ void cmsu_sock_list_destroy(cmsu_sock_list_t *sockets) {
   *sockets = NULL;
 }
 
-cme_error_t cmsu_sock_list_insert_udp(const char *ipaddr, uint32_t port,
-                                      cmsu_sock_t *out,
-                                      cmsu_sock_list_t sockets) {
+cme_error_t cmsu_sock_list_insert_udp(
+    const char *ipaddr, uint32_t port, void *ctx,
+    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *ctx),
+    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *ctx),
+    cmsu_sock_t *out, cmsu_sock_list_t sockets) {
   struct cmsu_SocketUdp *udp_sock;
   cme_error_t err;
 
-  err = cmsu_SocketUdp_create(ipaddr, port, &udp_sock);
+  err = cmsu_SocketUdp_create(ipaddr, port, ctx, recv_calbck, send_calbck,
+                              &udp_sock);
   if (err) {
     goto error_out;
   }

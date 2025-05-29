@@ -43,20 +43,22 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t
-cmsu_EventLoop_insert_udp_socket(const char *ipaddr, uint32_t port,
-                                 struct cmsu_EventLoop *event_loop) {
-  cmsu_sock_t socket;
+static inline cme_error_t cmsu_EventLoop_insert_udp_socket(
+    const char *ipaddr, uint32_t port, void *ctx,
+    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *ctx),
+    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *ctx),
+    cmsu_sock_t *out, struct cmsu_EventLoop *event_loop) {
   cme_error_t err;
 
-  err = cmsu_sock_list_insert_udp(ipaddr, port, &socket, event_loop->sockets);
+  err = cmsu_sock_list_insert_udp(ipaddr, port, ctx, recv_calbck, send_calbck,
+                                  out, event_loop->sockets);
   if (err) {
     goto error_out;
   }
 
   err = cmsu_PollFds_push(
       &event_loop->poll_fds,
-      (cmsu_PollFd){.fd = cmsu_sock_get_fd(socket), .events = POLLIN});
+      (cmsu_PollFd){.fd = cmsu_sock_get_fd(*out), .events = POLLIN});
   if (err) {
     goto error_out;
   }

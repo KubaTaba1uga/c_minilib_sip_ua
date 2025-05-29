@@ -6,6 +6,7 @@
    _internal.
  */
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "c_minilib_error.h"
@@ -24,9 +25,11 @@ int cmsu_sock_get_fd(cmsu_sock_t socket);
 cme_error_t cmsu_sock_recv(cmsu_sock_t socket);
 cme_error_t cmsu_sock_send(cmsu_sock_t socket);
 cme_error_t cmsu_sock_list_create(cmsu_sock_list_t *sockets);
-cme_error_t cmsu_sock_list_insert_udp(const char *ipaddr, uint32_t port,
-                                      cmsu_sock_t *out,
-                                      cmsu_sock_list_t sockets);
+cme_error_t cmsu_sock_list_insert_udp(
+    const char *ipaddr, uint32_t port, void *data,
+    cme_error_t (*recv_calbck)(uint32_t buf_len, char *buf, void *data),
+    cme_error_t (*send_calbck)(uint32_t buf_len, char *buf, void *data),
+    cmsu_sock_t *out, cmsu_sock_list_t sockets);
 cmsu_sock_t cmsu_sock_list_find(int fd, cmsu_sock_list_t sockets);
 void cmsu_sock_list_destroy(cmsu_sock_list_t *sockets);
 
