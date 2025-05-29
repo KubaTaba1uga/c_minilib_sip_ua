@@ -15,6 +15,7 @@ subdir('test_unity.d')
 
 # List of test source files (extend this list as needed)
 test_files = [
+  'test_pollfd_vec.c',
   'test_socket.c',
 ]
 
