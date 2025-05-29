@@ -12,6 +12,7 @@
 
 #include "c_minilib_error.h"
 #include "socket/socket.h"
+#include "subprojects/c_minilib_sip_codec/include/c_minilib_sip_codec.h"
 
 struct cmsu_SipCtx {
   cmsu_sock_t socket;
@@ -39,8 +40,19 @@ static inline void cmsu_SipCtx_destroy(void *ctx) {
 
 static inline cme_error_t cmsu_sip_recvh(uint32_t buf_len, char *buf,
                                          void *ctx) {
+  struct cmsc_SipMessage *sipmsg;
+  cme_error_t err;
+
+  err = cmsc_parse_sip(buf_len, buf, &sipmsg);
+  if (err) {
+    goto error_out;
+  }
+
   puts("HIT receive");
   return 0;
+
+error_out:
+  return cme_return(err);
 };
 static inline cme_error_t cmsu_sip_sendh(uint32_t buf_len, char *buf,
                                          void *ctx) {

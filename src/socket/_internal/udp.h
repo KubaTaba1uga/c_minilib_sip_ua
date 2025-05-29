@@ -8,6 +8,7 @@
 #define C_MINILIB_SIP_UA_INT_UDP_H
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -17,6 +18,10 @@
 #include "socket99.h"
 
 #include "utils/error.h"
+
+#ifndef CMSU_UDP_MSG_SIZE
+#define CMSU_UDP_MSG_SIZE 1536
+#endif
 
 struct cmsu_SocketUdp {
   int sockfd;
@@ -104,25 +109,30 @@ static inline cme_error_t cmsu_SocketUdp_recv_handler(void *ctx_) {
   struct cmsu_SocketUdp *ctx = ctx_;
   struct sockaddr sender;
   socklen_t sender_size;
-  char buffer[1024];
+  int32_t buf_len;
   cme_error_t err;
+  char *buf;
 
-  errno = 0;
-  memset(buffer, 0, 1024);
+  buf_len = 0;
+  buf = malloc(CMSU_UDP_MSG_SIZE * sizeof(char));
+  if (!buf) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for `buf`");
+    goto error_out;
+    ;
+  }
 
-  int32_t received_bytes = cmsu_SocketUdp_recvfrom(
-      ctx->sockfd, buffer, 1023, MSG_NOSIGNAL, &sender, &sender_size);
-
-  if (received_bytes > 0) {
-    printf("Read %d bytes: %s\n", received_bytes, buffer);
-  } else if (received_bytes == 0) {
+  buf_len = cmsu_SocketUdp_recvfrom(ctx->sockfd, buf, CMSU_UDP_MSG_SIZE,
+                                    MSG_NOSIGNAL, &sender, &sender_size);
+  if (buf_len > 0) {
+    printf("Read %d bytes: %.*s\n", buf_len, buf_len, buf);
+  } else if (buf_len == 0) {
     printf("Connection closed by peer\n");
     return 0;
   } else {
     return cme_return(cme_error(errno, "Error during reciving data over UDP"));
   }
 
-  err = ctx->recvh(1023, buffer, ctx->ctx);
+  err = ctx->recvh(buf_len, buf, ctx->ctx);
   if (err) {
     goto error_out;
   }

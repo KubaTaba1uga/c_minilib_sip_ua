@@ -121,6 +121,7 @@ error_out:
 
 static inline void cmsu_EventLoop_destroy(struct cmsu_EventLoop *event_loop) {
   vec_cmsu_PollFds_drop(&event_loop->poll_fds);
+  cmsu_sock_list_destroy(&event_loop->sockets);
 };
 
 static inline cme_error_t

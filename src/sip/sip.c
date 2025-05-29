@@ -8,6 +8,7 @@
 
 #include "c_minilib_error.h"
 #include "c_minilib_init.h"
+#include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
 #include "sip/_internal/sip.h"
 #include "socket/socket.h"
@@ -15,6 +16,11 @@
 static int cmsu_sip_init(void) {
   struct cmsu_SipCtx *sip_ctx;
   cme_error_t err;
+
+  err = cmsc_init();
+  if (err) {
+    goto error_out;
+  }
 
   err = cmsu_SipCtx_create(&sip_ctx);
   if (err) {

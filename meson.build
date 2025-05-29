@@ -67,6 +67,7 @@ c_minilib_sip_ua_deps = [c_minilib_error_dep,
                          c_minilib_mock_dep,
 			 c_minilib_init_dep,
 			 c_minilib_config_dep,
+			 c_minilib_sip_codec_dep,			 
 			 stc_dep,
 			 socket99_dep,
 			 ]
