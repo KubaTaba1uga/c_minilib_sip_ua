@@ -2,9 +2,6 @@
 #define C_MINILIB_SIP_UA_INT_SOCKET_LIST_H
 
 #include "socket/_internal/socket.h"
-#include "socket/socket.h"
-
-typedef cmsu_Socket
 
 #define i_tag cmsu_Sockets
 #define i_key cmsu_Socket

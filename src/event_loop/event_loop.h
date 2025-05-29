@@ -1,5 +1,10 @@
 #ifndef C_MINILIB_SIP_UA_EVENT_LOOP_H
 #define C_MINILIB_SIP_UA_EVENT_LOOP_H
+/*
+  This is interface to event loop module, if you need anything from event loop
+   module, put here and in .c interface and write implementation as static
+   inline in _internal.
+ */
 
 #include "c_minilib_error.h"
 #include "socket/socket.h"
