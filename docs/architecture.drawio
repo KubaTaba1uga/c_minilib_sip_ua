@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="27.0.8">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="27.1.0" pages="2">
   <diagram name="Page-1" id="DYS4X43bdyaeCCeUCE0n">
     <mxGraphModel dx="861" dy="2224" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -163,6 +163,32 @@
         </mxCell>
         <mxCell id="awC3xR5aF0oG_H9M2n87-54" value="Process timer." style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="50" y="640" width="120" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="5ygHyfCh7g1jeHmfUZa_" name="Page-2">
+    <mxGraphModel dx="1248" dy="1630" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="Nm5FLdivwhjxV6xvGEW6-1" value="Event Loop" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="130" y="180" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Nm5FLdivwhjxV6xvGEW6-2" value="Socket" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="550" y="180" width="90" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="Nm5FLdivwhjxV6xvGEW6-3" value="Poll Fd" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="120" y="80" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Nm5FLdivwhjxV6xvGEW6-4" value="Poll Fd vec" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="20" y="80" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Nm5FLdivwhjxV6xvGEW6-5" value="Global evl" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="220" y="80" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="Nm5FLdivwhjxV6xvGEW6-6" value="udp" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="490" y="80" width="70" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
