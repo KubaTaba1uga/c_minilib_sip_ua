@@ -127,18 +127,24 @@ static inline cme_error_t cmsu_SocketUdp_recv_handler(void *ctx_) {
     printf("Read %d bytes: %.*s\n", buf_len, buf_len, buf);
   } else if (buf_len == 0) {
     printf("Connection closed by peer\n");
-    return 0;
+    goto out;
   } else {
-    return cme_return(cme_error(errno, "Error during reciving data over UDP"));
+    err = cme_error(errno, "Error during reciving data over UDP");
+    goto error_buf_cleanup;
   }
 
   err = ctx->recvh(buf_len, buf, ctx->ctx);
   if (err) {
-    goto error_out;
+    goto error_buf_cleanup;
   }
+
+out:
+  free(buf);
 
   return 0;
 
+error_buf_cleanup:
+  free(buf);
 error_out:
   return cme_return(err);
 };
