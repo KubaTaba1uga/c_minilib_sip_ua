@@ -1,5 +1,5 @@
 sources += files(
-   'sip.h'
+   'socket.h'
 )
 
 subdir('_internal')

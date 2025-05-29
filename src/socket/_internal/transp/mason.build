@@ -1,4 +1,0 @@
-sources += files(
-  'transp.c', 'transp.h'
-  'udp.h'
-)
