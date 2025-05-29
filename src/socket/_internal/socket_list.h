@@ -3,6 +3,8 @@
 
 #include "socket/_internal/socket.h"
 
+typedef struct cmsu_Socket cmsu_Socket;
+
 #define i_tag cmsu_Sockets
 #define i_key cmsu_Socket
 #define i_cmp cmsu_Socket_cmp
