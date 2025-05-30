@@ -7,20 +7,19 @@
 #ifndef C_MINILIB_SIP_UA_EVENT_LOOP_H
 #define C_MINILIB_SIP_UA_EVENT_LOOP_H
 /*
-  This is interface to event loop module, if you need anything from event loop
-   module, put here and in .c interface and write implementation as static
-   inline in _internal.
+  This is interface to event_loop module, if you need anything from event_loop
+  module, put interface declaration here and interface implementation in .c but
+  always write real implementation as static inline in _internal.
  */
+
+#include <stdint.h>
+#include <stdlib.h>
 
 #include "c_minilib_error.h"
 #include "socket/socket.h"
-#include "utils/error.h"
-#include <stdint.h>
 
-cme_error_t cmsu_event_loop_start(void);
-
-cme_error_t cmsu_event_loop_insert_udp_socket(const char *ipaddr, uint32_t port,
-                                              cmsu_sock_arg_t sockarg,
-                                              cmsu_sock_t *out);
+/******************************************************************************
+ *                             Event Loop *
+ ******************************************************************************/
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

@@ -6,55 +6,53 @@
 
 #ifndef C_MINILIB_SIP_UA_INT_SOCKET_H
 #define C_MINILIB_SIP_UA_INT_SOCKET_H
+#include <stdint.h>
+#include <stdlib.h>
 
 #include "c_minilib_error.h"
 #include "socket/socket.h"
-#include "utils/error.h"
-#include <stdint.h>
-#include <unistd.h>
+#include "utils/common.h"
 
-enum cmsu_SupportedSockets {
-  cmsu_SupportedSockets_UDP,
+/******************************************************************************
+ *                                Socket                                      *
+ ******************************************************************************/
+
+enum cmsu_SupportedSocket {
+  cmsu_SupportedSocket_NONE = 0,
+  cmsu_SupportedSocket_UDP,
+  cmsu_SupportedSocket_MAX,
 };
 
 struct cmsu_Socket {
   // Data
-  enum cmsu_SupportedSockets proto;
+  enum cmsu_SupportedSocket type;
+  ip_addr_t ipaddr;
+  cmsu_evl_t evl;
+  int sockfd;
   void *ctx;
 
   // Ops
-  cme_error_t (*send)(cmsu_sock_send_arg_t sarg, void *ctx);
-  cme_error_t (*recv)(void *rarg, void *ctx);
-  void (*destroy)(void *ctx);
-  int (*get_fd)(void *ctx);
+  cme_error_t (*recv)(cmsu_evl_t evl, void *ctx);
+  cme_error_t (*send)(cmsu_evl_t evl, void *ctx);
+  void (*ctx_destroy)(cmsu_evl_t evl, void *ctx);
 };
 
-typedef struct cmsu_Socket cmsu_Socket;
-
-static inline int cmsu_Socket_cmp(const struct cmsu_Socket *a,
-                                  const struct cmsu_Socket *b) {
-  int a_fd = a->get_fd(a->ctx);
-  int b_fd = b->get_fd(b->ctx);
-
-  if (a_fd == b_fd) {
-    return 0;
+static inline cme_error_t cmsu_Socket_create(struct cmsu_Socket src,
+                                             struct cmsu_Socket **out) {
+  struct cmsu_Socket *socket = malloc(sizeof(struct cmsu_Socket));
+  cme_error_t err;
+  if (!socket) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for `socket`");
+    goto error_out;
   }
 
-  if (a_fd > b_fd) {
-    return 1;
-  }
+  *socket = src;
+  *out = socket;
 
-  return -1;
+  return 0;
+
+error_out:
+  return cme_return(err);
 }
-
-static inline void cmsu_Socket_drop(struct cmsu_Socket *self) {
-  close(self->get_fd(self->ctx));
-  self->destroy(self->ctx);
-  free(self);
-};
-
-static inline void cmsu_Socket_destroy(struct cmsu_Socket *self) {
-  cmsu_Socket_drop(self);
-};
 
 #endif // C_MINILIB_SIP_UA_SOCKET_H

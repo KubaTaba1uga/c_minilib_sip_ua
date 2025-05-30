@@ -8,48 +8,47 @@
 #define C_MINILIB_SIP_UA_SOCKET_H
 /*
   This is interface to socket module, if you need anything from socket module,
-   put here and in .c interface and write implementation as static inline in
-   _internal.
+   put interface declaration here and interface implementation in .c but always
+   write real implementation as static inline in _internal.
  */
 
 #include <stdint.h>
 #include <stdlib.h>
 
 #include "c_minilib_error.h"
-#include "utils/error.h"
+#include "utils/common.h"
 
-typedef struct cmsu_Socket *cmsu_sock_t;
-typedef struct list_cmsu_Sockets *cmsu_sock_list_t;
+/* The only direct user of socket api is event loop. If you need to use socket
+ * look into event loop api. */
+
+/******************************************************************************
+ *                             Socket                                         *
+ ******************************************************************************/
+typedef struct {
+  const char *ip;
+  const char *port;
+} ip_addr_t;
+
+typedef struct cmsu_Socket *socket_t;
 
 typedef struct {
-  const char *ipaddr;
-  uint32_t port;
-} cmsu_sock_ip_addr;
-
-typedef struct {
-  cmsu_sock_ip_addr addr;
+  // Data
+  ip_addr_t ipaddr;
+  cmsu_evl_t evl;
   void *ctx;
-  void (*ctx_destroyh)(void *ctx);
-} cmsu_sock_arg;
-cme_error_t cmsu_sock_list_insert_udp(cmsu_sock_arg args, cmsu_sock_t *out,
-                                      cmsu_sock_list_t sockets);
-typedef struct {
-  cme_error_t (*recv_callback)(cmsu_sock_ip_addr raddr, uint32_t buf_len,
-                               const char *buf, void *ctx);
-} cmsu_sock_listen_arg;
-cme_error_t cmsu_sock_listen(cmsu_sock_listen_arg args, cmsu_sock_t socket);
 
-typedef struct cmsu_sock_send_arg_t {
-  cmsu_sock_ip_addr addr;
-  uint32_t buf_len;
-  const char *buf;
-} cmsu_sock_send_arg;
-cme_error_t cmsu_sock_send(cmsu_sock_send_arg args, cmsu_sock_t socket);
+  // Ops
+  cme_error_t (*recv_callback)(cmsu_evl_t evl, ip_addr_t sender, buffer_t *buf,
+                               void *ctx);
+  cme_error_t (*send_callback)(cmsu_evl_t evl, ip_addr_t recver, buffer_t *buf,
+                               void *ctx);
+  void(*ctx_destroy);
+} socket_udp_create_arg;
+cme_error_t socket_udp_create(socket_udp_create_arg args, socket_t *out);
 
-cme_error_t cmsu_sock_list_create(cmsu_sock_list_t *sockets);
+cme_error_t socket_udp_recv(cmsu_evl_t evl, socket_t socket);
 
-cmsu_sock_t cmsu_sock_list_find(int fd, cmsu_sock_list_t sockets);
-
-void cmsu_sock_list_destroy(cmsu_sock_list_t *sockets);
+cme_error_t socket_udp_send(cmsu_evl_t evl, ip_addr_t recver, buffer_t buf,
+                            socket_t socket);
 
 #endif // C_MINILIB_SIP_UA_SOCKET_H
