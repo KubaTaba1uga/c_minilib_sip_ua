@@ -56,13 +56,12 @@ void test_create_udp_socket_and_insert_to_list(void) {
   MYTEST_ASSERT_ERR_NULL(err);
   TEST_ASSERT_NOT_NULL(sockets);
 
-  err = cmsu_sock_list_insert_udp(
-      "127.0.0.1", 5070,
-      (struct cmsu_SocketArg){.ctx = NULL,
-                              .recvh = dummy_recv,
-                              .sendh = dummy_send,
-                              .destroyh = dummy_destroy},
-      &sock, sockets);
+  err = cmsu_sock_list_insert_udp("127.0.0.1", 5070,
+                                  (cmsu_sock_arg_t){.ctx = NULL,
+                                                    .recvh = dummy_recv,
+                                                    .sendh = dummy_send,
+                                                    .destroyh = dummy_destroy},
+                                  &sock, sockets);
   MYTEST_ASSERT_ERR_NULL(err);
   TEST_ASSERT_NOT_NULL(sock);
 
@@ -77,13 +76,12 @@ void test_create_udp_socket_and_insert_to_list(void) {
 void test_recv_and_send_callbacks_are_called(void) {
   cme_error_t err = cmsu_sock_list_create(&sockets);
   MYTEST_ASSERT_ERR_NULL(err);
-  err = cmsu_sock_list_insert_udp(
-      "127.0.0.1", 5070,
-      (struct cmsu_SocketArg){.ctx = NULL,
-                              .recvh = dummy_recv,
-                              .sendh = dummy_send,
-                              .destroyh = dummy_destroy},
-      &sock, sockets);
+  err = cmsu_sock_list_insert_udp("127.0.0.1", 5070,
+                                  (cmsu_sock_arg_t){.ctx = NULL,
+                                                    .recvh = dummy_recv,
+                                                    .sendh = dummy_send,
+                                                    .destroyh = dummy_destroy},
+                                  &sock, sockets);
   MYTEST_ASSERT_ERR_NULL(err);
 
   err = cmsu_sock_recv(sock);
@@ -107,13 +105,12 @@ void test_valid_fd_lookup_returns_sock(void) {
   cme_error_t err = cmsu_sock_list_create(&sockets);
   MYTEST_ASSERT_ERR_NULL(err);
 
-  err = cmsu_sock_list_insert_udp(
-      "127.0.0.1", 5071,
-      (struct cmsu_SocketArg){.ctx = NULL,
-                              .recvh = dummy_recv,
-                              .sendh = dummy_send,
-                              .destroyh = dummy_destroy},
-      &sock, sockets);
+  err = cmsu_sock_list_insert_udp("127.0.0.1", 5071,
+                                  (cmsu_sock_arg_t){.ctx = NULL,
+                                                    .recvh = dummy_recv,
+                                                    .sendh = dummy_send,
+                                                    .destroyh = dummy_destroy},
+                                  &sock, sockets);
   MYTEST_ASSERT_ERR_NULL(err);
   TEST_ASSERT_NOT_NULL(sock);
 

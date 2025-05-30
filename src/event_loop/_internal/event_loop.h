@@ -49,9 +49,10 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t cmsu_EventLoop_insert_udp_socket(
-    const char *ipaddr, uint32_t port, struct cmsu_SocketArg sockarg,
-    cmsu_sock_t *out, struct cmsu_EventLoop *event_loop) {
+static inline cme_error_t
+cmsu_EventLoop_insert_udp_socket(const char *ipaddr, uint32_t port,
+                                 cmsu_sock_arg_t sockarg, cmsu_sock_t *out,
+                                 struct cmsu_EventLoop *event_loop) {
   cme_error_t err;
 
   err = cmsu_sock_list_insert_udp(ipaddr, port, sockarg, out,

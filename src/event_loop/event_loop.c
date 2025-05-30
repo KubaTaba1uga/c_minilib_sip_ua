@@ -27,7 +27,7 @@ error_out:
 }
 
 cme_error_t cmsu_event_loop_insert_udp_socket(const char *ipaddr, uint32_t port,
-                                              struct cmsu_SocketArg sockarg,
+                                              cmsu_sock_arg_t sockarg,
                                               cmsu_sock_t *out) {
   return cmsu_EventLoop_insert_udp_socket(ipaddr, port, sockarg, out, &evl);
 }

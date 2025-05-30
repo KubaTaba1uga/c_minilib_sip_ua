@@ -8,7 +8,9 @@
 #define C_MINILIB_SIP_UA_INT_SOCKET_H
 
 #include "c_minilib_error.h"
+#include "socket/socket.h"
 #include "utils/error.h"
+#include <stdint.h>
 #include <unistd.h>
 
 enum cmsu_SupportedSockets {
@@ -19,18 +21,20 @@ struct cmsu_Socket {
   // Data
   enum cmsu_SupportedSockets proto;
   void *ctx;
-  cme_error_t (*sendh)(void *ctx);
-  cme_error_t (*recvh)(void *ctx);
-  void (*destroyh)(void *ctx);
-  int (*get_fd_func)(void *ctx);
+
+  // Ops
+  cme_error_t (*send)(cmsu_sock_send_arg_t sarg, void *ctx);
+  cme_error_t (*recv)(void *rarg, void *ctx);
+  void (*destroy)(void *ctx);
+  int (*get_fd)(void *ctx);
 };
 
 typedef struct cmsu_Socket cmsu_Socket;
 
 static inline int cmsu_Socket_cmp(const struct cmsu_Socket *a,
                                   const struct cmsu_Socket *b) {
-  int a_fd = a->get_fd_func(a->ctx);
-  int b_fd = b->get_fd_func(b->ctx);
+  int a_fd = a->get_fd(a->ctx);
+  int b_fd = b->get_fd(b->ctx);
 
   if (a_fd == b_fd) {
     return 0;
@@ -44,8 +48,8 @@ static inline int cmsu_Socket_cmp(const struct cmsu_Socket *a,
 }
 
 static inline void cmsu_Socket_drop(struct cmsu_Socket *self) {
-  close(self->get_fd_func(self->ctx));
-  self->destroyh(self->ctx);
+  close(self->get_fd(self->ctx));
+  self->destroy(self->ctx);
   free(self);
 };
 

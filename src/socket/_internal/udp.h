@@ -16,6 +16,8 @@
 #include "c_minilib_mock.h"
 #include "socket/socket.h"
 #include "socket99.h"
+#include "stc/cstr.h"
+#include "stc/csview.h"
 
 #include "utils/error.h"
 
@@ -29,8 +31,8 @@ struct cmsu_SocketUdp {
   int send_timerfd;
 
   void *ctx;
-  cme_error_t (*recvh)(uint32_t buf_len, char *buf, void *ctx);
-  cme_error_t (*sendh)(uint32_t buf_len, char *buf, void *ctx);
+  cme_error_t (*recvh)(csview buf, void *ctx);
+  cme_error_t (*sendh)(cstr buf, void *ctx);
   void (*destroyh)(void *ctx);
 };
 
@@ -44,7 +46,7 @@ MOCKABLE_STATIC(int cmsu_SocketUdp_recvfrom(int sockfd, void *buf, size_t len,
 // This should take ip and port
 static inline cme_error_t cmsu_SocketUdp_create(const char *ipaddr,
                                                 uint32_t port,
-                                                struct cmsu_SocketArg sockarg,
+                                                cmsu_sock_arg_t sockarg,
                                                 struct cmsu_SocketUdp **sock) {
   cme_error_t err;
   if (!sock) {
@@ -105,21 +107,13 @@ static inline void *cmsu_SocketUdp_clone(void *src) {
   return dst;
 }
 
-static inline cme_error_t cmsu_SocketUdp_recv_handler(void *ctx_) {
+static inline cme_error_t cmsu_SocketUdp_recv(void *ctx_) {
   struct cmsu_SocketUdp *ctx = ctx_;
+  char buf[CMSU_UDP_MSG_SIZE];
   struct sockaddr sender;
   socklen_t sender_size;
   int32_t buf_len;
   cme_error_t err;
-  char *buf;
-
-  buf_len = 0;
-  buf = malloc(CMSU_UDP_MSG_SIZE * sizeof(char));
-  if (!buf) {
-    err = cme_error(ENOMEM, "Cannot allocate memory for `buf`");
-    goto error_out;
-    ;
-  }
 
   buf_len = cmsu_SocketUdp_recvfrom(ctx->sockfd, buf, CMSU_UDP_MSG_SIZE,
                                     MSG_NOSIGNAL, &sender, &sender_size);
@@ -130,29 +124,27 @@ static inline cme_error_t cmsu_SocketUdp_recv_handler(void *ctx_) {
     goto out;
   } else {
     err = cme_error(errno, "Error during reciving data over UDP");
-    goto error_buf_cleanup;
+    goto error_out;
   }
 
-  err = ctx->recvh(buf_len, buf, ctx->ctx);
+  csview buf_view = c_sv(buf, buf_len);
+  err = ctx->recvh(buf_view, ctx->ctx);
   if (err) {
-    goto error_buf_cleanup;
+    goto error_out;
   }
 
 out:
-  free(buf);
-
   return 0;
 
-error_buf_cleanup:
-  free(buf);
 error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t cmsu_SocketUdp_send_handler(void *ctx_) {
+static inline cme_error_t cmsu_SocketUdp_send(cmsu_sock_send_arg_t sarg,
+                                              void *ctx_) {
   struct cmsu_SocketUdp *ctx = ctx_;
 
-  cme_error_t err = ctx->sendh(0, "", ctx->ctx);
+  cme_error_t err = ctx->sendh(sarg.buf, ctx->ctx);
   if (err) {
     goto error_out;
   }

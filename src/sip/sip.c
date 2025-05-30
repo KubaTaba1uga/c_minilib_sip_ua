@@ -29,10 +29,10 @@ static int cmsu_sip_init(void) {
 
   err = cmsu_event_loop_insert_udp_socket(
       "127.0.0.1", 7337,
-      (struct cmsu_SocketArg){.ctx = sip_ctx,
-                              .recvh = cmsu_sip_recvh,
-                              .sendh = cmsu_sip_sendh,
-                              .destroyh = cmsu_SipCtx_destroy},
+      (cmsu_sock_arg_t){.ctx = sip_ctx,
+                        .recvh = cmsu_sip_recvh,
+                        .sendh = cmsu_sip_sendh,
+                        .destroyh = cmsu_SipCtx_destroy},
       &sip_ctx->socket);
 
   if (err) {

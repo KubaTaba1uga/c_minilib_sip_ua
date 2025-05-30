@@ -98,8 +98,7 @@ void cmsu_sock_list_destroy(cmsu_sock_list_t *sockets) {
 }
 
 cme_error_t cmsu_sock_list_insert_udp(const char *ipaddr, uint32_t port,
-                                      struct cmsu_SocketArg sockarg,
-                                      cmsu_sock_t *out,
+                                      cmsu_sock_arg_t sockarg, cmsu_sock_t *out,
                                       cmsu_sock_list_t sockets) {
   struct cmsu_SocketUdp *udp_sock;
   cme_error_t err;
@@ -113,10 +112,10 @@ cme_error_t cmsu_sock_list_insert_udp(const char *ipaddr, uint32_t port,
       list_cmsu_Sockets_push(sockets, (struct cmsu_Socket){
                                           .ctx = udp_sock,
                                           .proto = cmsu_SupportedSockets_UDP,
-                                          .get_fd_func = cmsu_SocketUdp_get_fd,
-                                          .recvh = cmsu_SocketUdp_recv_handler,
-                                          .sendh = cmsu_SocketUdp_send_handler,
-                                          .destroyh = cmsu_SocketUdp_destroy,
+                                          .get_fd = cmsu_SocketUdp_get_fd,
+                                          .recv = cmsu_SocketUdp_recv,
+                                          .send = cmsu_SocketUdp_send,
+                                          .destroy = cmsu_SocketUdp_destroy,
                                       });
   if (!result) {
     err = cme_error(ENOBUFS, "Cannot push to `sockets`");
