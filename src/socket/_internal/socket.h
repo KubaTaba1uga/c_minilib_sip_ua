@@ -18,12 +18,12 @@
 /******************************************************************************
  *                                Socket                                      *
  ******************************************************************************/
-static inline cme_error_t cmsu_Socket_recv(socket_t socket) {
+static inline cme_error_t cmsu_Socket_recv_event_handler(socket_t socket) {
   cme_error_t err;
 
   switch (socket->type) {
   case SocketType_UDP:
-    err = cmsu_SocketUdp_recv(socket->proto);
+    err = cmsu_SocketUdp_recv_event_handler(socket->proto);
     break;
   default:
     err = cme_error(EINVAL, "Unsupported socket type");
@@ -39,12 +39,12 @@ error_out:
   return cme_return(err);
 }
 
-static inline cme_error_t cmsu_Socket_send(ip_addr_t recver, buffer_t *buf,
-                                           socket_t socket) {
+static inline cme_error_t cmsu_Socket_send_event_handler(socket_t socket,
+                                                         bool *is_send_done) {
   cme_error_t err;
   switch (socket->type) {
   case SocketType_UDP:
-    err = cmsu_SocketUdp_send(socket->proto, recver, buf);
+    err = cmsu_SocketUdp_send_event_handler(socket->proto, is_send_done);
     break;
   default:
     err = cme_error(EINVAL, "Unsupported socket type");
@@ -95,5 +95,49 @@ void cmsu_Socket_destroy(socket_t *socket) {
 
   *socket = NULL;
 };
+
+static inline cme_error_t cmsu_Socket_recv_sync(ip_addr_t *sender,
+                                                buffer_t *buffer,
+                                                struct cmsu_Socket *socket) {
+  cme_error_t err;
+  switch (socket->type) {
+  case SocketType_UDP:
+    err = cmsu_SocketUdp_recv_sync(sender, buffer, socket->proto);
+    break;
+  default:
+    err = cme_error(EINVAL, "Unsupported socket type");
+  }
+
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
+
+static inline cme_error_t cmsu_Socket_send_sync(ip_addr_t *recver,
+                                                buffer_t *buffer,
+                                                struct cmsu_Socket *socket) {
+  cme_error_t err;
+  switch (socket->type) {
+  case SocketType_UDP:
+    err = cmsu_SocketUdp_send_sync(recver, buffer, socket->proto);
+    break;
+  default:
+    err = cme_error(EINVAL, "Unsupported socket type");
+  }
+
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
 
 #endif // C_MINILIB_SIP_UA_SOCKET_H

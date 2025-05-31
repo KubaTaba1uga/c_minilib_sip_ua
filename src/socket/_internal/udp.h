@@ -6,40 +6,66 @@
 
 #ifndef C_MINILIB_SIP_UA_INT_UDP_H
 #define C_MINILIB_SIP_UA_INT_UDP_H
+#include <asm-generic/errno.h>
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "c_minilib_error.h"
+#include "c_minilib_mock.h"
+#include "event_loop/event_loop.h"
 #include "socket/_internal/common.h"
+#include "socket/_internal/request.h"
+#include "socket/_internal/request_queue.h"
 #include "socket/socket.h"
 #include "socket99.h"
+#include "stc/common.h"
 #include "utils/common.h"
 
 /******************************************************************************
  *                                Udp                                      *
  ******************************************************************************/
+#ifndef CMSU_UDP_MSG_SIZE
+#define CMSU_UDP_MSG_SIZE 1536
+#endif
+
 struct cmsu_SocketUdp {
+  queue_cmsu_Requests reqs_queue; // We need to be able to store requests in
+                                  // case user schedule multiple sends.
   struct cmsu_Socket socket;
   ip_addr_t ipaddr;
   cmsu_evl_t evl;
   int sockfd;
-  void *ctx;
 
-  cme_error_t (*recv_callback)(socket_t sock, buffer_t *buf, void *ctx);
-  cme_error_t (*send_callback)(socket_t sock, ip_addr_t recver, buffer_t *buf,
-                               void *ctx);
+  void *ctx;
+  cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
+                               buffer_t *buffer, void *ctx);
+  cme_error_t (*send_callback)(socket_t socket, ip_addr_t *recver,
+                               buffer_t *buffer, void *data, void *ctx);
   void (*ctx_destroy)(void *ctx);
 };
 
-static inline cme_error_t cmsu_SocketUdp_recv(struct cmsu_SocketUdp *sock);
-static inline cme_error_t cmsu_SocketUdp_send(struct cmsu_SocketUdp *sock,
-                                              ip_addr_t recver, buffer_t *buf);
+MOCKABLE_STATIC(int cmsu_SocketUdp_recvfrom(int sockfd, void *buf, size_t len,
+                                            int flags,
+                                            struct sockaddr *src_addr,
+                                            socklen_t *addrlen)) {
+  return recvfrom(sockfd, buf, len, flags, src_addr, addrlen);
+}
+
+MOCKABLE_STATIC(int cmsu_SocketUdp_sendto(int sockfd, const void *buf,
+                                          size_t len, int flags,
+                                          const struct sockaddr *dest_addr,
+                                          socklen_t addrlen)) {
+  return sendto(sockfd, buf, len, flags, dest_addr, addrlen);
+}
 
 static inline cme_error_t cmsu_SocketUdp_create(
     cmsu_evl_t evl, ip_addr_t ipaddr, void *ctx,
-    cme_error_t (*recv_callback)(socket_t sock, buffer_t *buf, void *ctx),
-    cme_error_t (*send_callback)(socket_t sock, ip_addr_t recver, buffer_t *buf,
-                                 void *ctx),
+    cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
+                                 buffer_t *buffer, void *ctx),
+    cme_error_t (*send_callback)(socket_t socket, ip_addr_t *sender,
+                                 buffer_t *buffer, void *data, void *ctx),
     void(*ctx_destroy), socket_t *out) {
   struct cmsu_SocketUdp *udp = calloc(1, sizeof(struct cmsu_SocketUdp));
   cme_error_t err;
@@ -60,6 +86,7 @@ static inline cme_error_t cmsu_SocketUdp_create(
   if (udp->send_callback) {
     udp->send_callback = send_callback;
   }
+  udp->reqs_queue = queue_cmsu_Requests_init();
 
   int v_true = 1;
   socket99_result res;
@@ -93,14 +120,150 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t cmsu_SocketUdp_recv(struct cmsu_SocketUdp *sock) {
-  puts("Recv HIT");
+static inline cme_error_t
+cmsu_SocketUdp_recv_sync(ip_addr_t *sender, buffer_t *buffer,
+                         struct cmsu_SocketUdp *sock) {
+  struct sockaddr tmp_sendr;
+  socklen_t tmp_sendr_size;
+  cme_error_t err;
+
+  buffer->buf = calloc(CMSU_UDP_MSG_SIZE, sizeof(char));
+  if (!buffer->buf) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for `buffer->buf`");
+    goto error_out;
+  }
+
+  buffer->len =
+      cmsu_SocketUdp_recvfrom(sock->sockfd, buffer->buf, CMSU_UDP_MSG_SIZE,
+                              MSG_NOSIGNAL, &tmp_sendr, &tmp_sendr_size);
+
+  if (buffer->len > 0) {
+    printf("Read %d bytes: %.*s\n", buffer->len, buffer->len, buffer->buf);
+  } else if (buffer->len == 0) {
+    printf("Connection closed by peer\n");
+    goto out;
+  } else {
+    err = cme_error(errno, "Error during reciving data over UDP");
+    goto error_out;
+  }
+
+  char ipstr[INET6_ADDRSTRLEN];
+  char portstr[6]; // Max 65535 + null
+
+  getnameinfo(&tmp_sendr, tmp_sendr_size, ipstr, sizeof(ipstr), portstr,
+              sizeof(portstr), NI_NUMERICHOST | NI_NUMERICSERV);
+
+  sender->ip = calloc(strlen(ipstr), sizeof(char));
+  if (!sender->ip) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for `sender->ip`");
+    goto error_out;
+  }
+
+  strncpy((char *)sender->ip, ipstr, strlen(ipstr));
+
+  sender->port = calloc(strlen(portstr), sizeof(char));
+  if (!sender->port) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for `sender->port`");
+    goto error_out;
+  }
+
+  strncpy((char *)sender->port, portstr, strlen(portstr));
+
+out:
   return 0;
+
+error_out:
+  return cme_return(err);
+};
+
+static inline cme_error_t
+cmsu_SocketUdp_recv_event_handler(struct cmsu_SocketUdp *sock) {
+  ip_addr_t sender;
+  buffer_t buffer;
+  cme_error_t err;
+
+  err = cmsu_SocketUdp_recv_sync(&sender, &buffer, sock);
+  if (err) {
+    goto error_out;
+  }
+
+  err = sock->recv_callback(&sock->socket, &sender, &buffer, sock->ctx);
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
 }
-static inline cme_error_t cmsu_SocketUdp_send(struct cmsu_SocketUdp *sock,
-                                              ip_addr_t recver, buffer_t *buf) {
-  puts("Send HIT");
+
+cme_error_t cmsu_SocketUdp_send_sync(ip_addr_t *recver, buffer_t *buffer,
+                                     struct cmsu_SocketUdp *sock) {
+  struct addrinfo *receiver_addr = NULL;
+  struct addrinfo hints = {0};
+  cme_error_t err;
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_DGRAM;
+
+  if (buffer->len > CMSU_UDP_MSG_SIZE) {
+    err = cme_error(ENOBUFS, "Too much data to send over UDP");
+    goto error_out;
+  }
+
+  {
+    int err_ = getaddrinfo(recver->ip, recver->port, &hints, &receiver_addr);
+    if (err_) {
+      err = cme_error(err_, "Cannot get address info");
+      goto error_out;
+    }
+  }
+
+  int32_t sent_bytes = cmsu_SocketUdp_sendto(
+      sock->sockfd, buffer->buf, buffer->len, MSG_NOSIGNAL,
+      receiver_addr->ai_addr, receiver_addr->ai_addrlen);
+  if (sent_bytes > 0) {
+    printf("Write %d bytes: %.*s\n", sent_bytes, sent_bytes, buffer->buf);
+  } else if (sent_bytes == 0) {
+    printf("Connection closed by peer\n");
+    goto out;
+  } else {
+    err = cme_error(errno, "Error during reciving data over UDP");
+    goto error_out;
+  }
+
+out:
   return 0;
+
+error_out:
+  return cme_return(err);
+};
+
+static inline cme_error_t
+cmsu_SocketUdp_send_event_handler(struct cmsu_SocketUdp *sock,
+                                  bool *is_send_done) {
+  cme_error_t err;
+
+  struct cmsu_Request request = queue_cmsu_Requests_pull(&sock->reqs_queue);
+
+  err = sock->send_callback(&sock->socket, &request.recver, &request.buffer,
+                            request.data, sock->ctx);
+  if (err) {
+    goto error_out;
+  }
+
+  err = cmsu_SocketUdp_send_sync(&request.recver, &request.buffer,
+                                 request.socket->proto);
+  if (err) {
+    goto error_out;
+  }
+
+  *is_send_done = queue_cmsu_Requests_size(&sock->reqs_queue) > 0;
+
+  return 0;
+
+error_out:
+  return cme_return(err);
 };
 
 static inline int cmsu_SocketUdp_get_fd(struct cmsu_SocketUdp *sock) {
@@ -114,5 +277,26 @@ static inline void cmsu_SocketUdp_destroy(struct cmsu_SocketUdp *sock) {
 
   free(sock);
 };
+
+static inline cme_error_t
+cmsu_SocketUdp_send_async(socket_t socket, ip_addr_t recver, void *data) {
+  cme_error_t err;
+
+  struct cmsu_Request *request = queue_cmsu_Requests_push(
+      &((struct cmsu_SocketUdp *)socket->proto)->reqs_queue,
+      (struct cmsu_Request){.socket = socket, .data = data, .recver = recver});
+  if (!request) {
+    err = cme_error(ENOMEM, "Cannot insert new request into UDP socket");
+    goto error_out;
+  }
+
+  event_loop_async_send_socket(socket,
+                               ((struct cmsu_SocketUdp *)socket->proto)->evl);
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
 
 #endif // C_MINILIB_SIP_UA_UDP_H

@@ -8,6 +8,7 @@
 #define C_MINILIB_SIP_UA_INT_SIPSESS_H
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/poll.h>
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
@@ -36,10 +37,14 @@ static inline void cmsu_SipSession_destroy(void *out) {
   *sipsess = NULL;
 }
 
-static inline cme_error_t cmsu_SipSession_recv_callback(socket_t, buffer_t *,
-                                                        void *);
-static inline cme_error_t cmsu_SipSession_send_callback(socket_t, ip_addr_t,
-                                                        buffer_t *, void *);
+static inline cme_error_t cmsu_SipSession_recv_callback(socket_t socket,
+                                                        ip_addr_t *sender,
+                                                        buffer_t *buf,
+                                                        void *ctx_);
+static inline cme_error_t cmsu_SipSession_send_callback(socket_t socket,
+                                                        ip_addr_t *recver,
+                                                        buffer_t *buf,
+                                                        void *data, void *ctx);
 
 static inline cme_error_t cmsu_SipSession_create(cmsu_evl_t evl,
                                                  ip_addr_t ipaddr,
@@ -58,7 +63,7 @@ static inline cme_error_t cmsu_SipSession_create(cmsu_evl_t evl,
     goto error_sipsess_cleanup;
   }
 
-  err = event_loop_insert_socket(sipsess->socket, evl);
+  err = event_loop_insert_socket(sipsess->socket, POLLIN, evl);
   if (err) {
     goto error_udp_cleanup;
   }
@@ -75,16 +80,20 @@ error_out:
   return cme_return(err);
 }
 
-static inline cme_error_t
-cmsu_SipSession_recv_callback(socket_t socket, buffer_t *buf, void *ctx) {
+static inline cme_error_t cmsu_SipSession_recv_callback(socket_t socket,
+                                                        ip_addr_t *sender,
+                                                        buffer_t *buf,
+                                                        void *ctx_) {
+  /* struct cmsu_SipSession *ctx = ctx_; */
+
   puts("Hit sip recv");
   return 0;
 }
 
 static inline cme_error_t cmsu_SipSession_send_callback(socket_t socket,
-                                                        ip_addr_t recv,
+                                                        ip_addr_t *recver,
                                                         buffer_t *buf,
-                                                        void *ctx) {
+                                                        void *data, void *ctx) {
   puts("Hit sip send");
   return 0;
 };

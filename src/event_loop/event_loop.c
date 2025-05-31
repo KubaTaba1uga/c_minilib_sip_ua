@@ -10,6 +10,11 @@ cme_error_t event_loop_start(event_loop_t evl) {
 
 void event_loop_destroy(event_loop_t *out) { cmsu_EventLoop_destroy(out); };
 
-cme_error_t event_loop_insert_socket(socket_t socket, event_loop_t evl) {
-  return cmsu_EventLoop_insert_socket(socket, evl);
+cme_error_t event_loop_insert_socket(socket_t socket, short events,
+                                     event_loop_t evl) {
+  return cmsu_EventLoop_insert_socket(socket, events, evl);
+};
+
+void event_loop_async_send_socket(socket_t socket, event_loop_t evl) {
+  cmsu_EventLoop_async_send_socket(socket, evl);
 };

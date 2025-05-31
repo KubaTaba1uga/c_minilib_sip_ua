@@ -22,14 +22,14 @@ int main(void) {
     goto error_out;
   }
 
-  log_func(0, "Creating ua...");
+  log_func(0, "Creating ua...\n");
   ua_t ua;
   err = ua_create(evl, &ua);
   if (err) {
     goto error_out;
   }
 
-  log_func(0, "Starting event loop...");
+  log_func(0, "Starting event loop...\n");
 
   err = event_loop_start(evl);
   if (err) {

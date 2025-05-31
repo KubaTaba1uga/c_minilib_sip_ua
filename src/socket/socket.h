@@ -36,14 +36,23 @@ enum SocketType {
 
 cme_error_t socket_udp_create(
     cmsu_evl_t evl, ip_addr_t ipaddr,
-    cme_error_t (*recv_callback)(socket_t sock, buffer_t *buf, void *ctx),
-    cme_error_t (*send_callback)(socket_t sock, ip_addr_t recver, buffer_t *buf,
-                                 void *ctx),
+    cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
+                                 buffer_t *buf, void *ctx_),
+    cme_error_t (*send_callback)(socket_t socket, ip_addr_t *recver,
+                                 buffer_t *buf, void *data, void *ctx),
     void(*ctx_destroy), void *ctx, socket_t *out);
-cme_error_t socket_recv(socket_t socket);
-cme_error_t socket_send(ip_addr_t recver, buffer_t buf, socket_t socket);
+cme_error_t socket_recv_event_handler(socket_t socket);
+cme_error_t socket_send_event_handler(socket_t socket, bool *is_send_done);
+cme_error_t socket_fail_event_handler(bool is_err, bool is_conn_close,
+                                      socket_t socket);
+
 int socket_get_fd(socket_t socket);
 void socket_destroy(socket_t *socket);
+
+cme_error_t socket_recv_sync(ip_addr_t *sender, buffer_t *buffer,
+                             socket_t socket);
+cme_error_t socket_send_sync(ip_addr_t *recver, buffer_t *buffer,
+                             socket_t socket);
 
 /******************************************************************************
  *                             Sockets Vector                                 *
