@@ -29,5 +29,6 @@ typedef struct cmsu_SipSession *sip_session_t;
 // TO-DO add recv and send callbacks
 cme_error_t sip_create_session(cmsu_evl_t evl, ip_addr_t ipaddr,
                                sip_session_t *out);
+void sip_destroy_session(void *sipsess);
 
 #endif // C_MINILIB_SIP_UA_SIP_H

@@ -28,4 +28,6 @@ cme_error_t event_loop_create(event_loop_t *out);
 cme_error_t event_loop_start(event_loop_t evl);
 void event_loop_destroy(event_loop_t *out);
 
+cme_error_t event_loop_insert_socket(socket_t socket, event_loop_t evl);
+
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

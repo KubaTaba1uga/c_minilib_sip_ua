@@ -25,6 +25,10 @@ cme_error_t socket_send(ip_addr_t recver, buffer_t buf, socket_t socket) {
   return cmsu_Socket_send(recver, &buf, socket);
 };
 
+int socket_get_fd(socket_t socket) { return cmsu_Socket_get_fd(socket); }
+
+void socket_destroy(socket_t *socket) { cmsu_Socket_destroy(socket); };
+
 cme_error_t vec_socket_create(vec_socket_t *sockets) {
   return cmsu_Sockets_create(sockets);
 };

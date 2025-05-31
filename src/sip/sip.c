@@ -5,3 +5,5 @@ cme_error_t sip_create_session(cmsu_evl_t evl, ip_addr_t ipaddr,
                                sip_session_t *out) {
   return cmsu_SipSession_create(evl, ipaddr, out);
 }
+
+void sip_destroy_session(void *sipsess) { cmsu_SipSession_destroy(sipsess); };

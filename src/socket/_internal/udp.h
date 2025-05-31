@@ -107,4 +107,12 @@ static inline int cmsu_SocketUdp_get_fd(struct cmsu_SocketUdp *sock) {
   return sock->sockfd;
 };
 
+static inline void cmsu_SocketUdp_destroy(struct cmsu_SocketUdp *sock) {
+  if (!sock) {
+    return;
+  }
+
+  free(sock);
+};
+
 #endif // C_MINILIB_SIP_UA_UDP_H

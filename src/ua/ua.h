@@ -4,8 +4,8 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_SIP_H
-#define C_MINILIB_SIP_UA_SIP_H
+#ifndef C_MINILIB_SIP_UA_UA_H
+#define C_MINILIB_SIP_UA_UA_H
 /*
   This is interface to sip module, if you need anything from sip module,
    put interface declaration here and interface implementation in .c but always

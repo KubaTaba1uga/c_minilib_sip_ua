@@ -1,6 +1,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_init.h"
 #include "event_loop/event_loop.h"
+#include "ua/ua.h"
 #include <stdio.h>
 
 void log_func(enum cmi_LogLevelEnum _, char *data) { printf("%s", data); }
@@ -21,12 +22,21 @@ int main(void) {
     goto error_out;
   }
 
+  log_func(0, "Creating ua...");
+  ua_t ua;
+  err = ua_create(evl, &ua);
+  if (err) {
+    goto error_out;
+  }
+
   log_func(0, "Starting event loop...");
+
   err = event_loop_start(evl);
   if (err) {
     goto error_out;
   }
 
+  ua_destroy(&ua);
   event_loop_destroy(&evl);
   cmi_destroy();
 

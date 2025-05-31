@@ -42,6 +42,8 @@ cme_error_t socket_udp_create(
     void(*ctx_destroy), void *ctx, socket_t *out);
 cme_error_t socket_recv(socket_t socket);
 cme_error_t socket_send(ip_addr_t recver, buffer_t buf, socket_t socket);
+int socket_get_fd(socket_t socket);
+void socket_destroy(socket_t *socket);
 
 /******************************************************************************
  *                             Sockets Vector                                 *

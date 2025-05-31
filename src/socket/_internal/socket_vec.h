@@ -10,6 +10,7 @@
 #include "c_minilib_error.h"
 #include "socket/_internal/socket.h"
 #include "socket/socket.h"
+#include "stc/common.h"
 #include "utils/common.h"
 #include <stdint.h>
 #include <stdlib.h>
@@ -35,12 +36,24 @@ static inline cme_error_t cmsu_Sockets_create(vec_socket_t *out) {
 
 static inline cme_error_t cmsu_Sockets_insert(socket_t socket,
                                               vec_cmsu_Sockets *sockets) {
-  socket_t result =
-      vec_cmsu_Sockets_insert_n(sockets, cmsu_Socket_get_fd(socket), socket, 1)
-          .ref;
-  if (!result) {
+  int32_t fd = cmsu_Socket_get_fd(socket);
+  if (fd < 0) {
     return cme_return(
-        cme_error(ENOMEM, "Unable to add new socket to `sockets`"));
+        cme_error(ENOMEM, "No file descriptor assigned to `socket`"));
+  }
+
+  if ((size_t)fd >= sockets->size) {
+    bool resized = vec_cmsu_Sockets_resize(
+        sockets, fd + 1, *socket); // or reserve + manual insert
+    if (!resized) {
+      return cme_return(cme_error(ENOMEM, "Unable to resize `sockets`"));
+    }
+  } else {
+    socket_t result = vec_cmsu_Sockets_insert_n(sockets, fd, socket, 1).ref;
+    if (!result) {
+      return cme_return(
+          cme_error(ENOMEM, "Unable to add new socket to `sockets`"));
+    }
   }
 
   return 0;
@@ -62,6 +75,7 @@ static inline void cmsu_Sockets_destroy(vec_socket_t *out) {
   }
 
   vec_cmsu_Sockets_drop(*out);
+  free(*out);
   *out = NULL;
 }
 

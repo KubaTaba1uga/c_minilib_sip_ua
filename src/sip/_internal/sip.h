@@ -10,6 +10,7 @@
 #include <stdlib.h>
 
 #include "c_minilib_error.h"
+#include "event_loop/event_loop.h"
 #include "sip/sip.h"
 #include "socket/socket.h"
 
@@ -20,10 +21,21 @@ struct cmsu_SipSession {
   socket_t socket;
 };
 
-static inline cme_error_t
-cmsu_SipSession_destroy(struct cmsu_SipSession **out) {
-  return 0;
+static inline void cmsu_SipSession_destroy(void *out) {
+  if (!out) {
+    return;
+  }
+
+  struct cmsu_SipSession **sipsess = out;
+  if (!*sipsess) {
+    return;
+  }
+
+  socket_destroy(&(*sipsess)->socket);
+  free(*sipsess);
+  *sipsess = NULL;
 }
+
 static inline cme_error_t cmsu_SipSession_recv_callback(socket_t, buffer_t *,
                                                         void *);
 static inline cme_error_t cmsu_SipSession_send_callback(socket_t, ip_addr_t,
@@ -39,8 +51,6 @@ static inline cme_error_t cmsu_SipSession_create(cmsu_evl_t evl,
     goto error_out;
   }
 
-  return 0;
-
   err = socket_udp_create(evl, ipaddr, cmsu_SipSession_recv_callback,
                           cmsu_SipSession_send_callback,
                           cmsu_SipSession_destroy, sipsess, &sipsess->socket);
@@ -48,8 +58,17 @@ static inline cme_error_t cmsu_SipSession_create(cmsu_evl_t evl,
     goto error_sipsess_cleanup;
   }
 
+  err = event_loop_insert_socket(sipsess->socket, evl);
+  if (err) {
+    goto error_udp_cleanup;
+  }
+
+  *out = sipsess;
+
   return 0;
 
+error_udp_cleanup:
+  socket_destroy(&sipsess->socket);
 error_sipsess_cleanup:
   free(sipsess);
 error_out:

@@ -81,4 +81,19 @@ static inline int cmsu_Socket_cmp(const struct cmsu_Socket *a,
   return -1;
 }
 
+void cmsu_Socket_destroy(socket_t *socket) {
+  if (!socket || !*socket) {
+    return;
+  }
+
+  switch ((*socket)->type) {
+  case SocketType_UDP:
+    cmsu_SocketUdp_destroy((*socket)->proto);
+    break;
+  default:;
+  }
+
+  *socket = NULL;
+};
+
 #endif // C_MINILIB_SIP_UA_SOCKET_H
