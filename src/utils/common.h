@@ -8,6 +8,8 @@
 #define C_MINILIB_SIP_UA_COMMON_H
 #include <inttypes.h>
 
+#define CMSU_SOCKETS_MAX 1024
+
 typedef struct {
   char *buf;
   uint32_t len;

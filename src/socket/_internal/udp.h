@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 #include "c_minilib_error.h"
-#include "socket/_internal/socket.h"
+#include "socket/_internal/common.h"
 #include "socket/socket.h"
 #include "socket99.h"
 #include "utils/common.h"
@@ -19,18 +19,28 @@
  *                                Udp                                      *
  ******************************************************************************/
 struct cmsu_SocketUdp {
+  struct cmsu_Socket socket;
+  ip_addr_t ipaddr;
+  cmsu_evl_t evl;
+  int sockfd;
   void *ctx;
-  cme_error_t (*recv_callback)(cmsu_evl_t evl, ip_addr_t sender, buffer_t buf,
+
+  cme_error_t (*recv_callback)(socket_t sock, buffer_t *buf, void *ctx);
+  cme_error_t (*send_callback)(socket_t sock, ip_addr_t recver, buffer_t *buf,
                                void *ctx);
-  cme_error_t (*send_callback)(cmsu_evl_t evl, ip_addr_t recver, buffer_t buf,
-                               void *ctx);
+  void (*ctx_destroy)(void *ctx);
 };
 
-static inline cme_error_t cmsu_SocketUdp_recv(cmsu_evl_t evl, void *ctx);
-static inline cme_error_t cmsu_SocketUdp_send(cmsu_evl_t evl, void *ctx);
+static inline cme_error_t cmsu_SocketUdp_recv(struct cmsu_SocketUdp *sock);
+static inline cme_error_t cmsu_SocketUdp_send(struct cmsu_SocketUdp *sock,
+                                              ip_addr_t recver, buffer_t *buf);
 
-static inline cme_error_t cmsu_SocketUdp_create(socket_udp_create_arg args,
-                                                socket_t *out) {
+static inline cme_error_t cmsu_SocketUdp_create(
+    cmsu_evl_t evl, ip_addr_t ipaddr, void *ctx,
+    cme_error_t (*recv_callback)(socket_t sock, buffer_t *buf, void *ctx),
+    cme_error_t (*send_callback)(socket_t sock, ip_addr_t recver, buffer_t *buf,
+                                 void *ctx),
+    void(*ctx_destroy), socket_t *out) {
   struct cmsu_SocketUdp *udp = calloc(1, sizeof(struct cmsu_SocketUdp));
   cme_error_t err;
   if (!udp) {
@@ -38,17 +48,26 @@ static inline cme_error_t cmsu_SocketUdp_create(socket_udp_create_arg args,
     goto error_out;
   }
 
-  udp->ctx = args.ctx;
-  udp->recv_callback = args.recv_callback;
-  udp->send_callback = args.send_callback;
+  udp->evl = evl;
+  udp->ipaddr = ipaddr;
+  udp->socket.type = SocketType_UDP;
+  udp->socket.proto = udp;
+  udp->ctx = ctx;
+  udp->ctx_destroy = ctx_destroy;
+  if (recv_callback) {
+    udp->recv_callback = recv_callback;
+  }
+  if (udp->send_callback) {
+    udp->send_callback = send_callback;
+  }
 
   int v_true = 1;
   socket99_result res;
   bool ok = socket99_open(
       &(socket99_config){
-          .host = (char *)args.ipaddr.ip,
-          .port = atoi(args.ipaddr.port),
-          .server = args.recv_callback != NULL,
+          .host = (char *)ipaddr.ip,
+          .port = atoi(ipaddr.port),
+          .server = recv_callback != NULL,
           .datagram = true,
           .nonblocking = true,
           .sockopts =
@@ -62,21 +81,10 @@ static inline cme_error_t cmsu_SocketUdp_create(socket_udp_create_arg args,
     goto error_udp_cleanup;
   }
 
-  err = cmsu_Socket_create(
-      (struct cmsu_Socket){
-          .type = cmsu_SupportedSocket_UDP,
-          .ctx_destroy = args.ctx_destroy,
-          .recv = cmsu_SocketUdp_recv,
-          .send = cmsu_SocketUdp_send,
-          .ipaddr = args.ipaddr,
-          .evl = args.evl,
-          .sockfd = res.fd,
-          .ctx = udp,
-      },
-      out);
-  if (err) {
-    goto error_udp_cleanup;
-  }
+  udp->sockfd = res.fd;
+
+  *out = &udp->socket;
+
   return 0;
 
 error_udp_cleanup:
@@ -85,11 +93,18 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t cmsu_SocketUdp_recv(cmsu_evl_t evl, void *ctx) {
+static inline cme_error_t cmsu_SocketUdp_recv(struct cmsu_SocketUdp *sock) {
+  puts("Recv HIT");
   return 0;
 }
-static inline cme_error_t cmsu_SocketUdp_send(cmsu_evl_t evl, void *ctx) {
+static inline cme_error_t cmsu_SocketUdp_send(struct cmsu_SocketUdp *sock,
+                                              ip_addr_t recver, buffer_t *buf) {
+  puts("Send HIT");
   return 0;
+};
+
+static inline int cmsu_SocketUdp_get_fd(struct cmsu_SocketUdp *sock) {
+  return sock->sockfd;
 };
 
 #endif // C_MINILIB_SIP_UA_UDP_H

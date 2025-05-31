@@ -10,49 +10,75 @@
 #include <stdlib.h>
 
 #include "c_minilib_error.h"
+#include "socket/_internal/common.h"
+#include "socket/_internal/udp.h"
 #include "socket/socket.h"
 #include "utils/common.h"
 
 /******************************************************************************
  *                                Socket                                      *
  ******************************************************************************/
-
-enum cmsu_SupportedSocket {
-  cmsu_SupportedSocket_NONE = 0,
-  cmsu_SupportedSocket_UDP,
-  cmsu_SupportedSocket_MAX,
-};
-
-struct cmsu_Socket {
-  // Data
-  enum cmsu_SupportedSocket type;
-  ip_addr_t ipaddr;
-  cmsu_evl_t evl;
-  int sockfd;
-  void *ctx;
-
-  // Ops
-  cme_error_t (*recv)(cmsu_evl_t evl, void *ctx);
-  cme_error_t (*send)(cmsu_evl_t evl, void *ctx);
-  void (*ctx_destroy)(cmsu_evl_t evl, void *ctx);
-};
-
-static inline cme_error_t cmsu_Socket_create(struct cmsu_Socket src,
-                                             struct cmsu_Socket **out) {
-  struct cmsu_Socket *socket = malloc(sizeof(struct cmsu_Socket));
+static inline cme_error_t cmsu_Socket_recv(socket_t socket) {
   cme_error_t err;
-  if (!socket) {
-    err = cme_error(ENOMEM, "Cannot allocate memory for `socket`");
-    goto error_out;
+
+  switch (socket->type) {
+  case SocketType_UDP:
+    err = cmsu_SocketUdp_recv(socket->proto);
+    break;
+  default:
+    err = cme_error(EINVAL, "Unsupported socket type");
   }
 
-  *socket = src;
-  *out = socket;
+  if (err) {
+    goto error_out;
+  }
 
   return 0;
 
 error_out:
   return cme_return(err);
+}
+
+static inline cme_error_t cmsu_Socket_send(ip_addr_t recver, buffer_t *buf,
+                                           socket_t socket) {
+  cme_error_t err;
+  switch (socket->type) {
+  case SocketType_UDP:
+    err = cmsu_SocketUdp_send(socket->proto, recver, buf);
+    break;
+  default:
+    err = cme_error(EINVAL, "Unsupported socket type");
+  }
+
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
+
+static inline int cmsu_Socket_get_fd(socket_t socket) {
+  switch (socket->type) {
+  case SocketType_UDP:
+    return cmsu_SocketUdp_get_fd(socket->proto);
+    break;
+  default:
+    return -1;
+  }
+}
+
+static inline int cmsu_Socket_cmp(const struct cmsu_Socket *a,
+                                  const struct cmsu_Socket *b) {
+  if (cmsu_Socket_get_fd((socket_t)a) == cmsu_Socket_get_fd((socket_t)b)) {
+    return 0;
+  }
+  if (cmsu_Socket_get_fd((socket_t)a) > cmsu_Socket_get_fd((socket_t)b)) {
+    return 1;
+  }
+  return -1;
 }
 
 #endif // C_MINILIB_SIP_UA_SOCKET_H

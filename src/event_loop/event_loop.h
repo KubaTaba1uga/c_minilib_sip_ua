@@ -19,7 +19,13 @@
 #include "socket/socket.h"
 
 /******************************************************************************
- *                             Event Loop *
+ *                             Event Loop                                     *
  ******************************************************************************/
+
+typedef struct cmsu_EventLoop *event_loop_t;
+
+cme_error_t event_loop_create(event_loop_t *out);
+cme_error_t event_loop_start(event_loop_t evl);
+void event_loop_destroy(event_loop_t *out);
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H
