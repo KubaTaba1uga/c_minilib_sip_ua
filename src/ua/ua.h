@@ -17,17 +17,15 @@
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
-#include "event_loop/event_loop.h"
 #include "socket/socket.h"
 #include "utils/common.h"
 
 /******************************************************************************
  *                             Sip                                            *
  ******************************************************************************/
-typedef struct cmsu_SipSession *sip_session_t;
+typedef struct cmsu_Ua *ua_t;
 
-// TO-DO add recv and send callbacks
-cme_error_t sip_create_session(cmsu_evl_t evl, ip_addr_t ipaddr,
-                               sip_session_t *out);
+cme_error_t ua_create(cmsu_evl_t evl, ua_t *out);
+void ua_destroy(ua_t *out);
 
 #endif // C_MINILIB_SIP_UA_SIP_H

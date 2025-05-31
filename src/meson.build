@@ -5,3 +5,5 @@ sources = files(
 subdir('event_loop')
 subdir('socket')
 subdir('utils')
+subdir('sip')
+subdir('ua')

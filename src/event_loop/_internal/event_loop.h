@@ -43,6 +43,8 @@ static inline cme_error_t cmsu_EventLoop_create(struct cmsu_EventLoop **out) {
     goto error_evl_cleanup;
   }
 
+  *out = evl;
+
   return 0;
 
 error_evl_cleanup:
