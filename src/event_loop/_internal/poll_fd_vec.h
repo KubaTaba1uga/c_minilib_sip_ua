@@ -9,6 +9,8 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/_internal/poll_fd.h"
+#include "socket/socket.h"
+#include <stdint.h>
 
 #define i_tag cmsu_PollFds
 #define i_keyclass cmsu_PollFd
@@ -39,6 +41,26 @@ static inline cme_error_t cmsu_PollFds_poll(cmsu_PollFds *pollfds) {
     return cme_return(cme_error(ENOMEM, "Unable to poll fd"));
   }
   return 0;
+}
+
+static inline struct cmsu_PollFd *cmsu_PollFds_find(int32_t fd,
+                                                    cmsu_PollFds *pollfds) {
+  c_foreach(vec_fd, vec_cmsu_PollFds, *pollfds) {
+    if (vec_fd.ref->fd == fd) {
+      return (struct cmsu_PollFd *)vec_fd.ref;
+    }
+  }
+
+  return 0;
+}
+
+static inline void cmsu_PollFds_remove(int32_t fd, cmsu_PollFds *pollfds) {
+  c_foreach(vec_fd, vec_cmsu_PollFds, *pollfds) {
+    if (vec_fd.ref->fd == fd) {
+      vec_cmsu_PollFds_erase_at(pollfds, vec_fd);
+      break;
+    }
+  }
 }
 
 #endif

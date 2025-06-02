@@ -9,6 +9,7 @@
 #include <asm-generic/errno.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -41,8 +42,12 @@ struct cmsu_SocketUdp {
   void *ctx;
   cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
                                buffer_t *buffer, void *ctx);
+  cme_error_t (*recv_fail_callback)(socket_t socket, ip_addr_t *sender,
+                                    buffer_t *buffer, void *ctx);
   cme_error_t (*send_callback)(socket_t socket, ip_addr_t *recver,
                                buffer_t *buffer, void *data, void *ctx);
+  cme_error_t (*send_fail_callback)(socket_t socket, ip_addr_t *recver,
+                                    buffer_t *buffer, void *data, void *ctx);
   void (*ctx_destroy)(void *ctx);
 };
 
@@ -63,9 +68,13 @@ MOCKABLE_STATIC(int cmsu_SocketUdp_sendto(int sockfd, const void *buf,
 static inline cme_error_t cmsu_SocketUdp_create(
     cmsu_evl_t evl, ip_addr_t ipaddr, void *ctx,
     cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
-                                 buffer_t *buffer, void *ctx),
-    cme_error_t (*send_callback)(socket_t socket, ip_addr_t *sender,
-                                 buffer_t *buffer, void *data, void *ctx),
+                                 buffer_t *buf, void *ctx_),
+    cme_error_t (*recv_fail_callback)(socket_t socket, ip_addr_t *sender,
+                                      buffer_t *buf, void *ctx_),
+    cme_error_t (*send_callback)(socket_t socket, ip_addr_t *recver,
+                                 buffer_t *buf, void *data, void *ctx_),
+    cme_error_t (*send_fail_callback)(socket_t socket, ip_addr_t *recver,
+                                      buffer_t *buf, void *data, void *ctx_),
     void(*ctx_destroy), socket_t *out) {
   struct cmsu_SocketUdp *udp = calloc(1, sizeof(struct cmsu_SocketUdp));
   cme_error_t err;
@@ -83,9 +92,16 @@ static inline cme_error_t cmsu_SocketUdp_create(
   if (recv_callback) {
     udp->recv_callback = recv_callback;
   }
+  if (recv_fail_callback) {
+    udp->recv_fail_callback = recv_fail_callback;
+  }
   if (udp->send_callback) {
     udp->send_callback = send_callback;
   }
+  if (send_fail_callback) {
+    udp->send_fail_callback = send_fail_callback;
+  }
+
   udp->reqs_queue = queue_cmsu_Requests_init();
 
   int v_true = 1;
@@ -184,17 +200,24 @@ cmsu_SocketUdp_recv_event_handler(struct cmsu_SocketUdp *sock) {
 
   err = cmsu_SocketUdp_recv_sync(&sender, &buffer, sock);
   if (err) {
+    if (sock->recv_fail_callback) {
+      sock->recv_fail_callback(&sock->socket, &sender, &buffer, sock->ctx);
+    }
     goto error_out;
   }
 
-  err = sock->recv_callback(&sock->socket, &sender, &buffer, sock->ctx);
-  if (err) {
-    goto error_out;
+  if (sock->recv_callback) {
+    err = sock->recv_callback(&sock->socket, &sender, &buffer, sock->ctx);
+    if (err) {
+      goto error_out;
+    }
+    return 0;
   }
 
   return 0;
 
 error_out:
+  event_loop_remove_socket(&sock->socket, sock->evl);
   return cme_return(err);
 }
 
@@ -246,15 +269,21 @@ cmsu_SocketUdp_send_event_handler(struct cmsu_SocketUdp *sock,
 
   struct cmsu_Request request = queue_cmsu_Requests_pull(&sock->reqs_queue);
 
-  err = sock->send_callback(&sock->socket, &request.recver, &request.buffer,
-                            request.data, sock->ctx);
-  if (err) {
-    goto error_out;
+  if (sock->send_callback) {
+    err = sock->send_callback(&sock->socket, &request.recver, &request.buffer,
+                              request.data, sock->ctx);
+    if (err) {
+      goto error_out;
+    }
   }
 
   err = cmsu_SocketUdp_send_sync(&request.recver, &request.buffer,
                                  request.socket->proto);
   if (err) {
+    if (sock->send_fail_callback) {
+      sock->send_fail_callback(&sock->socket, &request.recver, &request.buffer,
+                               request.data, sock->ctx);
+    }
     goto error_out;
   }
 
@@ -263,6 +292,7 @@ cmsu_SocketUdp_send_event_handler(struct cmsu_SocketUdp *sock,
   return 0;
 
 error_out:
+  event_loop_remove_socket(&sock->socket, sock->evl);
   return cme_return(err);
 };
 

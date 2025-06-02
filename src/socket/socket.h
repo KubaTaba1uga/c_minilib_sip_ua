@@ -38,8 +38,12 @@ cme_error_t socket_udp_create(
     cmsu_evl_t evl, ip_addr_t ipaddr,
     cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
                                  buffer_t *buf, void *ctx_),
+    cme_error_t (*recv_fail_callback)(socket_t socket, ip_addr_t *sender,
+                                      buffer_t *buf, void *ctx_),
     cme_error_t (*send_callback)(socket_t socket, ip_addr_t *recver,
-                                 buffer_t *buf, void *data, void *ctx),
+                                 buffer_t *buf, void *data, void *ctx_),
+    cme_error_t (*send_fail_callback)(socket_t socket, ip_addr_t *recver,
+                                      buffer_t *buf, void *data, void *ctx_),
     void(*ctx_destroy), void *ctx, socket_t *out);
 cme_error_t socket_recv_event_handler(socket_t socket);
 cme_error_t socket_send_event_handler(socket_t socket, bool *is_send_done);
