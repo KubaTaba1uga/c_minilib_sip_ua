@@ -38,6 +38,10 @@ cmsu_SipTransactionClientOther_create(sip_msg_t sipmsg, sip_session_t sipsess,
 
   trans_c_other->trans.id = sip_session_gen_id(sipsess);
   trans_c_other->trans.data = trans_c_other;
+  trans_c_other->trans.type = cmsu_SipportedSipTransactions_CLIENT_OTHER;
+  trans_c_other->trans.responses = vec_cmsu_SipRequests_init();
+
+  *out = &trans_c_other->trans;
 
   return 0;
 
