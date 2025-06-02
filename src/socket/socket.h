@@ -28,14 +28,19 @@ typedef struct {
 
 typedef struct cmsu_Socket *socket_t;
 
-enum SocketType {
-  SocketType_NONE = 0,
-  SocketType_UDP,
-  SocketType_MAX,
+enum SocketProto {
+  SocketProto_NONE = 0,
+  SocketProto_UDP,
+  SocketProto_MAX,
+};
+
+enum SocketEvent {
+  SocketEvent_SEND = 1,
+  SocketEvent_RECEIVE = 2,
 };
 
 cme_error_t socket_udp_create(
-    cmsu_evl_t evl, ip_addr_t ipaddr,
+    evl_t evl, ip_addr_t ipaddr, uint32_t socketev, void *ctx,
     cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
                                  buffer_t *buf, void *ctx_),
     cme_error_t (*recv_fail_callback)(socket_t socket, ip_addr_t *sender,
@@ -44,7 +49,7 @@ cme_error_t socket_udp_create(
                                  buffer_t *buf, void *data, void *ctx_),
     cme_error_t (*send_fail_callback)(socket_t socket, ip_addr_t *recver,
                                       buffer_t *buf, void *data, void *ctx_),
-    void(*ctx_destroy), void *ctx, socket_t *out);
+    void(*ctx_destroy), socket_t *out);
 cme_error_t socket_recv_event_handler(socket_t socket);
 cme_error_t socket_send_event_handler(socket_t socket, bool *is_send_done);
 cme_error_t socket_fail_event_handler(bool is_err, bool is_conn_close,
@@ -66,5 +71,6 @@ cme_error_t vec_socket_create(vec_socket_t *sockets);
 socket_t vec_socket_get(uint32_t fd, vec_socket_t sockets);
 cme_error_t vec_socket_insert(socket_t socket, vec_socket_t sockets);
 void vec_socket_destroy(vec_socket_t *sockets);
+void vec_socket_remove(uint32_t fd, vec_socket_t sockets);
 
 #endif // C_MINILIB_SIP_UA_SOCKET_H

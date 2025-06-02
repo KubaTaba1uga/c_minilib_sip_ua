@@ -6,7 +6,7 @@
 #include <stdbool.h>
 
 cme_error_t socket_udp_create(
-    cmsu_evl_t evl, ip_addr_t ipaddr,
+    evl_t evl, ip_addr_t ipaddr, uint32_t socketev, void *ctx,
     cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
                                  buffer_t *buf, void *ctx_),
     cme_error_t (*recv_fail_callback)(socket_t socket, ip_addr_t *sender,
@@ -15,14 +15,14 @@ cme_error_t socket_udp_create(
                                  buffer_t *buf, void *data, void *ctx_),
     cme_error_t (*send_fail_callback)(socket_t socket, ip_addr_t *recver,
                                       buffer_t *buf, void *data, void *ctx_),
-    void(*ctx_destroy), void *ctx, socket_t *out) {
-
+    void(*ctx_destroy), socket_t *out) {
   if (!out) {
     return cme_return(cme_error(EINVAL, "`out` cannot be NULL"));
   }
 
-  return cmsu_SocketUdp_create(evl, ipaddr, ctx, recv_callback, send_callback,
-                               ctx_destroy, out);
+  return cmsu_SocketUdp_create(evl, ipaddr, socketev, ctx, recv_callback,
+                               recv_fail_callback, send_callback,
+                               send_fail_callback, ctx_destroy, out);
 }
 
 cme_error_t socket_recv_event_handler(socket_t socket) {
@@ -66,3 +66,7 @@ cme_error_t vec_socket_insert(socket_t socket, vec_socket_t sockets) {
 void vec_socket_destroy(vec_socket_t *sockets) {
   cmsu_Sockets_destroy(sockets);
 };
+
+void vec_socket_remove(uint32_t fd, vec_socket_t sockets) {
+  cmsu_Sockets_remove(fd, sockets);
+}

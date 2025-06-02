@@ -14,7 +14,6 @@ typedef struct {
   char *buf;
   uint32_t len;
 } buffer_t;
-
-typedef struct cmsu_EventLoop *cmsu_evl_t;
+typedef struct cmsu_EventLoop *evl_t;
 
 #endif // C_MINILIB_SIP_UA_COMMON_H

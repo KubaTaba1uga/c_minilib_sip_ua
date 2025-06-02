@@ -20,6 +20,7 @@
 #include "sip/_internal/sip_request_vec.h"
 #include "sip/sip.h"
 #include "utils/id.h"
+#include <stdint.h>
 
 /*
  *  Sip transactions are described by few state machines.
@@ -50,10 +51,13 @@ struct cmsu_SipTransaction {
 
 static inline int cmsu_SipTransaction_cmp(const struct cmsu_SipTransaction *a,
                                           const struct cmsu_SipTransaction *b) {
-  if (socket_get_fd(a->request.socket) == socket_get_fd(b->request.socket)) {
+  uint32_t a_fd = socket_get_fd(a->request.socket);
+  uint32_t b_fd = socket_get_fd(b->request.socket);
+
+  if (a_fd == b_fd) {
     return 0;
   }
-  if (socket_get_fd(a->request.socket) > socket_get_fd(b->request.socket)) {
+  if (a_fd > b_fd) {
     return 1;
   }
 

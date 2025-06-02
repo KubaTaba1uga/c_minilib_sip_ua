@@ -15,9 +15,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-typedef struct cmsu_Socket cmsu_Socket;
 #define i_tag cmsu_Sockets
-#define i_key cmsu_Socket
+#define i_key struct cmsu_Socket
 #define i_cmp cmsu_Socket_cmp
 #include <stc/vec.h>
 
@@ -77,6 +76,10 @@ static inline void cmsu_Sockets_destroy(vec_socket_t *out) {
   vec_cmsu_Sockets_drop(*out);
   free(*out);
   *out = NULL;
+}
+
+static inline void cmsu_Sockets_remove(uint32_t fd, vec_cmsu_Sockets *sockets) {
+  vec_cmsu_Sockets_erase_n(sockets, fd, 1);
 }
 
 #endif

@@ -6,12 +6,13 @@
 
 #ifndef C_MINILIB_SIP_UA_INT_UDP_H
 #define C_MINILIB_SIP_UA_INT_UDP_H
-#include <asm-generic/errno.h>
+#include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/poll.h>
 
 #include "c_minilib_error.h"
 #include "c_minilib_mock.h"
@@ -36,19 +37,20 @@ struct cmsu_SocketUdp {
                                   // case user schedule multiple sends.
   struct cmsu_Socket socket;
   ip_addr_t ipaddr;
-  cmsu_evl_t evl;
   int sockfd;
+  evl_t evl;
 
+  // Logic callback
   void *ctx;
   cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
-                               buffer_t *buffer, void *ctx);
+                               buffer_t *buffer, void *proto);
   cme_error_t (*recv_fail_callback)(socket_t socket, ip_addr_t *sender,
-                                    buffer_t *buffer, void *ctx);
+                                    buffer_t *buffer, void *proto);
   cme_error_t (*send_callback)(socket_t socket, ip_addr_t *recver,
-                               buffer_t *buffer, void *data, void *ctx);
+                               buffer_t *buffer, void *data, void *proto);
   cme_error_t (*send_fail_callback)(socket_t socket, ip_addr_t *recver,
-                                    buffer_t *buffer, void *data, void *ctx);
-  void (*ctx_destroy)(void *ctx);
+                                    buffer_t *buffer, void *data, void *proto);
+  void (*destroy_callback)(void *proto);
 };
 
 MOCKABLE_STATIC(int cmsu_SocketUdp_recvfrom(int sockfd, void *buf, size_t len,
@@ -66,7 +68,7 @@ MOCKABLE_STATIC(int cmsu_SocketUdp_sendto(int sockfd, const void *buf,
 }
 
 static inline cme_error_t cmsu_SocketUdp_create(
-    cmsu_evl_t evl, ip_addr_t ipaddr, void *ctx,
+    evl_t evl, ip_addr_t ipaddr, uint32_t socketev, void *ctx,
     cme_error_t (*recv_callback)(socket_t socket, ip_addr_t *sender,
                                  buffer_t *buf, void *ctx_),
     cme_error_t (*recv_fail_callback)(socket_t socket, ip_addr_t *sender,
@@ -77,18 +79,26 @@ static inline cme_error_t cmsu_SocketUdp_create(
                                       buffer_t *buf, void *data, void *ctx_),
     void(*ctx_destroy), socket_t *out) {
   struct cmsu_SocketUdp *udp = calloc(1, sizeof(struct cmsu_SocketUdp));
+  uint32_t events = 0;
   cme_error_t err;
   if (!udp) {
     err = cme_error(ENOMEM, "Cannot allocate memory for `udp`");
     goto error_out;
   }
 
-  udp->evl = evl;
+  udp->socket.evl = evl;
   udp->ipaddr = ipaddr;
-  udp->socket.type = SocketType_UDP;
+  udp->socket.proto_type = SocketProto_UDP;
   udp->socket.proto = udp;
   udp->ctx = ctx;
-  udp->ctx_destroy = ctx_destroy;
+  udp->destroy_callback = ctx_destroy;
+  if (socketev & SocketEvent_RECEIVE) {
+    events |= POLLIN;
+  }
+  if (socketev & SocketEvent_SEND) {
+    events |= POLLOUT;
+  }
+
   if (recv_callback) {
     udp->recv_callback = recv_callback;
   }
@@ -125,6 +135,11 @@ static inline cme_error_t cmsu_SocketUdp_create(
   }
 
   udp->sockfd = res.fd;
+
+  err = event_loop_insert_socket(&udp->socket, events, udp->socket.evl);
+  if (err) {
+    goto error_udp_cleanup;
+  }
 
   *out = &udp->socket;
 

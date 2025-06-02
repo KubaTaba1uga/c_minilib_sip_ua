@@ -3,10 +3,10 @@
 
 #include "c_minilib_error.h"
 #include "sip/_internal/sip_transaction.h"
+#include "sip/sip.h"
 
-typedef struct cmsu_SipTransaction *cmsu_SipTransaction;
 #define i_tag cmsu_SipTransactions
-#define i_key cmsu_SipTransaction
+#define i_key struct cmsu_SipTransaction
 #define i_cmp cmsu_SipTransaction_cmp
 #include <stc/list.h>
 

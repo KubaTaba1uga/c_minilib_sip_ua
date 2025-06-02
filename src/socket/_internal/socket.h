@@ -21,8 +21,8 @@
 static inline cme_error_t cmsu_Socket_recv_event_handler(socket_t socket) {
   cme_error_t err;
 
-  switch (socket->type) {
-  case SocketType_UDP:
+  switch (socket->proto_type) {
+  case SocketProto_UDP:
     err = cmsu_SocketUdp_recv_event_handler(socket->proto);
     break;
   default:
@@ -42,8 +42,8 @@ error_out:
 static inline cme_error_t cmsu_Socket_send_event_handler(socket_t socket,
                                                          bool *is_send_done) {
   cme_error_t err;
-  switch (socket->type) {
-  case SocketType_UDP:
+  switch (socket->proto_type) {
+  case SocketProto_UDP:
     err = cmsu_SocketUdp_send_event_handler(socket->proto, is_send_done);
     break;
   default:
@@ -61,8 +61,8 @@ error_out:
 }
 
 static inline int cmsu_Socket_get_fd(socket_t socket) {
-  switch (socket->type) {
-  case SocketType_UDP:
+  switch (socket->proto_type) {
+  case SocketProto_UDP:
     return cmsu_SocketUdp_get_fd(socket->proto);
     break;
   default:
@@ -86,8 +86,8 @@ void cmsu_Socket_destroy(socket_t *socket) {
     return;
   }
 
-  switch ((*socket)->type) {
-  case SocketType_UDP:
+  switch ((*socket)->proto_type) {
+  case SocketProto_UDP:
     cmsu_SocketUdp_destroy((*socket)->proto);
     break;
   default:;
@@ -100,8 +100,8 @@ static inline cme_error_t cmsu_Socket_recv_sync(ip_addr_t *sender,
                                                 buffer_t *buffer,
                                                 struct cmsu_Socket *socket) {
   cme_error_t err;
-  switch (socket->type) {
-  case SocketType_UDP:
+  switch (socket->proto_type) {
+  case SocketProto_UDP:
     err = cmsu_SocketUdp_recv_sync(sender, buffer, socket->proto);
     break;
   default:
@@ -122,8 +122,8 @@ static inline cme_error_t cmsu_Socket_send_sync(ip_addr_t *recver,
                                                 buffer_t *buffer,
                                                 struct cmsu_Socket *socket) {
   cme_error_t err;
-  switch (socket->type) {
-  case SocketType_UDP:
+  switch (socket->proto_type) {
+  case SocketProto_UDP:
     err = cmsu_SocketUdp_send_sync(recver, buffer, socket->proto);
     break;
   default:

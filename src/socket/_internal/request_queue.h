@@ -12,9 +12,8 @@
 #include "c_minilib_error.h"
 #include "socket/_internal/request.h"
 
-typedef struct cmsu_Request cmsu_Request;
 #define i_tag cmsu_Requests
-#define i_key cmsu_Request
+#define i_key struct cmsu_Request
 #define i_cmp cmsu_Request_cmp
 #include <stc/queue.h>
 

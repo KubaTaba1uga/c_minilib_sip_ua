@@ -27,7 +27,7 @@ struct cmsu_Ua {
   sip_session_t sipsess;
 };
 
-static inline cme_error_t cmsu_Ua_create(cmsu_evl_t evl, struct cmsu_Ua **out) {
+static inline cme_error_t cmsu_Ua_create(evl_t evl, struct cmsu_Ua **out) {
   cme_error_t err;
   struct cmsu_Ua *ua = calloc(1, sizeof(struct cmsu_Ua));
   if (!ua) {
@@ -35,7 +35,7 @@ static inline cme_error_t cmsu_Ua_create(cmsu_evl_t evl, struct cmsu_Ua **out) {
     goto error_out;
   }
 
-  err = sip_create_session(evl, (ip_addr_t){.ip = "0.0.0.0", .port = "7337"},
+  err = sip_session_create(evl, (ip_addr_t){.ip = "0.0.0.0", .port = "7337"},
                            &ua->sipsess);
   if (err) {
     goto error_ua_cleanup;
@@ -56,7 +56,7 @@ static inline void cmsu_Ua_destroy(struct cmsu_Ua **out) {
     return;
   }
 
-  sip_destroy_session(&(*out)->sipsess);
+  sip_session_destroy(&(*out)->sipsess);
   free(*out);
   *out = NULL;
 }

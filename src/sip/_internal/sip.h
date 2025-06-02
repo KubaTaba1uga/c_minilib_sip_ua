@@ -25,9 +25,11 @@
 struct cmsu_SipSession {
   socket_t
       socket; // We need socket in case Sip Session need to schedule some io.
+
   list_cmsu_SipTransactions
       transactions; // Transactions are responsible for matching requests and
                     // responses into pairs.
+
   id_gen_t id_gen;
 };
 
@@ -62,8 +64,8 @@ static inline cme_error_t
 cmsu_SipSession_send_fail_callback(socket_t socket, ip_addr_t *recver,
                                    buffer_t *buf, void *data, void *ctx);
 
-static inline cme_error_t cmsu_SipSession_create(cmsu_evl_t evl,
-                                                 ip_addr_t ipaddr,
+static inline cme_error_t cmsu_SipSession_create(evl_t evl, ip_addr_t ipaddr,
+
                                                  struct cmsu_SipSession **out) {
   struct cmsu_SipSession *sipsess = calloc(1, sizeof(struct cmsu_SipSession));
   cme_error_t err;
@@ -72,18 +74,17 @@ static inline cme_error_t cmsu_SipSession_create(cmsu_evl_t evl,
     goto error_out;
   }
 
-  err = socket_udp_create(evl, ipaddr, cmsu_SipSession_recv_callback,
-                          cmsu_SipSession_recv_fail_callback,
-                          cmsu_SipSession_send_callback,
-                          cmsu_SipSession_send_fail_callback,
-                          cmsu_SipSession_destroy, sipsess, &sipsess->socket);
+  // We are marking sip session for receive. If one want to send sth socket_send
+  //  will set appropriate events. In udp we need to always set at least receive
+  //  flag because even after send we want to receive confirmation over some
+  //  socket.
+  err = socket_udp_create(
+      evl, ipaddr, SocketEvent_RECEIVE, sipsess, cmsu_SipSession_recv_callback,
+      cmsu_SipSession_recv_fail_callback, cmsu_SipSession_send_callback,
+      cmsu_SipSession_send_fail_callback, cmsu_SipSession_destroy,
+      &sipsess->socket);
   if (err) {
     goto error_sipsess_cleanup;
-  }
-
-  err = event_loop_insert_socket(sipsess->socket, POLLIN, evl);
-  if (err) {
-    goto error_udp_cleanup;
   }
 
   sipsess->transactions = list_cmsu_SipTransactions_init();
@@ -92,8 +93,6 @@ static inline cme_error_t cmsu_SipSession_create(cmsu_evl_t evl,
 
   return 0;
 
-error_udp_cleanup:
-  socket_destroy(&sipsess->socket);
 error_sipsess_cleanup:
   free(sipsess);
 error_out:

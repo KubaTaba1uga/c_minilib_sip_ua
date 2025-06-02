@@ -25,7 +25,7 @@
  ******************************************************************************/
 typedef struct cmsu_Ua *ua_t;
 
-cme_error_t ua_create(cmsu_evl_t evl, ua_t *out);
+cme_error_t ua_create(evl_t evl, ua_t *out);
 void ua_destroy(ua_t *out);
 
 #endif // C_MINILIB_SIP_UA_SIP_H

@@ -10,7 +10,10 @@
 
 struct cmsu_Socket {
   // Data
-  enum SocketType type;
+  enum SocketProto proto_type;
+  evl_t evl;
+
+  // Protocol
   void *proto;
 };
 

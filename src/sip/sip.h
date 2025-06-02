@@ -26,12 +26,12 @@
  *                             Sip                                            *
  ******************************************************************************/
 typedef struct cmsu_SipSession *sip_session_t;
+typedef struct cmsu_SipTransaction *sip_trans_t;
 typedef struct cmsc_SipMessage *sip_msg_t;
 
 // TO-DO add recv and send callbacks
-cme_error_t sip_create_session(cmsu_evl_t evl, ip_addr_t ipaddr,
-                               sip_session_t *out);
-void sip_destroy_session(void *sipsess);
+cme_error_t sip_session_create(evl_t evl, ip_addr_t ipaddr, sip_session_t *out);
+void sip_session_destroy(void *sipsess);
 
 id_t sip_session_gen_id(sip_session_t sipsess);
 

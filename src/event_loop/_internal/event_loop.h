@@ -178,26 +178,7 @@ void cmsu_EventLoop_async_send_socket(socket_t socket,
 }
 
 void cmsu_EventLoop_remove_socket(socket_t socket, struct cmsu_EventLoop *evl) {
-  cmsu_PollFd *pollfd = cmsu_poll(evl->fds, ) cmsu_PollFd *pollfd =
-      vec_cmsu_PollFds_(&evl->fds, (cmsu_PollFd){.fd = socket_get_fd(socket),
-                                                 .events = events});
-  cme_error_t err;
-  if (!pollfd) {
-    err = cme_error(ENOMEM, "Cannot add `pollfd` to event loop fds");
-    goto error_out;
-  }
-
-  err = vec_socket_insert(socket, evl->sockets);
-  if (err) {
-    goto error_fds_cleanup;
-  }
-
-  return 0;
-
-error_fds_cleanup:
-  vec_cmsu_PollFds_pop(&evl->fds);
-error_out:
-  return cme_return(err);
+  cmsu_PollFds_remove(socket_get_fd(socket), &evl->fds);
 }
 
 #endif // C_MINILIB_SIP_UA_INT_EVENT_LOOP_H
