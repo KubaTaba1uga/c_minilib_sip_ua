@@ -41,8 +41,7 @@ enum cmsu_SipportedSipTransactions {
 
 struct cmsu_SipTransaction {
   enum cmsu_SipportedSipTransactions type;
-  struct vec_cmsu_SipResponses responses;
-  struct cmsu_SipRequest request;
+  struct cmsu_SipStack *stack;
   id_gen_t id_gen;
   bool is_done;
   void *data;
@@ -60,7 +59,5 @@ static inline int cmsu_SipTransaction_cmp(const struct cmsu_SipTransaction *a,
 
   return -1;
 }
-
-/* static inline cmsu_SipTransaction_ */
 
 #endif // C_MINILIB_SIP_UA_SIP_TRANSACTION_H

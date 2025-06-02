@@ -15,7 +15,6 @@
  *                                Sip Response                                 *
  ******************************************************************************/
 struct cmsu_SipResponse {
-  struct SipStack *stack;
   ip_addr_t sender;
   sip_msg_t msg;
   uint32_t id;

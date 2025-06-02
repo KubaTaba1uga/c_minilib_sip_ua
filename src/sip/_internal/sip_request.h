@@ -15,7 +15,6 @@
  *                                Sip Request                                 *
  ******************************************************************************/
 struct cmsu_SipRequest {
-  struct SipStack *stack;
   ip_addr_t recver;
   sip_msg_t msg;
   uint32_t id;

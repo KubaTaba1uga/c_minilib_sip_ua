@@ -8,9 +8,10 @@
 
 #include "c_minilib_error.h"
 #include "sip/_internal/sip_request.h"
-#include "sip/_internal/sip_request_vec.h"
+#include "sip/_internal/sip_response_vec.h"
 #include "sip/_internal/sip_transaction.h"
 #include "sip/sip.h"
+#include "socket/socket.h"
 #include "utils/id.h"
 #include <asm-generic/errno-base.h>
 #include <stdlib.h>
@@ -23,10 +24,13 @@
 
 struct cmsu_SipTransactionClientOther {
   struct cmsu_SipTransaction trans;
+  struct vec_cmsu_SipResponses responses;
+  struct cmsu_SipRequest request;
 };
 
 static inline cme_error_t
-cmsu_SipTransactionClientOther_create(sip_msg_t sipmsg, sip_session_t sipsess,
+cmsu_SipTransactionClientOther_create(sip_msg_t sipmsg, ip_addr_t recver,
+                                      sip_stack_t sipstack,
                                       struct cmsu_SipTransaction **out) {
   struct cmsu_SipTransactionClientOther *trans_c_other =
       calloc(1, sizeof(struct cmsu_SipTransactionClientOther));
@@ -36,15 +40,28 @@ cmsu_SipTransactionClientOther_create(sip_msg_t sipmsg, sip_session_t sipsess,
     goto error_out;
   }
 
-  trans_c_other->trans.id = sip_session_gen_id(sipsess);
-  trans_c_other->trans.data = trans_c_other;
-  trans_c_other->trans.type = cmsu_SipportedSipTransactions_CLIENT_OTHER;
-  trans_c_other->trans.responses = vec_cmsu_SipRequests_init();
+  // Sip Request
+  trans_c_other->request.id = sip_stack_gen_id(sipstack);
+  trans_c_other->request.stack = sipstack;
+  trans_c_other->request.recver = recver;
+  trans_c_other->request.msg = sipmsg;
 
+  // Sip Transaction
+  trans_c_other->trans.type = cmsu_SipportedSipTransactions_CLIENT_OTHER;
+  trans_c_other->trans.responses = vec_cmsu_SipResponses_init();
+  trans_c_other->trans.id = sip_stack_gen_id(sipstack);
+  trans_c_other->trans.data = trans_c_other;
+
+  err = cmsu_SipStack_send_transaction(trans_c_other);
+  if (err) {
+    goto error_trans_cleanup;
+  }
   *out = &trans_c_other->trans;
 
   return 0;
 
+error_trans_cleanup:
+  free(trans_c_other);
 error_out:
   return cme_return(err);
 };

@@ -14,6 +14,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
+#include "sip/_internal/sip_transaction.h"
 #include "sip/_internal/sip_transaction_list.h"
 #include "sip/sip.h"
 #include "socket/socket.h"
@@ -64,7 +65,6 @@ cmsu_SipStack_send_fail_callback(socket_t socket, ip_addr_t *recver,
                                  buffer_t *buf, void *data, void *ctx);
 
 static inline cme_error_t cmsu_SipStack_create(evl_t evl, ip_addr_t ipaddr,
-
                                                struct cmsu_SipStack **out) {
   struct cmsu_SipStack *sipsess = calloc(1, sizeof(struct cmsu_SipStack));
   cme_error_t err;
@@ -150,5 +150,27 @@ cmsu_SipStack_send_fail_callback(socket_t socket, ip_addr_t *recver,
 id_t cmsu_SipStack_gen_id(sip_stack_t sipsess) {
   return id_generate(&sipsess->id_gen);
 }
+
+static inline cme_error_t
+cmsu_SipStack_send_transaction(struct cmsu_SipTransaction transaction) {
+  struct cmsu_SipTransaction *out = list_cmsu_SipTransactions_push(
+      &transaction.stack->transactions, transaction);
+  cme_error_t err;
+  if (!out) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for sip transaction");
+    goto error_out;
+  }
+
+  /* err = event_loop_async_send_socket(transaction.stack->socket, */
+  /*                                    transaction.stack->socket->evl); */
+  /* if (err) { */
+  /*   goto error_out_cleanup; */
+  /* } */
+  puts("Hit sip send success");
+  return 0;
+
+error_out:
+  return cme_return(err);
+};
 
 #endif
