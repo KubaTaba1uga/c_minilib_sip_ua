@@ -20,15 +20,19 @@
 #include "event_loop/event_loop.h"
 #include "socket/socket.h"
 #include "utils/common.h"
+#include "utils/id.h"
 
 /******************************************************************************
  *                             Sip                                            *
  ******************************************************************************/
 typedef struct cmsu_SipSession *sip_session_t;
+typedef struct cmsc_SipMessage *sip_msg_t;
 
 // TO-DO add recv and send callbacks
 cme_error_t sip_create_session(cmsu_evl_t evl, ip_addr_t ipaddr,
                                sip_session_t *out);
 void sip_destroy_session(void *sipsess);
+
+id_t sip_session_gen_id(sip_session_t sipsess);
 
 #endif // C_MINILIB_SIP_UA_SIP_H

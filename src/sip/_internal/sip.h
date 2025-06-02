@@ -14,14 +14,21 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
+#include "sip/_internal/sip_transaction_list.h"
 #include "sip/sip.h"
 #include "socket/socket.h"
+#include "utils/id.h"
 
 /******************************************************************************
  *                             Sip Session                                    *
  ******************************************************************************/
 struct cmsu_SipSession {
-  socket_t socket;
+  socket_t
+      socket; // We need socket in case Sip Session need to schedule some io.
+  list_cmsu_SipTransactions
+      transactions; // Transactions are responsible for matching requests and
+                    // responses into pairs.
+  id_gen_t id_gen;
 };
 
 static inline void cmsu_SipSession_destroy(void *out) {
@@ -78,6 +85,8 @@ static inline cme_error_t cmsu_SipSession_create(cmsu_evl_t evl,
   if (err) {
     goto error_udp_cleanup;
   }
+
+  sipsess->transactions = list_cmsu_SipTransactions_init();
 
   *out = sipsess;
 
@@ -139,5 +148,9 @@ cmsu_SipSession_send_fail_callback(socket_t socket, ip_addr_t *recver,
   puts("Hit sip send fail");
   return 0;
 };
+
+id_t cmsu_SipSession_gen_id(sip_session_t sipsess) {
+  return id_generate(&sipsess->id_gen);
+}
 
 #endif

@@ -1,0 +1,17 @@
+#ifndef C_MINILIB_SIP_UA_SIP_TRANSACTION_LIST_H
+#define C_MINILIB_SIP_UA_SIP_TRANSACTION_LIST_H
+
+#include "c_minilib_error.h"
+#include "sip/_internal/sip_transaction.h"
+
+typedef struct cmsu_SipTransaction *cmsu_SipTransaction;
+#define i_tag cmsu_SipTransactions
+#define i_key cmsu_SipTransaction
+#define i_cmp cmsu_SipTransaction_cmp
+#include <stc/list.h>
+
+static inline cme_error_t
+cmsu_SipTransactions_insert(struct cmsu_SipTransaction *siptrans,
+                            list_cmsu_SipTransactions *list);
+
+#endif
