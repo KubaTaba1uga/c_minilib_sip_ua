@@ -17,7 +17,7 @@
 
 #include "c_minilib_error.h"
 #include "sip/_internal/sip_request.h"
-#include "sip/_internal/sip_request_vec.h"
+#include "sip/_internal/sip_response_vec.h"
 #include "sip/sip.h"
 #include "utils/id.h"
 #include <stdint.h>
@@ -41,7 +41,7 @@ enum cmsu_SipportedSipTransactions {
 
 struct cmsu_SipTransaction {
   enum cmsu_SipportedSipTransactions type;
-  struct vec_cmsu_SipRequests responses;
+  struct vec_cmsu_SipResponses responses;
   struct cmsu_SipRequest request;
   id_gen_t id_gen;
   bool is_done;
@@ -51,13 +51,10 @@ struct cmsu_SipTransaction {
 
 static inline int cmsu_SipTransaction_cmp(const struct cmsu_SipTransaction *a,
                                           const struct cmsu_SipTransaction *b) {
-  uint32_t a_fd = socket_get_fd(a->request.socket);
-  uint32_t b_fd = socket_get_fd(b->request.socket);
-
-  if (a_fd == b_fd) {
+  if (a->id == b->id) {
     return 0;
   }
-  if (a_fd > b_fd) {
+  if (a->id > b->id) {
     return 1;
   }
 

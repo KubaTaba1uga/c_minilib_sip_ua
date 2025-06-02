@@ -4,25 +4,25 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_INT_SIP_REQUEST_H
-#define C_MINILIB_SIP_UA_INT_SIP_REQUEST_H
+#ifndef C_MINILIB_SIP_UA_INT_SIP_RESPONSE_H
+#define C_MINILIB_SIP_UA_INT_SIP_RESPONSE_H
 #include "c_minilib_error.h"
 #include "sip/sip.h"
 #include "socket/socket.h"
 #include <stdint.h>
 
 /******************************************************************************
- *                                Sip Request                                 *
+ *                                Sip Response                                 *
  ******************************************************************************/
-struct cmsu_SipRequest {
+struct cmsu_SipResponse {
   struct SipStack *stack;
-  ip_addr_t recver;
+  ip_addr_t sender;
   sip_msg_t msg;
   uint32_t id;
 };
 
-static inline int cmsu_SipRequest_cmp(const struct cmsu_SipRequest *a,
-                                      const struct cmsu_SipRequest *b) {
+static inline int cmsu_SipResponse_cmp(const struct cmsu_SipResponse *a,
+                                       const struct cmsu_SipResponse *b) {
   if (a->id == b->id) {
     return 0;
   }
@@ -33,4 +33,4 @@ static inline int cmsu_SipRequest_cmp(const struct cmsu_SipRequest *a,
   return -1;
 }
 
-#endif // C_MINILIB_SIP_UA_SIP_REQUEST_H
+#endif // C_MINILIB_SIP_UA_SIP_RESPONSE_H

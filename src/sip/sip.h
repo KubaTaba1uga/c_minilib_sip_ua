@@ -25,14 +25,14 @@
 /******************************************************************************
  *                             Sip                                            *
  ******************************************************************************/
-typedef struct cmsu_SipSession *sip_session_t;
+typedef struct cmsu_SipStack *sip_stack_t;
 typedef struct cmsu_SipTransaction *sip_trans_t;
 typedef struct cmsc_SipMessage *sip_msg_t;
 
 // TO-DO add recv and send callbacks
-cme_error_t sip_session_create(evl_t evl, ip_addr_t ipaddr, sip_session_t *out);
-void sip_session_destroy(void *sipsess);
+cme_error_t sip_stack_create(evl_t evl, ip_addr_t ipaddr, sip_stack_t *out);
+void sip_stack_destroy(void *sipsess);
 
-id_t sip_session_gen_id(sip_session_t sipsess);
+id_t sip_stack_gen_id(sip_stack_t sipsess);
 
 #endif // C_MINILIB_SIP_UA_SIP_H
