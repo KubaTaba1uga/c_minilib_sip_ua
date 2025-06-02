@@ -167,9 +167,8 @@ error_out:
   return cme_return(err);
 }
 
-void cmsu_EventLoop_async_send_socket(socket_t socket,
-                                      struct cmsu_EventLoop *evl) {
-  c_foreach(fd, vec_cmsu_PollFds, evl->fds) {
+void cmsu_EventLoop_async_send_socket(socket_t socket) {
+  c_foreach(fd, vec_cmsu_PollFds, socket_get_evl(socket)->fds) {
     if (socket_get_fd(socket) == fd.ref->fd) {
       fd.ref->events |= POLLOUT;
       break;
@@ -177,8 +176,9 @@ void cmsu_EventLoop_async_send_socket(socket_t socket,
   }
 }
 
-void cmsu_EventLoop_remove_socket(socket_t socket, struct cmsu_EventLoop *evl) {
-  cmsu_PollFds_remove(socket_get_fd(socket), &evl->fds);
+void cmsu_EventLoop_remove_socket(socket_t socket) {
+  cmsu_PollFds_remove(socket_get_fd(socket), &socket_get_evl(socket)->fds);
+  vec_socket_remove(socket_get_fd(socket), socket_get_evl(socket)->sockets);
 }
 
 #endif // C_MINILIB_SIP_UA_INT_EVENT_LOOP_H

@@ -140,4 +140,25 @@ error_out:
   return cme_return(err);
 }
 
+static inline cme_error_t
+cmsu_Socket_send_async(socket_t socket, ip_addr_t *recver, void *data) {
+  cme_error_t err;
+  switch (socket->proto_type) {
+  case SocketProto_UDP:
+    err = cmsu_SocketUdp_send_async(socket->proto, recver, data);
+    break;
+  default:
+    err = cme_error(EINVAL, "Unsupported socket type");
+  }
+
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
+
 #endif // C_MINILIB_SIP_UA_SOCKET_H

@@ -55,6 +55,7 @@ cme_error_t socket_send_event_handler(socket_t socket, bool *is_send_done);
 cme_error_t socket_fail_event_handler(bool is_err, bool is_conn_close,
                                       socket_t socket);
 
+evl_t socket_get_evl(socket_t socket);
 int socket_get_fd(socket_t socket);
 void socket_destroy(socket_t *socket);
 
@@ -62,6 +63,8 @@ cme_error_t socket_recv_sync(ip_addr_t *sender, buffer_t *buffer,
                              socket_t socket);
 cme_error_t socket_send_sync(ip_addr_t *recver, buffer_t *buffer,
                              socket_t socket);
+
+cme_error_t socket_send_async(socket_t socket, ip_addr_t *recver, void *data);
 
 /******************************************************************************
  *                             Sockets Vector                                 *

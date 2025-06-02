@@ -232,7 +232,7 @@ cmsu_SocketUdp_recv_event_handler(struct cmsu_SocketUdp *sock) {
   return 0;
 
 error_out:
-  event_loop_remove_socket(&sock->socket, sock->evl);
+  event_loop_remove_socket(&sock->socket);
   return cme_return(err);
 }
 
@@ -303,11 +303,12 @@ cmsu_SocketUdp_send_event_handler(struct cmsu_SocketUdp *sock,
   }
 
   *is_send_done = queue_cmsu_Requests_size(&sock->reqs_queue) > 0;
+  free(request.buffer.buf);
 
   return 0;
 
 error_out:
-  event_loop_remove_socket(&sock->socket, sock->evl);
+  event_loop_remove_socket(&sock->socket);
   return cme_return(err);
 };
 
@@ -324,19 +325,18 @@ static inline void cmsu_SocketUdp_destroy(struct cmsu_SocketUdp *sock) {
 };
 
 static inline cme_error_t
-cmsu_SocketUdp_send_async(socket_t socket, ip_addr_t recver, void *data) {
+cmsu_SocketUdp_send_async(socket_t socket, ip_addr_t *recver, void *data) {
   cme_error_t err;
 
   struct cmsu_Request *request = queue_cmsu_Requests_push(
       &((struct cmsu_SocketUdp *)socket->proto)->reqs_queue,
-      (struct cmsu_Request){.socket = socket, .data = data, .recver = recver});
+      (struct cmsu_Request){.socket = socket, .data = data, .recver = *recver});
   if (!request) {
     err = cme_error(ENOMEM, "Cannot insert new request into UDP socket");
     goto error_out;
   }
 
-  event_loop_async_send_socket(socket,
-                               ((struct cmsu_SocketUdp *)socket->proto)->evl);
+  event_loop_async_send_socket(socket);
 
   return 0;
 

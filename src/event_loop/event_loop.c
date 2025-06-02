@@ -16,10 +16,10 @@ cme_error_t event_loop_insert_socket(socket_t socket, short events,
   return cmsu_EventLoop_insert_socket(socket, events, evl);
 };
 
-void event_loop_async_send_socket(socket_t socket, event_loop_t evl) {
-  cmsu_EventLoop_async_send_socket(socket, evl);
+void event_loop_async_send_socket(socket_t socket) {
+  cmsu_EventLoop_async_send_socket(socket);
 };
 
-void event_loop_remove_socket(socket_t socket, event_loop_t evl) {
-  cmsu_PollFds_remove(socket_get_fd(socket), &evl->fds);
+void event_loop_remove_socket(socket_t socket) {
+  cmsu_EventLoop_remove_socket(socket);
 };

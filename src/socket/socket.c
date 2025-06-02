@@ -47,6 +47,12 @@ cme_error_t socket_send_sync(ip_addr_t *recver, buffer_t *buffer,
   return cmsu_Socket_send_sync(recver, buffer, socket);
 };
 
+evl_t socket_get_evl(socket_t socket) { return socket->evl; }
+
+cme_error_t socket_send_async(socket_t socket, ip_addr_t *recver, void *data) {
+  return cmsu_Socket_send_async(socket, recver, data);
+};
+
 int socket_get_fd(socket_t socket) { return cmsu_Socket_get_fd(socket); }
 
 void socket_destroy(socket_t *socket) { cmsu_Socket_destroy(socket); };

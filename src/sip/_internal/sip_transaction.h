@@ -16,6 +16,7 @@
 #define C_MINILIB_SIP_UA_SIP_TRANSACTION_H
 
 #include "c_minilib_error.h"
+#include "c_minilib_sip_codec.h"
 #include "sip/_internal/sip_request.h"
 #include "sip/_internal/sip_response_vec.h"
 #include "sip/sip.h"
@@ -41,7 +42,7 @@ enum cmsu_SipportedSipTransactions {
 
 struct cmsu_SipTransaction {
   enum cmsu_SipportedSipTransactions type;
-  struct cmsu_SipStack *stack;
+  sip_stack_t sip;
   id_gen_t id_gen;
   bool is_done;
   void *data;
