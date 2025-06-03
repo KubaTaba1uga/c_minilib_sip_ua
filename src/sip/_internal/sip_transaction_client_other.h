@@ -17,6 +17,7 @@
 #include "socket/socket.h"
 #include "utils/id.h"
 #include <errno.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 /*
@@ -122,6 +123,8 @@ static inline cme_error_t cmsu_SipTransactionClientOther_recv_callback(
     err = cme_error(ENOMEM, "Cannot add response to sip transaction");
     goto error_out;
   }
+
+  puts("Request and response matched!");
 
   return 0;
 

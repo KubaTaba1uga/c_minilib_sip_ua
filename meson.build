@@ -22,7 +22,7 @@ if get_option('buildtype').startswith('debug')
 endif
 
 # We need this for socket99
-add_project_arguments('-D_POSIX_C_SOURCE=200112L', language: 'c')
+add_project_arguments('-D_POSIX_C_SOURCE=200809L', language: 'c')
 
 subdir('src')
 

@@ -16,6 +16,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
+#include "sip/_internal/common.h"
 #include "sip/_internal/sip_request.h"
 #include "sip/_internal/sip_transaction.h"
 #include "sip/_internal/sip_transaction_client_other.h"
@@ -72,8 +73,8 @@ static inline cme_error_t cmsu_SipStack_create(evl_t evl, ip_addr_t ipaddr,
 
   // We are marking sip stack for receive. If one want to send sth socket_send
   //  will set appropriate events. In udp we need to always set at least receive
-  //  flag because even after send we want to receive confirmation over some
-  //  socket.
+  //  flag because even after send we want to receive confirmation that packets
+  //  were received.
   err = socket_udp_create(
       evl, ipaddr, SocketEvent_RECEIVE, sip_stack, cmsu_SipStack_recv_callback,
       cmsu_SipStack_recv_fail_callback, cmsu_SipStack_send_callback,
@@ -119,12 +120,12 @@ static inline cme_error_t cmsu_SipStack_recv_callback(socket_t socket,
       switch (siptrans.ref->type) {
       case cmsu_SipportedSipTransactions_CLIENT_OTHER: {
         err = cmsu_SipTransactionClientOther_recv_callback(
-            socket, sender, sipmsg, siptrans->data, sip_stack);
+            socket, sender, sipmsg, siptrans.ref->data, sip_stack);
         break;
       }
       default:;
         err = cme_errorf(ENODATA, "Unsupported transaction type: %d",
-                         sip_trans->type);
+                         siptrans.ref->type);
       }
       if (err) {
         goto error_out;
@@ -132,10 +133,8 @@ static inline cme_error_t cmsu_SipStack_recv_callback(socket_t socket,
     }
   }
 
-  /* sipmsg->vias.stqh_first->branch */
-  /* struct cmsc_String call_id = cmsc_bs_msg_to_string(&sipmsg->call_id,
-   * sipmsg); */
-  /* printf("Received %.*s\n", call_id.len, call_id.buf); */
+  struct cmsc_String call_id = cmsc_bs_msg_to_string(&sipmsg->call_id, sipmsg);
+  printf("Received %.*s\n", call_id.len, call_id.buf);
 
   printf("Finished %s\n", __func__);
 
@@ -195,6 +194,8 @@ id_t cmsu_SipStack_gen_id(sip_stack_t sip_stack) {
 
 static inline cme_error_t
 cmsu_SipStack_send_transaction(struct cmsu_SipTransaction *siptrans) {
+  // This is the same as sipstack connect, we can provide appropriate callbacks
+  // on this funcotion.
   cme_error_t err;
   switch (siptrans->type) {
   case cmsu_SipportedSipTransactions_CLIENT_OTHER: {
@@ -226,6 +227,42 @@ cmsu_SipTransaction_get_top_via_branch(struct cmsu_SipTransaction *siptrans) {
   default:
     return (struct cmsc_String){.buf = "", .len = 0};
   }
+}
+
+cme_error_t cmsu_SipStack_connect(sip_stack_t sip_stack, ip_addr_t recver,
+                                  sip_msg_t msg) {
+  struct cmsu_SipTransaction *sip_trans;
+  cme_error_t err;
+
+  if (cmsu_is_sipmsg_request(msg)) {
+    if (strncmp(cmsc_bs_msg_to_string(&msg->request_line.sip_method, msg).buf,
+                "INVITE", msg->request_line.sip_method.len) == 0) {
+      err = cme_error(EINVAL,
+                      "Sending INVITE messages is not supported at the moment");
+      goto error_out;
+    }
+    if (strncmp(cmsc_bs_msg_to_string(&msg->request_line.sip_method, msg).buf,
+                "MESSAGE", msg->request_line.sip_method.len) == 0) {
+      err = cmsu_SipTransactionClientOther_create(msg, recver, sip_stack,
+                                                  &sip_trans);
+      if (err) {
+        goto error_out;
+      }
+
+      return cmsu_SipStack_send_transaction(sip_trans);
+    }
+
+    err = cme_errorf(
+        EINVAL, "Sending %.*s messages is not supported at the moment",
+        msg->request_line.sip_method.len,
+        cmsc_bs_msg_to_string(&msg->request_line.sip_method, msg).buf);
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
 }
 
 #endif

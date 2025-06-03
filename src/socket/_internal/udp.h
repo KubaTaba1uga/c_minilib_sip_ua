@@ -11,6 +11,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#undef _POSIX_C_SOURCE
+#define _POSIX_C_SOURCE 200809L
 #include <string.h>
 #include <sys/poll.h>
 
@@ -325,18 +327,24 @@ static inline void cmsu_SocketUdp_destroy(struct cmsu_SocketUdp *sock) {
 };
 
 static inline cme_error_t
-cmsu_SocketUdp_send_async(socket_t socket, ip_addr_t *recver, void *data) {
+cmsu_SocketUdp_send_async(struct cmsu_SocketUdp *socket_udp, ip_addr_t *recver,
+                          void *data) {
   cme_error_t err;
 
   struct cmsu_Request *request = queue_cmsu_Requests_push(
-      &((struct cmsu_SocketUdp *)socket->proto)->reqs_queue,
-      (struct cmsu_Request){.socket = socket, .data = data, .recver = *recver});
+      &socket_udp->reqs_queue,
+      (struct cmsu_Request){.socket = &socket_udp->socket,
+                            .data = data,
+                            .recver = (ip_addr_t){
+                                .ip = strdup(recver->ip),
+                                .port = strdup(recver->port),
+                            }});
   if (!request) {
     err = cme_error(ENOMEM, "Cannot insert new request into UDP socket");
     goto error_out;
   }
 
-  event_loop_async_send_socket(socket);
+  event_loop_async_send_socket(&socket_udp->socket);
 
   return 0;
 

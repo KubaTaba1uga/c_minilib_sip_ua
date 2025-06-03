@@ -30,9 +30,10 @@ typedef struct cmsu_SipTransaction *sip_trans_t;
 typedef struct cmsc_SipMessage *sip_msg_t;
 
 // TO-DO add recv and send callbacks
-cme_error_t sip_stack_create(evl_t evl, ip_addr_t ipaddr, sip_stack_t *out);
-void sip_stack_destroy(void *sipsess);
-
-id_t sip_stack_gen_id(sip_stack_t sipsess);
+cme_error_t sip_stack_create(evl_t evl, ip_addr_t ip_addr, sip_stack_t *out);
+void sip_stack_destroy(void *sip_stack);
+id_t sip_stack_gen_id(sip_stack_t sip_stack);
+cme_error_t sip_stack_connect(sip_stack_t sip_stack, ip_addr_t recver,
+                              sip_msg_t msg);
 
 #endif // C_MINILIB_SIP_UA_SIP_H

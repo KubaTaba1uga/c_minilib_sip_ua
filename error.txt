@@ -1,0 +1,5 @@
+====== ERROR DUMP ======
+Error code: Invalid argument
+Error message: Sending INVITE messages is not supported at the moment
+------------------------
+0:cmsu_SipStack_connect:../src/sip/_internal/sip.h:241
