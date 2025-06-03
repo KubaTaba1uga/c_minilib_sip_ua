@@ -107,7 +107,7 @@ static inline cme_error_t cmsu_SocketUdp_create(
   if (recv_fail_callback) {
     udp->recv_fail_callback = recv_fail_callback;
   }
-  if (udp->send_callback) {
+  if (send_callback) {
     udp->send_callback = send_callback;
   }
   if (send_fail_callback) {
@@ -285,7 +285,6 @@ cmsu_SocketUdp_send_event_handler(struct cmsu_SocketUdp *sock,
   cme_error_t err;
 
   struct cmsu_Request request = queue_cmsu_Requests_pull(&sock->reqs_queue);
-
   if (sock->send_callback) {
     err = sock->send_callback(&sock->socket, &request.recver, &request.buffer,
                               request.data, sock->ctx);
@@ -304,7 +303,7 @@ cmsu_SocketUdp_send_event_handler(struct cmsu_SocketUdp *sock,
     goto error_out;
   }
 
-  *is_send_done = queue_cmsu_Requests_size(&sock->reqs_queue) > 0;
+  *is_send_done = queue_cmsu_Requests_size(&sock->reqs_queue) == 0;
   free(request.buffer.buf);
 
   return 0;

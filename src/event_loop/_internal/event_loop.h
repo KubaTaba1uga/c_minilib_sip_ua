@@ -140,6 +140,7 @@ cme_error_t cmsu_EventLoop_process_events(struct cmsu_EventLoop *evl) {
       bool is_send_done = true;
       err = socket_send_event_handler(socket, &is_send_done);
       if (err) {
+        fd.ref->events &= ~POLLOUT;
         goto error_out;
       }
       if (is_send_done) {
