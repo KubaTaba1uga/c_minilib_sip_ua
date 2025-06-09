@@ -1,6 +1,142 @@
-<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="27.1.3" pages="2">
-  <diagram name="Page-1" id="DYS4X43bdyaeCCeUCE0n">
-    <mxGraphModel dx="2997" dy="2803" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="27.1.4" pages="2">
+  <diagram id="IuXAi1eevMyLSQoJfHt3" name="Sip Overview">
+    <mxGraphModel dx="1563" dy="931" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-11" value="TCP" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="300" y="100" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="YKyc-Dx4LvSBVfcNzGyH-1" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Architecture Overview&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="30" width="260" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=1;startArrow=diamondThin;entryX=0.419;entryY=-0.007;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="4DN_kyw4FJrjEmb9qZSz-1" target="4DN_kyw4FJrjEmb9qZSz-3">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="95" y="180" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="95" y="190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-10" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.004;entryY=0.537;entryDx=0;entryDy=0;entryPerimeter=0;startArrow=diamondThin;startFill=1;endArrow=none;" edge="1" parent="1" source="4DN_kyw4FJrjEmb9qZSz-1" target="4DN_kyw4FJrjEmb9qZSz-6">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="150" y="127" />
+              <mxPoint x="150" y="127" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-1" value="UDP" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="100" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-2" value="SIP core" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="280" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;startArrow=diamond;startFill=1;endArrow=none;" edge="1" parent="1" source="4DN_kyw4FJrjEmb9qZSz-3" target="4DN_kyw4FJrjEmb9qZSz-2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="100" y="270" />
+              <mxPoint x="100" y="270" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-3" value="SIP transp" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="190" width="80" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-6" value="DTLS" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="180" y="100" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-7" value="Not implemented" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="200" y="50" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-12" value="" style="endArrow=diamondThin;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0;exitDx=40;exitDy=0;exitPerimeter=0;startFill=0;startArrow=none;endFill=1;" edge="1" parent="1" source="4DN_kyw4FJrjEmb9qZSz-3" target="4DN_kyw4FJrjEmb9qZSz-11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="100" y="180" as="sourcePoint" />
+            <mxPoint x="190" y="170" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="335" y="190" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-13" value="Sip core implements&amp;nbsp;&lt;div&gt;low level SIP functions&lt;/div&gt;&lt;div&gt;&amp;nbsp;like sip_listen, sip_sonnect, sip_reply etc.&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="220" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-18" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.565;entryY=0.995;entryDx=0;entryDy=0;entryPerimeter=0;exitX=0;exitY=0;exitDx=40;exitDy=0;exitPerimeter=0;endArrow=diamond;startFill=0;endFill=1;" edge="1" parent="1" source="4DN_kyw4FJrjEmb9qZSz-14" target="4DN_kyw4FJrjEmb9qZSz-2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-14" value="SIP&amp;nbsp;&lt;div&gt;session&lt;/div&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="60" y="380" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-15" value="Sip session implements&amp;nbsp;&lt;div&gt;high level SIP functions&lt;/div&gt;&lt;div&gt;&amp;nbsp;related to invite.&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-70" y="320" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-16" value="SIP&amp;nbsp;&lt;div&gt;register&lt;/div&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="180" y="380" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-19" value="" style="endArrow=none;html=1;rounded=0;exitX=0;exitY=0;exitDx=40;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="4DN_kyw4FJrjEmb9qZSz-16">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="210" y="380" as="sourcePoint" />
+            <mxPoint x="100" y="360" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="220" y="360" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="4DN_kyw4FJrjEmb9qZSz-20" value="Sip register implements&amp;nbsp;&lt;div&gt;high level SIP functions&lt;/div&gt;&lt;div&gt;&amp;nbsp;related to SIP regiostration.&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="210" y="320" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="AoV7cnLH2HYfHU9RmJqG-2" value="Event loop" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="-230" y="280" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="AoV7cnLH2HYfHU9RmJqG-6" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;entryX=0;entryY=0;entryDx=0;entryDy=32;entryPerimeter=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-110" y="218" as="sourcePoint" />
+            <mxPoint x="60" y="130" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-110" y="130" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AoV7cnLH2HYfHU9RmJqG-7" value="Only low level network protocols wich interact with sockets are using event loop." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-140" y="30" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="AoV7cnLH2HYfHU9RmJqG-8" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-160" y="310" as="sourcePoint" />
+            <mxPoint x="-110" y="220" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="-110" y="310" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AoV7cnLH2HYfHU9RmJqG-9" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;entryX=0;entryY=0;entryDx=20;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="4DN_kyw4FJrjEmb9qZSz-6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint y="130" as="sourcePoint" />
+            <mxPoint x="50" y="80" as="targetPoint" />
+            <Array as="points">
+              <mxPoint y="60" />
+              <mxPoint x="200" y="60" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="AoV7cnLH2HYfHU9RmJqG-10" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;entryX=0;entryY=0;entryDx=40;entryDy=0;entryPerimeter=0;" edge="1" parent="1" target="4DN_kyw4FJrjEmb9qZSz-11">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="200" y="60" as="sourcePoint" />
+            <mxPoint x="400" y="100" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="200" y="60" />
+              <mxPoint x="340" y="60" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="hdkTb5bz-x_7p9uWzcBC-1" value="Sip transp create generic interface for every low level network protocol&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;.&lt;/span&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="-80" y="130" width="170" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="Event loop" id="DYS4X43bdyaeCCeUCE0n">
+    <mxGraphModel dx="1248" dy="2730" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -163,534 +299,6 @@
         </mxCell>
         <mxCell id="awC3xR5aF0oG_H9M2n87-54" value="Process timer." style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="50" y="640" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-1" value="Event loop" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="110" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-2" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Layers&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="1130" y="-390" width="180" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-3" value="Socket" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="-40" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="M5630-u7SSG_YL18l_gM-4" target="M5630-u7SSG_YL18l_gM-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-4" value="Sip" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="-190" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="M5630-u7SSG_YL18l_gM-5" target="M5630-u7SSG_YL18l_gM-4">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-5" value="Ua" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="1190" y="-330" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1250" y="50" as="sourcePoint" />
-            <mxPoint x="1250" y="110" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;endArrow=none;startFill=1;startArrow=classic;" edge="1" parent="1" source="M5630-u7SSG_YL18l_gM-3" target="M5630-u7SSG_YL18l_gM-1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="1250" y="60" as="sourcePoint" />
-            <mxPoint x="1250" y="120" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-10" value="Ua use sip." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="1430" y="-300" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-11" value="Sip use socket." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="1430" y="-140" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="M5630-u7SSG_YL18l_gM-12" value="Socket use&amp;nbsp;&lt;div&gt;event loop&lt;div&gt;and event&lt;/div&gt;&lt;div&gt;&amp;nbsp;loop use socket.&lt;/div&gt;&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="1420" y="30" width="150" height="110" as="geometry" />
-        </mxCell>
-      </root>
-    </mxGraphModel>
-  </diagram>
-  <diagram id="5ygHyfCh7g1jeHmfUZa_" name="Page-2">
-    <mxGraphModel dx="3843" dy="2730" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
-      <root>
-        <mxCell id="0" />
-        <mxCell id="1" parent="0" />
-        <mxCell id="6AZzcJKj25vXhSMinngy-1" value="Event loop" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-730" y="560" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-2" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Layers&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="-850" y="-100" width="180" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-3" value="Socket" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-730" y="410" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="6AZzcJKj25vXhSMinngy-5" target="6AZzcJKj25vXhSMinngy-3" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-5" value="Transport" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-730" y="260" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-7" value="SIP Transaction" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-730" y="110" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-670" y="500" as="sourcePoint" />
-            <mxPoint x="-670" y="560" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;endArrow=none;startFill=1;startArrow=classic;" parent="1" source="6AZzcJKj25vXhSMinngy-3" target="6AZzcJKj25vXhSMinngy-1" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-670" y="510" as="sourcePoint" />
-            <mxPoint x="-670" y="570" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-11" value="Transport use socket to provide recv and send." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-500" y="340" width="160" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-12" value="Socket use&amp;nbsp;&lt;div&gt;event loop&lt;div&gt;and event&lt;/div&gt;&lt;div&gt;&amp;nbsp;loop use socket.&lt;/div&gt;&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-500" y="490" width="150" height="110" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-217" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Socket state machine&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="30" width="180" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-218" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="6AZzcJKj25vXhSMinngy-219" target="6AZzcJKj25vXhSMinngy-229" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-219" value="Create socket." style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="190" y="35" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-220" value="Socket States" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="370" y="120" width="140" height="120" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-221" value="Sleeping" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-220" vertex="1">
-          <mxGeometry y="30" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-222" value="Data incoming" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-220" vertex="1">
-          <mxGeometry y="60" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-225" value="Data outgoing" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-220" vertex="1">
-          <mxGeometry y="90" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-228" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="6AZzcJKj25vXhSMinngy-229" target="6AZzcJKj25vXhSMinngy-260" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-229" value="Listsen on socket" style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="190" y="160" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-230" value="Socket" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="580" y="120" width="160" height="150" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-231" value="socket_fd" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-230" vertex="1">
-          <mxGeometry y="30" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-232" value="socket_state" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-230" vertex="1">
-          <mxGeometry y="60" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-233" value="socket_state_handler" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-230" vertex="1">
-          <mxGeometry y="90" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-234" value="socket_state_handler_args" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-230" vertex="1">
-          <mxGeometry y="120" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-235" value="Listsen means&amp;nbsp;&lt;div&gt;setting POLLIN on socket.&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="70" y="115" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-236" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="6AZzcJKj25vXhSMinngy-237" target="6AZzcJKj25vXhSMinngy-241" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="270" y="590" as="targetPoint" />
-            <mxPoint x="270" y="470" as="sourcePoint" />
-            <Array as="points">
-              <mxPoint x="250" y="590" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-237" value="Sleeping" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="210" y="390" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-238" value="Connect means setting POLLOUT on socket." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="60" y="255" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-403" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;" parent="1" source="6AZzcJKj25vXhSMinngy-241" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="560" y="590" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-241" value="Data incoming." style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="400" y="550" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-242" value="Process POLLIN for socket." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="270" y="550" width="110" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-249" value="Data outgoing" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="400" y="700" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-256" value="" style="endArrow=classic;html=1;rounded=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;exitX=0.976;exitY=0.544;exitDx=0;exitDy=0;exitPerimeter=0;" parent="1" source="6AZzcJKj25vXhSMinngy-249" target="6AZzcJKj25vXhSMinngy-237" edge="1">
-          <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="1050" y="620" as="sourcePoint" />
-            <mxPoint x="330" y="430" as="targetPoint" />
-            <Array as="points">
-              <mxPoint x="560" y="744" />
-              <mxPoint x="560" y="430" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-259" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="6AZzcJKj25vXhSMinngy-260" target="6AZzcJKj25vXhSMinngy-237" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-260" value="Connect on socket." style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="190" y="280" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-262" value="&amp;nbsp;Socket state handler is set by UDP stack." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="530" y="10" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-263" value="&amp;nbsp;Socket state handler arg is UDP stack." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="670" y="10" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-279" value="Process POLLOUT for socket." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="270" y="690" width="110" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-338" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Transport protocol state machine&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="70" y="820" width="180" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-397" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="6AZzcJKj25vXhSMinngy-340" target="6AZzcJKj25vXhSMinngy-396" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-340" value="Create transport protocol." style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="180" y="885" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-421" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="6AZzcJKj25vXhSMinngy-396" target="6AZzcJKj25vXhSMinngy-398" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-396" value="Create socket." style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="180" y="1010" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-422" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="6AZzcJKj25vXhSMinngy-398" target="6AZzcJKj25vXhSMinngy-399" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-398" value="Set socket_state_handler for one matching trasnport proto." style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="180" y="1120" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-399" value="Set socket_state_handler_args for one matching trasnport proto." style="rounded=1;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="155" y="1230" width="170" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-401" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.015;entryY=0.6;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryPerimeter=0;" parent="1" target="6AZzcJKj25vXhSMinngy-249" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="400" y="710" as="targetPoint" />
-            <mxPoint x="250" y="590" as="sourcePoint" />
-            <Array as="points">
-              <mxPoint x="250" y="748" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-410" value="Transport protocol States" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="360" y="910" width="140" height="240" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-426" value="Sleeping" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-410" vertex="1">
-          <mxGeometry y="30" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-412" value="Data incoming" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-410" vertex="1">
-          <mxGeometry y="60" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-414" value="Receive finished" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-410" vertex="1">
-          <mxGeometry y="90" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-3" value="Receive failed" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="6AZzcJKj25vXhSMinngy-410">
-          <mxGeometry y="120" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-413" value="Data outgoing" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-410" vertex="1">
-          <mxGeometry y="150" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-415" value="Send finished" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-410" vertex="1">
-          <mxGeometry y="180" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-45" value="Send failed" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="6AZzcJKj25vXhSMinngy-410">
-          <mxGeometry y="210" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-416" value="Transport protocol" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="580" y="910" width="160" height="300" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-417" value="socket" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-416" vertex="1">
-          <mxGeometry y="30" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-44" value="ip addr" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="6AZzcJKj25vXhSMinngy-416">
-          <mxGeometry y="60" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-424" value="tp_type" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-416" vertex="1">
-          <mxGeometry y="90" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-425" value="tp_data" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-416" vertex="1">
-          <mxGeometry y="120" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-418" value="tp_state" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-416" vertex="1">
-          <mxGeometry y="150" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-419" value="tp_state_handler" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-416" vertex="1">
-          <mxGeometry y="180" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-420" value="tp_state_handler_args" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" parent="6AZzcJKj25vXhSMinngy-416" vertex="1">
-          <mxGeometry y="210" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-159" value="tp_state_callback" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="6AZzcJKj25vXhSMinngy-416">
-          <mxGeometry y="240" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-160" value="tp_state_callback_args" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="6AZzcJKj25vXhSMinngy-416">
-          <mxGeometry y="270" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-427" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="6AZzcJKj25vXhSMinngy-428" target="6AZzcJKj25vXhSMinngy-430" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="260" y="1540" as="targetPoint" />
-            <mxPoint x="260" y="1420" as="sourcePoint" />
-            <Array as="points">
-              <mxPoint x="240" y="1540" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-428" value="Sleeping" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="200" y="1340" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-430" value="Data incoming." style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="390" y="1500" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-431" value="Process POLLIN for socket." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="260" y="1500" width="110" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-432" value="Data outgoing" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="390" y="1750" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-434" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" target="6AZzcJKj25vXhSMinngy-428" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="240" y="1290" as="sourcePoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-435" value="Process POLLOUT for socket." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="260" y="1750" width="110" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-436" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=-0.015;entryY=0.6;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" target="6AZzcJKj25vXhSMinngy-432" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="390" y="1760" as="targetPoint" />
-            <mxPoint x="240" y="1540" as="sourcePoint" />
-            <Array as="points">
-              <mxPoint x="240" y="1798" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-442" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="6AZzcJKj25vXhSMinngy-447" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="469.5" y="1540" as="sourcePoint" />
-            <mxPoint x="589.5" y="1540" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-443" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="6AZzcJKj25vXhSMinngy-445" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="469.5" y="1540" as="sourcePoint" />
-            <mxPoint x="589.5" y="1540" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-463" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;startFill=0;endArrow=none;" parent="1" source="6AZzcJKj25vXhSMinngy-445" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="789.5" y="1460" as="targetPoint" />
-            <Array as="points">
-              <mxPoint x="720" y="1460" />
-              <mxPoint x="720" y="1460" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-445" value="Receive finished" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="589.5" y="1420" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-461" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;startFill=0;endArrow=none;" parent="1" source="6AZzcJKj25vXhSMinngy-447" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="789.5" y="1619.9999999999995" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-447" value="Receive&amp;nbsp;&lt;div&gt;failed&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="589.5" y="1580" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-448" value="Perform receive operation" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="539.5" y="1525" width="60" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-450" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="6AZzcJKj25vXhSMinngy-453" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="470" y="1800" as="sourcePoint" />
-            <mxPoint x="590" y="1800" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-451" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" target="6AZzcJKj25vXhSMinngy-452" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="470" y="1800" as="sourcePoint" />
-            <mxPoint x="590" y="1800" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-459" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;" parent="1" source="6AZzcJKj25vXhSMinngy-452" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="790" y="1719.9999999999995" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-452" value="Send&amp;nbsp;&lt;div&gt;finished&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="590" y="1680" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-457" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="6AZzcJKj25vXhSMinngy-453" target="6AZzcJKj25vXhSMinngy-428" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="790" y="1879.9999999999995" as="targetPoint" />
-            <Array as="points">
-              <mxPoint x="790" y="1880" />
-              <mxPoint x="790" y="1380" />
-            </Array>
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-453" value="Send failed" style="whiteSpace=wrap;html=1;aspect=fixed;" parent="1" vertex="1">
-          <mxGeometry x="590" y="1840" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-454" value="Perform send operation" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="540" y="1785" width="60" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-464" value="Poll." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="770" y="1650" width="110" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-465" value="Transport protocol state machine extends socket state machine." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="479.5" y="820" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-468" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" target="6AZzcJKj25vXhSMinngy-7" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-625" y="70" as="sourcePoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-471" value="SIP Transaction matches requests and responses into pairs and is doing retransmissions for unreliable transports." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-500" y="180" width="170" height="120" as="geometry" />
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-472" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;endArrow=none;startFill=1;startArrow=classic;" parent="1" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-570" y="200" as="sourcePoint" />
-            <mxPoint x="-570" y="260" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-473" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.75;entryY=0;entryDx=0;entryDy=0;exitX=0.75;exitY=1;exitDx=0;exitDy=0;endArrow=classic;startFill=0;startArrow=none;endFill=1;" parent="1" edge="1">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="-690" y="200" as="sourcePoint" />
-            <mxPoint x="-690" y="260" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="6AZzcJKj25vXhSMinngy-475" value="Set&#39;s callbacks for SIP core and update state when they fires back. Sip Ua is app layer here we will have stuff like call, registration etc. All high level stuff logic." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="-460" y="-210" width="170" height="130" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-13" value="SIP core" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="-730" y="-20" width="210" height="90" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-68" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;SIP Client Transaction state machine&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="80" y="1960" width="180" height="100" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-69" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="TlEXKpNMtrwT54-FGrJq-70">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="280" y="2180" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-70" value="Request sending sip msg." style="ellipse;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="220" y="2055" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-75" value="Set sct_state_handler_args for one matching appropriate client transaction." style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="195" y="2280" width="170" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-76" value="SIP Client Transaction States" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="400" y="2080" width="140" height="120" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-77" value="Processing" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-76">
-          <mxGeometry y="30" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-78" value="Finished" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-76">
-          <mxGeometry y="60" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-79" value="Failed" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-76">
-          <mxGeometry y="90" width="140" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-84" value="SIP Client Transaction" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=30;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="620" y="2080" width="160" height="270" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-85" value="transport" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-84">
-          <mxGeometry y="30" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-86" value="request" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-84">
-          <mxGeometry y="60" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-87" value="responses" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-84">
-          <mxGeometry y="90" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-88" value="sct_state" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-84">
-          <mxGeometry y="120" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-89" value="sct_state_handler" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-84">
-          <mxGeometry y="150" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-91" value="sct_state_handler_args" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-84">
-          <mxGeometry y="180" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-156" value="sct_state_callback" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-84">
-          <mxGeometry y="210" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-157" value="sct_state_callback_args" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;spacingLeft=4;spacingRight=4;overflow=hidden;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;rotatable=0;whiteSpace=wrap;html=1;" vertex="1" parent="TlEXKpNMtrwT54-FGrJq-84">
-          <mxGeometry y="240" width="160" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-125" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="TlEXKpNMtrwT54-FGrJq-93" target="TlEXKpNMtrwT54-FGrJq-103">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="280" y="2590" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-93" value="Processing" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
-          <mxGeometry x="240" y="2390" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-97" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" target="TlEXKpNMtrwT54-FGrJq-93">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="280" y="2340" as="sourcePoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-103" value="Finished" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
-          <mxGeometry x="155" y="2530" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-115" value="Processing means we received response which is 1xx." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="425" y="2230" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-116" value="Processing means we received response which is 2xx." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="425" y="2330" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-117" value="Failed means we received response which is 4xx." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="425" y="2420" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-120" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="TlEXKpNMtrwT54-FGrJq-118" target="TlEXKpNMtrwT54-FGrJq-75">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-118" value="Set sct_state_handler for one matching appropriate client transaction." style="rounded=1;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="220" y="2180" width="120" height="60" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-119" value="There will be currently two types of client transactions. Invite and non invite." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="60" y="2090" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-123" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;endArrow=none;startFill=1;startArrow=classic;" edge="1" parent="1" source="TlEXKpNMtrwT54-FGrJq-121" target="TlEXKpNMtrwT54-FGrJq-93">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="360" y="2410" as="targetPoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-121" value="Failed" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
-          <mxGeometry x="320" y="2530" width="80" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-154" value="Processing can be hit multiple times." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="40" y="2360" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-158" value="Handler is passed by SIP transaction module but callback is provided by SIP ua module." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="810" y="2220" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-161" value="Handler is passed by transport module but callback is provided by sip transaction module." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="770" y="1090" width="120" height="80" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-162" value="Codebase should&#39;nt operate on sip transactions it should operate on messages and callbacks." style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="-240" y="2160" width="180" height="65" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-163" value="Changes transaction into messages, so UA can use send_invite or send_msg or send_register with appropriate callbacks. Sip core decides how use transactions to implement invite msg register etc." style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="-500" y="-40" width="190" height="180" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-165" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="TlEXKpNMtrwT54-FGrJq-164" target="TlEXKpNMtrwT54-FGrJq-13">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="TlEXKpNMtrwT54-FGrJq-164" value="SIP Ua" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="-730" y="-170" width="210" height="90" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
