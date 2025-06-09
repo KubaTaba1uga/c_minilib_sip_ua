@@ -1,5 +1,5 @@
 sources += files(
-   'ua.h', 'ua.c'
+   'udp.h', 'udp.c'
 )
 
 subdir('_internal')

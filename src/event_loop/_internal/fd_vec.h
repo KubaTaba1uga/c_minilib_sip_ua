@@ -8,25 +8,23 @@
 #define C_MINILIB_SIP_UA_POLL_FD_VEC_H
 
 #include "c_minilib_error.h"
-#include "event_loop/_internal/poll_fd.h"
-#include "socket/socket.h"
+#include "event_loop/_internal/fd.h"
 #include <stdint.h>
 
-#define i_tag cmsu_PollFds
-#define i_keyclass cmsu_PollFd
-#define i_cmp cmsu_PollFd_cmp
+#define i_tag fds_t
+#define i_keyclass fd_t
+#define i_cmp fd_cmp
 #include <stc/vec.h>
 
-typedef struct vec_cmsu_PollFds cmsu_PollFds;
+typedef struct vec_fds_t vec_fds_t;
 
 // Underlaying vector can be reallocated, so we are not returning any indicator
 // for element position. If we would take index in case some other element is
 // dropped or inserted before this index we would have bug. Similiar to ptr,
 // if we take ptr to element and array got shifted value under ptr would change.
 // It's safest to just search threw vector in case we need sth from it.
-static inline cme_error_t cmsu_PollFds_push(cmsu_PollFds *pollfds,
-                                            cmsu_PollFd value) {
-  cmsu_PollFd *result = vec_cmsu_PollFds_push(pollfds, value);
+static inline cme_error_t my_vec_fds_t_push(vec_fds_t *fds, fd_t new) {
+  fd_t *result = vec_fds_t_push(fds, new);
   if (!result) {
     return cme_return(cme_error(ENOMEM, "Unable to add new poll fd"));
   }
@@ -34,30 +32,29 @@ static inline cme_error_t cmsu_PollFds_push(cmsu_PollFds *pollfds,
   return 0;
 }
 
-static inline cme_error_t cmsu_PollFds_poll(cmsu_PollFds *pollfds) {
+static inline cme_error_t my_vec_fds_t_poll(vec_fds_t *fds) {
 
-  int result = poll(pollfds->data, pollfds->size, -1);
+  int result = poll(fds->data, fds->size, -1);
   if (result < 0) {
     return cme_return(cme_error(ENOMEM, "Unable to poll fd"));
   }
   return 0;
 }
 
-static inline struct cmsu_PollFd *cmsu_PollFds_find(int32_t fd,
-                                                    cmsu_PollFds *pollfds) {
-  c_foreach(vec_fd, vec_cmsu_PollFds, *pollfds) {
+static inline struct fd_t *my_vec_fds_t_find(int32_t fd, vec_fds_t *fds) {
+  c_foreach(vec_fd, vec_fds_t, *fds) {
     if (vec_fd.ref->fd == fd) {
-      return (struct cmsu_PollFd *)vec_fd.ref;
+      return (struct fd_t *)vec_fd.ref;
     }
   }
 
-  return 0;
+  return NULL;
 }
 
-static inline void cmsu_PollFds_remove(int32_t fd, cmsu_PollFds *pollfds) {
-  c_foreach(vec_fd, vec_cmsu_PollFds, *pollfds) {
+static inline void my_vec_fds_t_remove(int32_t fd, vec_fds_t *fds) {
+  c_foreach(vec_fd, vec_fds_t, *fds) {
     if (vec_fd.ref->fd == fd) {
-      vec_cmsu_PollFds_erase_at(pollfds, vec_fd);
+      vec_fds_t_erase_at(fds, vec_fd);
       break;
     }
   }

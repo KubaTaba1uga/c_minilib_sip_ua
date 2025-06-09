@@ -132,6 +132,15 @@
         <mxCell id="hdkTb5bz-x_7p9uWzcBC-1" value="Sip transp create generic interface for every low level network protocol&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;.&lt;/span&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="-80" y="130" width="170" height="100" as="geometry" />
         </mxCell>
+        <mxCell id="kAVRJxKC5ioPL66cNbu8-1" value="main" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="-140" y="380" width="70" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="kAVRJxKC5ioPL66cNbu8-2" value="" style="endArrow=none;dashed=1;html=1;dashPattern=1 3;strokeWidth=2;rounded=0;exitX=0.414;exitY=0.033;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="kAVRJxKC5ioPL66cNbu8-1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-160" y="360" as="sourcePoint" />
+            <mxPoint x="-110" y="310" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
@@ -299,6 +308,77 @@
         </mxCell>
         <mxCell id="awC3xR5aF0oG_H9M2n87-54" value="Process timer." style="ellipse;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="50" y="640" width="120" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-2" value="Idle" style="whiteSpace=wrap;html=1;aspect=fixed;fillStyle=auto;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="250" width="90" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-3" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Event loop state machine&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="860" y="75" width="180" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-4" value="" style="ellipse;html=1;shape=startState;fillColor=#000000;strokeColor=#ff0000;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="160" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-5" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;verticalAlign=bottom;endArrow=open;endSize=8;strokeColor=#ff0000;rounded=0;" edge="1" source="qlrTHOaV5FmHmRxbxTNO-4" parent="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1045" y="250" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-6" value="Receiving&amp;nbsp;&lt;div&gt;data&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;fillStyle=auto;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="800" y="395" width="90" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-7" value="Sending data" style="whiteSpace=wrap;html=1;aspect=fixed;fillStyle=auto;rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="1200" y="395" width="90" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-8" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" target="qlrTHOaV5FmHmRxbxTNO-6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1000" y="290" as="sourcePoint" />
+            <mxPoint x="1050" y="240" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="846" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-10" value="fd.events &amp;amp; POLLIN" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="850" y="260" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-11" value="fd.events &amp;amp; POLLOUT" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1110" y="260" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-12" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="qlrTHOaV5FmHmRxbxTNO-6" target="qlrTHOaV5FmHmRxbxTNO-2">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="790" y="500" as="sourcePoint" />
+            <mxPoint x="840" y="450" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1045" y="440" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-13" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1200" y="445" as="sourcePoint" />
+            <mxPoint x="1045" y="340" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1046" y="445" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-14" value="" style="endArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="1090" y="290" as="sourcePoint" />
+            <mxPoint x="1245" y="390" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="1245" y="290" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-18" value="event_loop_insert(struct pollfd, recvh, sendh, data)&lt;span style=&quot;color: rgba(0, 0, 0, 0); font-family: monospace; font-size: 0px; text-align: start; text-wrap-mode: nowrap;&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%22%20style%3D%22endArrow%3Dclassic%3Bhtml%3D1%3Brounded%3D0%3BentryX%3D0.5%3BentryY%3D0%3BentryDx%3D0%3BentryDy%3D0%3B%22%20edge%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20width%3D%2250%22%20height%3D%2250%22%20relative%3D%221%22%20as%3D%22geometry%22%3E%3CmxPoint%20x%3D%221000%22%20y%3D%22290%22%20as%3D%22sourcePoint%22%2F%3E%3CmxPoint%20x%3D%22845%22%20y%3D%22395%22%20as%3D%22targetPoint%22%2F%3E%3CArray%20as%3D%22points%22%3E%3CmxPoint%20x%3D%22846%22%20y%3D%22290%22%2F%3E%3C%2FArray%3E%3C%2FmxGeometry%3E%3C%2FmxCell%3E%3CmxCell%20id%3D%223%22%20value%3D%22%22%20style%3D%22endArrow%3Dclassic%3Bhtml%3D1%3Brounded%3D0%3BexitX%3D1%3BexitY%3D0.5%3BexitDx%3D0%3BexitDy%3D0%3BentryX%3D0.5%3BentryY%3D1%3BentryDx%3D0%3BentryDy%3D0%3B%22%20edge%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20width%3D%2250%22%20height%3D%2250%22%20relative%3D%221%22%20as%3D%22geometry%22%3E%3CmxPoint%20x%3D%22890%22%20y%3D%22440%22%20as%3D%22sourcePoint%22%2F%3E%3CmxPoint%20x%3D%221045%22%20y%3D%22340%22%20as%3D%22targetPoint%22%2F%3E%3CArray%20as%3D%22points%22%3E%3CmxPoint%20x%3D%221045%22%20y%3D%22440%22%2F%3E%3C%2FArray%3E%3C%2FmxGeometry%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3E&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1310" y="250" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-19" value="udp_event_loop_send_handler(struct pollfd, data)&lt;span style=&quot;color: rgba(0, 0, 0, 0); font-family: monospace; font-size: 0px; text-align: start; text-wrap-mode: nowrap;&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%22%20style%3D%22endArrow%3Dclassic%3Bhtml%3D1%3Brounded%3D0%3BentryX%3D0.5%3BentryY%3D0%3BentryDx%3D0%3BentryDy%3D0%3B%22%20edge%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20width%3D%2250%22%20height%3D%2250%22%20relative%3D%221%22%20as%3D%22geometry%22%3E%3CmxPoint%20x%3D%221000%22%20y%3D%22290%22%20as%3D%22sourcePoint%22%2F%3E%3CmxPoint%20x%3D%22845%22%20y%3D%22395%22%20as%3D%22targetPoint%22%2F%3E%3CArray%20as%3D%22points%22%3E%3CmxPoint%20x%3D%22846%22%20y%3D%22290%22%2F%3E%3C%2FArray%3E%3C%2FmxGeometry%3E%3C%2FmxCell%3E%3CmxCell%20id%3D%223%22%20value%3D%22%22%20style%3D%22endArrow%3Dclassic%3Bhtml%3D1%3Brounded%3D0%3BexitX%3D1%3BexitY%3D0.5%3BexitDx%3D0%3BexitDy%3D0%3BentryX%3D0.5%3BentryY%3D1%3BentryDx%3D0%3BentryDy%3D0%3B%22%20edge%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20width%3D%2250%22%20height%3D%2250%22%20relative%3D%221%22%20as%3D%22geometry%22%3E%3CmxPoint%20x%3D%22890%22%20y%3D%22440%22%20as%3D%22sourcePoint%22%2F%3E%3CmxPoint%20x%3D%221045%22%20y%3D%22340%22%20as%3D%22targetPoint%22%2F%3E%3CArray%20as%3D%22points%22%3E%3CmxPoint%20x%3D%221045%22%20y%3D%22440%22%2F%3E%3C%2FArray%3E%3C%2FmxGeometry%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3E&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1350" y="340" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="qlrTHOaV5FmHmRxbxTNO-20" value="udp_event_loop_recv_handler(struct pollfd, data)&lt;span style=&quot;color: rgba(0, 0, 0, 0); font-family: monospace; font-size: 0px; text-align: start; text-wrap-mode: nowrap;&quot;&gt;%3CmxGraphModel%3E%3Croot%3E%3CmxCell%20id%3D%220%22%2F%3E%3CmxCell%20id%3D%221%22%20parent%3D%220%22%2F%3E%3CmxCell%20id%3D%222%22%20value%3D%22%22%20style%3D%22endArrow%3Dclassic%3Bhtml%3D1%3Brounded%3D0%3BentryX%3D0.5%3BentryY%3D0%3BentryDx%3D0%3BentryDy%3D0%3B%22%20edge%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20width%3D%2250%22%20height%3D%2250%22%20relative%3D%221%22%20as%3D%22geometry%22%3E%3CmxPoint%20x%3D%221000%22%20y%3D%22290%22%20as%3D%22sourcePoint%22%2F%3E%3CmxPoint%20x%3D%22845%22%20y%3D%22395%22%20as%3D%22targetPoint%22%2F%3E%3CArray%20as%3D%22points%22%3E%3CmxPoint%20x%3D%22846%22%20y%3D%22290%22%2F%3E%3C%2FArray%3E%3C%2FmxGeometry%3E%3C%2FmxCell%3E%3CmxCell%20id%3D%223%22%20value%3D%22%22%20style%3D%22endArrow%3Dclassic%3Bhtml%3D1%3Brounded%3D0%3BexitX%3D1%3BexitY%3D0.5%3BexitDx%3D0%3BexitDy%3D0%3BentryX%3D0.5%3BentryY%3D1%3BentryDx%3D0%3BentryDy%3D0%3B%22%20edge%3D%221%22%20parent%3D%221%22%3E%3CmxGeometry%20width%3D%2250%22%20height%3D%2250%22%20relative%3D%221%22%20as%3D%22geometry%22%3E%3CmxPoint%20x%3D%22890%22%20y%3D%22440%22%20as%3D%22sourcePoint%22%2F%3E%3CmxPoint%20x%3D%221045%22%20y%3D%22340%22%20as%3D%22targetPoint%22%2F%3E%3CArray%20as%3D%22points%22%3E%3CmxPoint%20x%3D%221045%22%20y%3D%22440%22%2F%3E%3C%2FArray%3E%3C%2FmxGeometry%3E%3C%2FmxCell%3E%3C%2Froot%3E%3C%2FmxGraphModel%3E&lt;/span&gt;" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="1360" y="430" width="130" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

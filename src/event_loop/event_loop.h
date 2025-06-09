@@ -12,25 +12,27 @@
   always write real implementation as static inline in _internal.
  */
 
+#include <poll.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/poll.h>
 
 #include "c_minilib_error.h"
-#include "socket/socket.h"
 
 /******************************************************************************
  *                             Event Loop                                     *
  ******************************************************************************/
 
 typedef struct cmsu_EventLoop *event_loop_t;
+typedef struct pollfd fd_t;
+typedef cme_error_t (*event_loop_sendh_t)(void *data);
+typedef cme_error_t (*event_loop_recvh_t)(void *data);
 
 cme_error_t event_loop_create(event_loop_t *out);
 cme_error_t event_loop_start(event_loop_t evl);
 void event_loop_destroy(event_loop_t *out);
-
-cme_error_t event_loop_insert_socket(socket_t socket, short events,
-                                     event_loop_t evl);
-void event_loop_remove_socket(socket_t socket);
-void event_loop_async_send_socket(socket_t socket);
+cme_error_t event_loop_insert_fd(event_loop_t evl, fd_t fd,
+                                 event_loop_sendh_t sendh,
+                                 event_loop_recvh_t recvh, void *data);
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H
