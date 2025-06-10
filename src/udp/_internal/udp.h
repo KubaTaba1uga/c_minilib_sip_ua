@@ -10,7 +10,9 @@
 #include <assert.h>
 #include <netinet/in.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -106,24 +108,60 @@ static inline cme_error_t cmsu_UdpSocket_recv(void *data) {
   struct sockaddr_storage sender_addr;
   char buffer[CMSU_UDP_MSG_SIZE_MAX];
   socklen_t sender_addr_len;
-  int32_t received_bytes;
+  int32_t buffer_len;
+  cme_error_t err;
 
   assert(data != NULL);
 
   sender_addr_len = sizeof(sender_addr);
 
-  received_bytes =
-      recvfrom(udpsock->fd, buffer, sizeof(buffer) - 1, MSG_NOSIGNAL,
-               (struct sockaddr *)&sender_addr, &sender_addr_len);
+  errno = 0;
+  buffer_len = recvfrom(udpsock->fd, buffer, sizeof(buffer) - 1, MSG_NOSIGNAL,
+                        (struct sockaddr *)&sender_addr, &sender_addr_len);
 
-  (void)received_bytes;
+  if (buffer_len < 0) {
+    err = cme_error(errno, "Cannot recieve udp data");
+    goto error_out;
+  } else if (buffer_len == 0) {
+    err = cme_error(errno, "Connection closed by peer");
+    goto error_out;
+  }
+
+  if (udpsock->recvh) {
+    char ip_str[INET6_ADDRSTRLEN];
+    char port_str[6];
+
+    struct sockaddr_in *s = (struct sockaddr_in *)&sender_addr;
+    inet_ntop(AF_INET, &s->sin_addr, ip_str, sizeof(ip_str));
+    snprintf(port_str, sizeof(port_str), "%u", ntohs(s->sin_port));
+
+    err = udpsock->recvh(buffer, buffer_len,
+                         (ip_t){.ip = ip_str, .port = port_str}, udpsock,
+                         udpsock->recvh_arg);
+    if (err) {
+      goto error_out;
+    }
+  }
+
   return 0;
+
+error_out:
+  return cme_return(err);
 }
 
 static inline cme_error_t cmsu_UdpSocket_send(void *data) {
   struct cmsu_UdpSocket *udpsock = data;
   (void)udpsock;
   return 0;
+}
+
+static inline void cmsu_UdpSocket_destroy(udp_socket_t *out) {
+  if (!out || !*out) {
+    return;
+  }
+
+  free(*out);
+  *out = NULL;
 }
 
 #endif // C_MINILIB_SIP_UA_INT_UDP_H
