@@ -6,10 +6,11 @@
 
 #ifndef C_MINILIB_SIP_UA_POLL_FD_VEC_H
 #define C_MINILIB_SIP_UA_POLL_FD_VEC_H
+#include <stdint.h>
 
 #include "c_minilib_error.h"
 #include "event_loop/_internal/fd.h"
-#include <stdint.h>
+#include "event_loop/event_loop.h"
 
 #define i_tag cmsu_Fds
 #define i_keyclass fd_t
@@ -41,10 +42,10 @@ static inline cme_error_t my_vec_cmsu_Fds_poll(vec_cmsu_Fds *fds) {
   return 0;
 }
 
-static inline struct fd_t *my_vec_cmsu_Fds_find(int32_t fd, vec_cmsu_Fds *fds) {
+static inline fd_t *my_vec_cmsu_Fds_find(int32_t fd, vec_cmsu_Fds *fds) {
   c_foreach(vec_fd, vec_cmsu_Fds, *fds) {
     if (vec_fd.ref->fd == fd) {
-      return (struct fd_t *)vec_fd.ref;
+      return (fd_t *)vec_fd.ref;
     }
   }
 
@@ -59,5 +60,45 @@ static inline void my_vec_cmsu_Fds_remove(int32_t fd, vec_cmsu_Fds *fds) {
     }
   }
 }
+
+static inline cme_error_t my_vec_cmsu_Fds_set_pollout(int32_t fd,
+                                                      vec_cmsu_Fds *fds) {
+  fd_t *out = my_vec_cmsu_Fds_find(fd, fds);
+  if (!out) {
+    return cme_return(
+        cme_errorf(ENOMEM, "Cannot find fd in event loop: %d", fd));
+  }
+
+  out->events |= POLLOUT;
+
+  return 0;
+};
+
+static inline cme_error_t my_vec_cmsu_Fds_set_pollin(int32_t fd,
+                                                     vec_cmsu_Fds *fds) {
+  fd_t *out = my_vec_cmsu_Fds_find(fd, fds);
+  if (!out) {
+    return cme_return(
+        cme_errorf(ENOMEM, "Cannot find fd in event loop: %d", fd));
+  }
+
+  out->events |= POLLIN;
+
+  return 0;
+};
+
+static inline cme_error_t my_vec_cmsu_Fds_unset_pollin(int32_t fd,
+                                                       vec_cmsu_Fds *fds) {
+  fd_t *out = my_vec_cmsu_Fds_find(fd, fds);
+
+  if (!out) {
+    return cme_return(
+        cme_errorf(ENOMEM, "Cannot find fd in event loop: %d", fd));
+  }
+
+  out->events &= ~POLLIN;
+
+  return 0;
+};
 
 #endif
