@@ -4,14 +4,8 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_INT_SIP_STACK_H
-#define C_MINILIB_SIP_UA_INT_SIP_STACK_H
-#include <errno.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/poll.h>
+#ifndef C_MINILIB_SIP_UA_INT_FD_HELPER_H
+#define C_MINILIB_SIP_UA_INT_FD_HELPER_H
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"

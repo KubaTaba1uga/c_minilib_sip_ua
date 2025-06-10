@@ -22,6 +22,6 @@ static inline int fd_cmp(const fd_t *a, const fd_t *b) {
 
 static inline fd_t fd_clone(fd_t src) { return src; }
 
-void fd_t_drop(fd_t *self);
+void fd_drop(fd_t *self);
 
 #endif

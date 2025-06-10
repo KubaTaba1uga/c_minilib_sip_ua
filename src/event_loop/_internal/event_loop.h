@@ -13,23 +13,25 @@
   _internal.
  */
 
-#include <asm-generic/errno-base.h>
-#include <asm-generic/errno.h>
+#include <errno.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/poll.h>
 
 #include "c_minilib_error.h"
+#include "event_loop/_internal/fd_helper_vec.h"
+#include "event_loop/_internal/fd_vec.h"
 #include "stc/common.h"
 
 /******************************************************************************
  *                             Event Loop                                     *
  ******************************************************************************/
 
-struct cmsu_EventLoop {};
-
-/* static inline cme_error_t */
-/* cmsu_EventLoop_process_events(struct cmsu_EventLoop *evl); */
+struct cmsu_EventLoop {
+  struct vec_cmsu_Fds fds;
+  struct vec_cmsu_FdHelpers fds_helpers;
+};
 
 static inline cme_error_t cmsu_EventLoop_create(struct cmsu_EventLoop **out) {
   struct cmsu_EventLoop *evl = calloc(1, sizeof(struct cmsu_EventLoop));
@@ -38,6 +40,9 @@ static inline cme_error_t cmsu_EventLoop_create(struct cmsu_EventLoop **out) {
     err = cme_error(ENOMEM, "Cannot allocate memory for `evl`");
     goto error_out;
   }
+
+  evl->fds = vec_cmsu_Fds_init();
+  evl->fds_helpers = vec_cmsu_FdHelpers_init();
 
   *out = evl;
 
@@ -49,19 +54,13 @@ error_out:
 
 cme_error_t cmsu_EventLoop_start(struct cmsu_EventLoop *evl) {
   cme_error_t err;
-  /* int poll_res; */
 
   while (true) {
-    /* poll_res = poll(evl->fds.data, evl->fds.size, -1); */
-    /* if (poll_res < 0) { */
-    /*   err = cme_error(EIO, "Polling error"); */
-    /*   goto error_out; */
-    /* } */
-
-    /* err = cmsu_EventLoop_process_events(evl); */
-    /* if (err) { */
-    /* goto error_out; */
-    /* } */
+    err = my_vec_cmsu_Fds_poll(&evl->fds);
+    if (err) {
+      goto error_out;
+    }
+    puts("Some fds polled");
   }
 
   return 0;
@@ -78,5 +77,28 @@ void cmsu_EventLoop_destroy(struct cmsu_EventLoop **evl) {
   free(*evl);
   *evl = NULL;
 };
+
+cme_error_t cmsu_EventLoop_insert_fd(struct cmsu_EventLoop *evl, fd_t fd,
+                                     event_loop_sendh_t sendh,
+                                     event_loop_recvh_t recvh, void *data) {
+  cme_error_t err;
+  err = my_vec_cmsu_Fds_push(&evl->fds, fd);
+  if (err) {
+    goto error_out;
+  }
+
+  err = my_vec_cmsu_FdHelpers_insert(&evl->fds_helpers, fd.fd, sendh, recvh,
+                                     data);
+  if (err) {
+    goto error_fds_cleanup;
+  }
+
+  return 0;
+
+error_fds_cleanup:
+  my_vec_cmsu_Fds_remove(fd.fd, &evl->fds);
+error_out:
+  return cme_return(err);
+}
 
 #endif // C_MINILIB_SIP_UA_INT_EVENT_LOOP_H

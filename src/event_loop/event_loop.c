@@ -9,3 +9,9 @@ cme_error_t event_loop_start(event_loop_t evl) {
 };
 
 void event_loop_destroy(event_loop_t *out) { cmsu_EventLoop_destroy(out); };
+
+cme_error_t event_loop_insert_fd(event_loop_t evl, fd_t fd,
+                                 event_loop_sendh_t sendh,
+                                 event_loop_recvh_t recvh, void *data) {
+  return cmsu_EventLoop_insert_fd(evl, fd, sendh, recvh, data);
+}
