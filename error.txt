@@ -1,5 +1,5 @@
 ====== ERROR DUMP ======
-Error code: Cannot allocate memory
-Error message: Cannot find fd in event loop: 0
+Error code: Invalid argument
+Error message: No CLRF
 ------------------------
-0:my_vec_cmsu_Fds_set_pollout:../src/event_loop/_internal/fd_vec.h:69
+0:cmsc_parse_sip_first_line:../subprojects/c_minilib_sip_codec/src/utils/parser.h:233

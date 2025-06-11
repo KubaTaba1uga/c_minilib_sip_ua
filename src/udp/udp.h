@@ -22,7 +22,7 @@
  ******************************************************************************/
 typedef struct cmsu_UdpSocket *udp_socket_t;
 typedef cme_error_t (*udp_recvh_t)(char *buffer, int32_t buffer_len, ip_t peer,
-                                   udp_socket_t udp_sock, void *data);
+                                   void *sock, void *data);
 
 cme_error_t udp_create(event_loop_t evl, ip_t ip_addr, udp_socket_t *out);
 void udp_destroy(udp_socket_t *out);

@@ -9,6 +9,8 @@ cme_error_t sip_core_create(event_loop_t evl, ip_t ip_addr,
 
 void sip_core_destroy(sip_core_t *out) { cmsu_SipCore_destroy(out); }
 
-cme_error_t sip_core_listen(sip_core_t sip_core) {
-  return cmsu_SipCore_listen(sip_core);
+cme_error_t sip_core_listen(sip_core_request_handler_t requesth,
+                            sip_core_response_handler_t resph, void *data,
+                            sip_core_t sip_core) {
+  return cmsu_SipCore_listen(requesth, resph, data, sip_core);
 }

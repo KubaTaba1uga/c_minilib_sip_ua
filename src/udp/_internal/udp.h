@@ -115,6 +115,8 @@ static inline cme_error_t cmsu_UdpSocket_recv(void *data) {
   int32_t buffer_len;
   cme_error_t err;
 
+  puts("Received data over UDP");
+
   assert(data != NULL);
 
   sender_addr_len = sizeof(sender_addr);

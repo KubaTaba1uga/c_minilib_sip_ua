@@ -24,15 +24,23 @@
  ******************************************************************************/
 typedef struct cmsu_SipCore *sip_core_t;
 
+typedef cme_error_t (*sip_core_request_handler_t)(sip_msg_t sip_msg,
+                                                  ip_t peer_ip,
+                                                  sip_core_t sip_core,
+                                                  void *data);
+typedef cme_error_t (*sip_core_response_handler_t)(sip_msg_t sip_msg,
+                                                   ip_t peer_ip,
+                                                   sip_core_t sip_core,
+                                                   void *data);
+
 cme_error_t sip_core_create(event_loop_t evl, ip_t ip_addr,
                             enum SupportedSipTranspProtos sstp,
                             sip_core_t *out);
 
 void sip_core_destroy(sip_core_t *out);
 
-// Core listen needs to take request handler wich will be triggered on every
-// request. This way one can implement different sip transactions on top of
-// sip core.
-cme_error_t sip_core_listen(sip_core_t sip_core);
+cme_error_t sip_core_listen(sip_core_request_handler_t requesth,
+                            sip_core_response_handler_t resph, void *data,
+                            sip_core_t sip_core);
 
 #endif // C_MINILIB_SIP_UA_SIP_TRANSP_H

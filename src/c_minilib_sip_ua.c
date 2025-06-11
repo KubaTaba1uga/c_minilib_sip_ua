@@ -61,7 +61,7 @@ error_sip_core_cleanup:
 error_event_loop_cleanup:
   event_loop_destroy(&evl);
 error_out:
-  puts(err->msg);
+  printf("Error: %s\n", err->msg);
   cme_error_dump_to_file(err, "error.txt");
   return 1;
 }
