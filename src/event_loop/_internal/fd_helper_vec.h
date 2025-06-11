@@ -19,9 +19,10 @@
 #define i_keyclone cmsu_FdHelper_clone
 #include <stc/vec.h>
 
-cme_error_t my_vec_cmsu_FdHelpers_insert(struct vec_cmsu_FdHelpers *helpers,
-                                         uint32_t fd, event_loop_sendh_t sendh,
-                                         event_loop_recvh_t recvh, void *data) {
+static inline cme_error_t
+my_vec_cmsu_FdHelpers_insert(struct vec_cmsu_FdHelpers *helpers, uint32_t fd,
+                             event_loop_sendh_t sendh, event_loop_recvh_t recvh,
+                             void *data) {
   struct cmsu_FdHelper fd_helper = {
       .sendh = sendh, .recvh = recvh, .data = data};
 
@@ -45,6 +46,11 @@ cme_error_t my_vec_cmsu_FdHelpers_insert(struct vec_cmsu_FdHelpers *helpers,
 static inline void my_vec_cmsu_FdHelpers_remove(uint32_t fd,
                                                 vec_cmsu_FdHelpers *helpers) {
   vec_cmsu_FdHelpers_erase_n(helpers, fd, 1);
+}
+
+static inline struct cmsu_FdHelper *
+my_vec_cmsu_FdHelpers_find(uint32_t fd, vec_cmsu_FdHelpers *helpers) {
+  return (struct cmsu_FdHelper *)vec_cmsu_FdHelpers_at(helpers, fd);
 }
 
 #endif

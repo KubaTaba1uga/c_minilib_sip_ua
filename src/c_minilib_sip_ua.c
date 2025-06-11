@@ -32,7 +32,7 @@ int main(void) {
   }
 
   sip_core_t sip_core;
-  err = sip_core_create(evl, (ip_t){.ip = "0.0.0.0", .port = "7337"},
+  err = sip_core_create(evl, (ip_t){.ip = "127.0.0.1", .port = "7337"},
                         SupportedSipTranspProtos_UDP, &sip_core);
   if (err) {
     goto error_event_loop_cleanup;
@@ -45,10 +45,10 @@ int main(void) {
 
   log_func(0, "Starting event loop...\n");
 
-  /* err = event_loop_start(evl); */
-  /* if (err) { */
-  /* goto error_sip_core_cleanup; */
-  /* } */
+  err = event_loop_start(evl);
+  if (err) {
+    goto error_sip_core_cleanup;
+  }
 
   sip_core_destroy(&sip_core);
   event_loop_destroy(&evl);

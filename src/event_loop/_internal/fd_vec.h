@@ -87,7 +87,7 @@ static inline cme_error_t my_vec_cmsu_Fds_set_pollin(int32_t fd,
   return 0;
 };
 
-static inline cme_error_t my_vec_cmsu_Fds_unset_pollin(int32_t fd,
+static inline cme_error_t my_vec_cmsu_Fds_unset_pollout(int32_t fd,
                                                        vec_cmsu_Fds *fds) {
   fd_t *out = my_vec_cmsu_Fds_find(fd, fds);
 
@@ -96,7 +96,7 @@ static inline cme_error_t my_vec_cmsu_Fds_unset_pollin(int32_t fd,
         cme_errorf(ENOMEM, "Cannot find fd in event loop: %d", fd));
   }
 
-  out->events &= ~POLLIN;
+  out->events &= ~POLLOUT;
 
   return 0;
 };

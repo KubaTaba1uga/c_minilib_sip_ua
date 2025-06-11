@@ -21,7 +21,7 @@
 
 cme_error_t cmsu_UdpSocket_listen(struct cmsu_UdpSocket *udp_socket,
                                   udp_recvh_t recvh, void *arg) {
-  cme_error_t err = event_loop_fd_set_pollout(udp_socket->evl, udp_socket->fd);
+  cme_error_t err = event_loop_fd_set_pollin(udp_socket->evl, udp_socket->fd);
   if (err) {
     goto error_out;
   }

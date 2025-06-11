@@ -13,6 +13,7 @@
   _internal.
  */
 
+#include <assert.h>
 #include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -20,6 +21,7 @@
 #include <sys/poll.h>
 
 #include "c_minilib_error.h"
+#include "event_loop/_internal/fd_helper.h"
 #include "event_loop/_internal/fd_helper_vec.h"
 #include "event_loop/_internal/fd_vec.h"
 #include "stc/common.h"
@@ -32,6 +34,9 @@ struct cmsu_EventLoop {
   struct vec_cmsu_Fds fds;
   struct vec_cmsu_FdHelpers fds_helpers;
 };
+
+static inline cme_error_t
+cmsu_EventLoop_process_events(struct cmsu_EventLoop *evl);
 
 static inline cme_error_t cmsu_EventLoop_create(struct cmsu_EventLoop **out) {
   struct cmsu_EventLoop *evl = calloc(1, sizeof(struct cmsu_EventLoop));
@@ -53,7 +58,7 @@ error_out:
   return cme_return(err);
 };
 
-cme_error_t cmsu_EventLoop_start(struct cmsu_EventLoop *evl) {
+static inline cme_error_t cmsu_EventLoop_start(struct cmsu_EventLoop *evl) {
   cme_error_t err;
 
   while (true) {
@@ -61,7 +66,11 @@ cme_error_t cmsu_EventLoop_start(struct cmsu_EventLoop *evl) {
     if (err) {
       goto error_out;
     }
-    puts("Some fds polled");
+
+    err = cmsu_EventLoop_process_events(evl);
+    if (err) {
+      goto error_out;
+    }
   }
 
   return 0;
@@ -69,6 +78,36 @@ cme_error_t cmsu_EventLoop_start(struct cmsu_EventLoop *evl) {
 error_out:
   return cme_return(err);
 };
+
+static inline cme_error_t
+cmsu_EventLoop_process_events(struct cmsu_EventLoop *evl) {
+  cme_error_t err;
+
+  c_foreach(fd, vec_cmsu_Fds, evl->fds) {
+    struct cmsu_FdHelper *fd_helper =
+        my_vec_cmsu_FdHelpers_find(fd.ref->fd, &evl->fds_helpers);
+
+    assert(fd_helper != NULL);
+
+    if (fd.ref->revents & POLLIN) {
+      err = fd_helper->recvh(fd_helper->data);
+      if (err) {
+        goto error_out;
+      }
+    }
+    if (fd.ref->revents & POLLOUT) {
+      err = fd_helper->sendh(fd_helper->data);
+      if (err) {
+        goto error_out;
+      }
+    }
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
 
 void cmsu_EventLoop_destroy(struct cmsu_EventLoop **evl) {
   if (!evl || !*evl) {
