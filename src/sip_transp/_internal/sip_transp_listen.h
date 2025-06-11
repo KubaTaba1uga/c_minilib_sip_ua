@@ -20,10 +20,9 @@ static inline cme_error_t
 cmsu_SipTransport_udp_recvh(char *buffer, int32_t buffer_len, ip_t peer,
                             udp_socket_t udp_sock, void *data);
 
-static inline cme_error_t
-cmsu_SipTransport_listen(sip_transp_t sip_transp,
-                         enum SupportedSipTranspProtos sstp,
-                         sip_transp_recvh_t recvh, void *arg) {
+static inline cme_error_t cmsu_SipTransport_listen(sip_transp_t sip_transp,
+                                                   sip_transp_recvh_t recvh,
+                                                   void *arg) {
   cme_error_t err;
 
   switch (sip_transp->proto_type) {
@@ -34,14 +33,14 @@ cmsu_SipTransport_listen(sip_transp_t sip_transp,
       goto error_out;
     }
 
-    sip_transp->recvh = recvh;
-    sip_transp->recvh_arg = arg;
-
     break;
   default:
     err = cme_error(EINVAL, "Unsupported transport protocol");
     goto error_out;
   }
+
+  sip_transp->recvh = recvh;
+  sip_transp->recvh_arg = arg;
 
   return 0;
 

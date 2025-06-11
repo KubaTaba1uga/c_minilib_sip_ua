@@ -5,6 +5,8 @@
 #include "c_minilib_init.h"
 
 #include "event_loop/event_loop.h"
+#include "sip_core/sip_core.h"
+#include "sip_transp/sip_transp.h"
 
 void log_func(enum cmi_LogLevelEnum _, char *data) { printf("%s", data); }
 
@@ -25,6 +27,13 @@ int main(void) {
   }
 
   err = event_loop_create(&evl);
+  if (err) {
+    goto error_out;
+  }
+
+  sip_core_t sip_core;
+  err = sip_core_create(evl, (ip_t){.ip = "0.0.0.0", .port = "7337"},
+                        SupportedSipTranspProtos_UDP, &sip_core);
   if (err) {
     goto error_out;
   }

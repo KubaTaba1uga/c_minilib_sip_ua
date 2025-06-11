@@ -31,6 +31,6 @@ cme_error_t sip_core_create(event_loop_t evl, ip_t ip_addr,
 // Core listen needs to take request handler wich will be triggered on every
 // request. This way one can implement different sip transactions on top of
 // sip core.
-cme_error_t sip_core_listen(event_loop_t evl, ip_t ip_addr, sip_core_t *out);
+cme_error_t sip_core_listen(sip_core_t sip_core);
 
 #endif // C_MINILIB_SIP_UA_SIP_TRANSP_H
