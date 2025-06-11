@@ -13,7 +13,7 @@
 #include "event_loop/event_loop.h"
 
 #define i_tag cmsu_Fds
-#define i_keyclass fd_t
+#define i_key fd_t
 #define i_cmp fd_cmp
 #include <stc/vec.h>
 
