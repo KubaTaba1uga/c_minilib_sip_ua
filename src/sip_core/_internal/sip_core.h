@@ -51,6 +51,8 @@ void cmsu_SipCore_destroy(sip_core_t *out) {
   }
 
   sip_transp_destroy(&(*out)->sip_transp);
+  free(*out);
+  *out = NULL;
 };
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_H

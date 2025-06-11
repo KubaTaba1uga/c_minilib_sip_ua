@@ -68,7 +68,7 @@ void cmsu_SipTransport_destroy(sip_transp_t *out) {
 
   switch ((*out)->proto_type) {
   case SupportedSipTranspProtos_UDP:
-    udp_destroy((*out)->socket);
+    udp_destroy((udp_socket_t *)&(*out)->socket);
     break;
   default:;
   }
