@@ -15,6 +15,8 @@
 
 #define i_tag cmsu_FdHelpers
 #define i_key struct cmsu_FdHelper
+#define i_keydrop cmsu_FdHelper_drop
+#define i_keyclone cmsu_FdHelper_clone
 #include <stc/vec.h>
 
 cme_error_t my_vec_cmsu_FdHelpers_insert(struct vec_cmsu_FdHelpers *helpers,

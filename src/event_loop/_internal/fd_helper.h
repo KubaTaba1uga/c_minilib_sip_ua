@@ -20,4 +20,16 @@ struct cmsu_FdHelper {
   void *data;
 };
 
+static inline void cmsu_FdHelper_drop(struct cmsu_FdHelper *self) {
+  self->sendh = NULL;
+  self->recvh = NULL;
+  // do NOT free self->data
+  self->data = NULL;
+}
+
+static inline struct cmsu_FdHelper
+cmsu_FdHelper_clone(struct cmsu_FdHelper src) {
+  return src;
+}
+
 #endif

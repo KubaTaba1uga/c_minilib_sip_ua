@@ -35,10 +35,22 @@ cmsu_SipCore_create(event_loop_t evl, ip_t ip_addr,
     goto error_out;
   }
 
+  *out = sip_core;
+
   return 0;
 
 error_out:
+  *out = NULL;
   return cme_return(err);
+};
+
+void cmsu_SipCore_destroy(sip_core_t *out) {
+
+  if (!out || !*out) {
+    return;
+  }
+
+  sip_transp_destroy(&(*out)->sip_transp);
 };
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_H

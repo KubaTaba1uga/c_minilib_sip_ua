@@ -1,5 +1,5 @@
 ====== ERROR DUMP ======
-Error code: Invalid argument
-Error message: Sending INVITE messages is not supported at the moment
+Error code: Cannot allocate memory
+Error message: Cannot find fd in event loop: 0
 ------------------------
-0:cmsu_SipStack_connect:../src/sip/_internal/sip.h:241
+0:my_vec_cmsu_Fds_set_pollout:../src/event_loop/_internal/fd_vec.h:69

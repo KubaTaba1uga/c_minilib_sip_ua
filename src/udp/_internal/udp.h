@@ -50,9 +50,6 @@ static inline cme_error_t cmsu_UdpSocket_create(event_loop_t evl, ip_t ip_addr,
     goto error_out;
   }
 
-  udpsock->evl = evl;
-  udpsock->ip_addr = ip_addr;
-
   errno = 0;
   int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   if (sockfd == -1) {
@@ -93,6 +90,12 @@ static inline cme_error_t cmsu_UdpSocket_create(event_loop_t evl, ip_t ip_addr,
     goto error_socket_cleanup;
   }
 
+  udpsock->evl = evl;
+  udpsock->ip_addr = ip_addr;
+  udpsock->fd = sockfd;
+
+  *out = udpsock;
+
   return 0;
 
 error_socket_cleanup:
@@ -100,6 +103,7 @@ error_socket_cleanup:
 error_udpsock_cleanup:
   free(udpsock);
 error_out:
+  *out = NULL;
   return err;
 };
 
@@ -160,6 +164,7 @@ static inline void cmsu_UdpSocket_destroy(udp_socket_t *out) {
     return;
   }
 
+  event_loop_remove_fd((*out)->evl, (*out)->fd);
   free(*out);
   *out = NULL;
 }

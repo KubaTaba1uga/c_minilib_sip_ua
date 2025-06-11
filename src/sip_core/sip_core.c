@@ -7,6 +7,8 @@ cme_error_t sip_core_create(event_loop_t evl, ip_t ip_addr,
   return cmsu_SipCore_create(evl, ip_addr, sstp, out);
 }
 
+void sip_core_destroy(sip_core_t *out) { cmsu_SipCore_destroy(out); }
+
 cme_error_t sip_core_listen(sip_core_t sip_core) {
   return cmsu_SipCore_listen(sip_core);
 }

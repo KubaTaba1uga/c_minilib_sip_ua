@@ -35,24 +35,33 @@ int main(void) {
   err = sip_core_create(evl, (ip_t){.ip = "0.0.0.0", .port = "7337"},
                         SupportedSipTranspProtos_UDP, &sip_core);
   if (err) {
-    goto error_out;
+    goto error_event_loop_cleanup;
+  }
+
+  err = sip_core_listen(sip_core);
+  if (err) {
+    goto error_sip_core_cleanup;
   }
 
   log_func(0, "Starting event loop...\n");
 
   err = event_loop_start(evl);
   if (err) {
-    goto error_out;
+    goto error_sip_core_cleanup;
   }
 
+  sip_core_destroy(&sip_core);
   event_loop_destroy(&evl);
   cmi_destroy();
 
   return 0;
 
+error_sip_core_cleanup:
+  sip_core_destroy(&sip_core);
+error_event_loop_cleanup:
+  event_loop_destroy(&evl);
 error_out:
   puts(err->msg);
-  event_loop_destroy(&evl);
   cme_error_dump_to_file(err, "error.txt");
   return 1;
 }

@@ -28,6 +28,8 @@ cme_error_t sip_core_create(event_loop_t evl, ip_t ip_addr,
                             enum SupportedSipTranspProtos sstp,
                             sip_core_t *out);
 
+void sip_core_destroy(sip_core_t *out);
+
 // Core listen needs to take request handler wich will be triggered on every
 // request. This way one can implement different sip transactions on top of
 // sip core.

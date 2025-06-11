@@ -50,12 +50,32 @@ cmsu_SipTransport_create(event_loop_t evl, ip_t ip_addr,
     goto error_sip_transp_cleanup;
   }
 
+  *out = sip_transp;
+
   return 0;
 
 error_sip_transp_cleanup:
   free(sip_transp);
 error_out:
+  *out = NULL;
   return cme_return(err);
+};
+
+void cmsu_SipTransport_destroy(sip_transp_t *out) {
+  if (!out || !*out) {
+    return;
+  }
+
+  switch ((*out)->proto_type) {
+  case SupportedSipTranspProtos_UDP:
+    udp_destroy((*out)->socket);
+    break;
+  default:;
+  }
+
+  free(*out);
+
+  *out = NULL;
 };
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_H

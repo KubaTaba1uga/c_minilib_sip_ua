@@ -8,6 +8,8 @@ cme_error_t sip_transp_create(event_loop_t evl, ip_t ip_addr,
   return cmsu_SipTransport_create(evl, ip_addr, proto_type, out);
 };
 
+void sip_transp_destroy(sip_transp_t *out) { cmsu_SipTransport_destroy(out); };
+
 cme_error_t sip_transp_listen(sip_transp_t sip_transp, sip_transp_recvh_t recvh,
                               void *arg) {
   return cmsu_SipTransport_listen(sip_transp, recvh, arg);

@@ -49,6 +49,7 @@ static inline cme_error_t cmsu_EventLoop_create(struct cmsu_EventLoop **out) {
   return 0;
 
 error_out:
+  *out = NULL;
   return cme_return(err);
 };
 
@@ -73,6 +74,9 @@ void cmsu_EventLoop_destroy(struct cmsu_EventLoop **evl) {
   if (!evl || !*evl) {
     return;
   }
+
+  vec_cmsu_FdHelpers_drop(&(*evl)->fds_helpers);
+  vec_cmsu_Fds_drop(&(*evl)->fds);
 
   free(*evl);
   *evl = NULL;
@@ -99,6 +103,11 @@ error_fds_cleanup:
   my_vec_cmsu_Fds_remove(fd.fd, &evl->fds);
 error_out:
   return cme_return(err);
+}
+
+void cmsu_EventLoop_remove_fd(event_loop_t evl, int32_t fd) {
+  my_vec_cmsu_Fds_remove(fd, &evl->fds);
+  my_vec_cmsu_FdHelpers_remove(fd, &evl->fds_helpers);
 }
 
 #endif // C_MINILIB_SIP_UA_INT_EVENT_LOOP_H
