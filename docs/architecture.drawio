@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36" version="27.1.4" pages="2">
   <diagram id="IuXAi1eevMyLSQoJfHt3" name="Architecture overview">
-    <mxGraphModel dx="3333" dy="2447" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2269" dy="1870" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -11,28 +11,28 @@
           </mxGeometry>
         </mxCell>
         <mxCell id="v3j3ujz7cPLlm9doWBM3-45" value="&lt;h1 style=&quot;margin-top: 0px;&quot;&gt;Sip stack overview&lt;/h1&gt;" style="text;html=1;whiteSpace=wrap;overflow=hidden;rounded=0;" parent="1" vertex="1">
-          <mxGeometry x="700" y="-320" width="260" height="120" as="geometry" />
+          <mxGeometry x="700" y="-520" width="260" height="120" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-6" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-2" target="QLOnrKLpHwwKSTS8j1C4-3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-2" value="Sip core" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="790" y="272.5" width="220" height="85" as="geometry" />
+          <mxGeometry x="800" y="212.5" width="220" height="85" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-3" target="QLOnrKLpHwwKSTS8j1C4-4">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-3" value="Sip transport" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="790" y="437.5" width="220" height="85" as="geometry" />
+          <mxGeometry x="800" y="377.5" width="220" height="85" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-8" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-4" target="QLOnrKLpHwwKSTS8j1C4-5">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-4" value="UDP" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="790" y="607.5" width="220" height="85" as="geometry" />
+          <mxGeometry x="800" y="547.5" width="220" height="85" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-5" value="Event loop" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="790" y="777.5" width="220" height="85" as="geometry" />
+          <mxGeometry x="800" y="717.5" width="220" height="85" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-14" value="" style="endArrow=none;html=1;rounded=0;dashed=1;dashPattern=8 8;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;startFill=0;" edge="1" parent="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
@@ -50,8 +50,8 @@
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-16" value="Sip transp create generic interface for every low level network protocol&lt;span style=&quot;background-color: transparent; color: light-dark(rgb(0, 0, 0), rgb(255, 255, 255));&quot;&gt;.&lt;/span&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="-115" y="90" width="170" height="100" as="geometry" />
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-17" value="Sip session implements&amp;nbsp;&lt;div&gt;high level SIP functions&lt;/div&gt;&lt;div&gt;&amp;nbsp;related to invite.&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="-80" y="465" width="170" height="100" as="geometry" />
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-17" value="Sip Call implements&amp;nbsp;&lt;div&gt;high level SIP functions&lt;/div&gt;&lt;div&gt;&amp;nbsp;related to invite.&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="20" y="447.5" width="170" height="100" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-18" value="&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;Sip core implements&amp;nbsp;&lt;div&gt;low level SIP functions&lt;/div&gt;&lt;div&gt;&amp;nbsp;like:&amp;nbsp;&lt;/div&gt;&lt;div&gt;- sip_listen&lt;/div&gt;&lt;div&gt;-&amp;nbsp; sip_connect&lt;/div&gt;&lt;div&gt;- sip_reply&lt;/div&gt;&lt;div&gt;- ...&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="80" y="175" width="160" height="150" as="geometry" />
@@ -74,16 +74,21 @@
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-24" value="DTLS" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
           <mxGeometry x="150" y="10" width="70" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-77" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startFill=0;dashed=1;dashPattern=8 8;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;entryX=0.25;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;endFill=1;" edge="1" parent="1" target="QLOnrKLpHwwKSTS8j1C4-57">
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-77" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;startFill=0;dashed=1;dashPattern=8 8;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;entryX=0.289;entryY=1.003;entryDx=0;entryDy=0;entryPerimeter=0;endFill=1;" edge="1" parent="1" target="QLOnrKLpHwwKSTS8j1C4-57">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="85" y="460" as="sourcePoint" />
-            <mxPoint x="200" y="460" as="targetPoint" />
+            <mxPoint x="87.5" y="450" as="sourcePoint" />
+            <mxPoint x="190" y="410" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="188" y="460" />
+              <mxPoint x="190" y="450" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-25" value="SIP&amp;nbsp;&lt;div&gt;session&lt;/div&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-113" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;dashPattern=8 8;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-25" target="QLOnrKLpHwwKSTS8j1C4-111">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="-65" y="550" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-25" value="SIP&amp;nbsp;&lt;div&gt;call&lt;/div&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
           <mxGeometry x="50" y="525" width="70" height="50" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-26" value="Event loop" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
@@ -98,19 +103,19 @@
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-29" value="SIP Ua" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
           <mxGeometry x="115" y="635" width="70" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-30" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.444;entryY=1.004;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;dashPattern=8 8;" edge="1" parent="1" target="QLOnrKLpHwwKSTS8j1C4-55">
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-30" value="" style="endArrow=none;html=1;rounded=0;dashed=1;dashPattern=8 8;exitX=0.515;exitY=-0.002;exitDx=0;exitDy=0;exitPerimeter=0;startFill=0;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-29">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="150" y="635" as="sourcePoint" />
-            <mxPoint x="200" y="585" as="targetPoint" />
+            <mxPoint x="151" y="600" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="150" y="605" />
-              <mxPoint x="216" y="605" />
+              <mxPoint x="151" y="605" />
+              <mxPoint x="151" y="610" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-31" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;dashPattern=8 8;" edge="1" parent="1" target="QLOnrKLpHwwKSTS8j1C4-25">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="150.99999999999955" y="635" as="sourcePoint" />
+            <mxPoint x="151" y="605" as="sourcePoint" />
             <mxPoint x="99.99999999999955" y="575" as="targetPoint" />
             <Array as="points">
               <mxPoint x="150.99999999999955" y="605" />
@@ -202,16 +207,20 @@
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-53" value="" style="endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;dashed=1;dashPattern=8 8;" edge="1" parent="1" target="QLOnrKLpHwwKSTS8j1C4-52">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="149" y="635" as="sourcePoint" />
+            <mxPoint x="160" y="605" as="sourcePoint" />
             <mxPoint x="200" y="575" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="149" y="605" />
               <mxPoint x="415" y="605" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-54" value="Sip register implements&amp;nbsp;&lt;div&gt;high level SIP functions&lt;/div&gt;&lt;div&gt;&amp;nbsp; &amp;nbsp;related to SIP regiostration.&lt;/div&gt;" style="ellipse;shape=cloud;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="210" y="465" width="170" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-114" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=1;dashed=1;dashPattern=8 8;startArrow=classic;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-55">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="220" y="605" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-55" value="SIP&amp;nbsp;&lt;div&gt;register&lt;/div&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
           <mxGeometry x="185" y="525" width="70" height="50" as="geometry" />
@@ -233,20 +242,22 @@
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-57" value="SIP client&lt;div&gt;transaction&lt;/div&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
           <mxGeometry x="170" y="370" width="70" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-60" value="" style="endArrow=classic;html=1;rounded=0;dashed=1;dashPattern=8 8;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;exitX=0.429;exitY=0.001;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.713;entryY=1.004;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-55" target="QLOnrKLpHwwKSTS8j1C4-57">
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-60" value="" style="endArrow=classic;html=1;rounded=0;dashed=1;dashPattern=8 8;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;exitX=0.469;exitY=-0.044;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.683;entryY=0.987;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-55" target="QLOnrKLpHwwKSTS8j1C4-57">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="204.71000000000004" y="499" as="sourcePoint" />
             <mxPoint x="204.71000000000004" y="420" as="targetPoint" />
-            <Array as="points">
-              <mxPoint x="215" y="460" />
-              <mxPoint x="220" y="460" />
-            </Array>
+            <Array as="points" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-63" value="" style="endArrow=classic;html=1;rounded=0;dashed=1;dashPattern=8 8;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;exitX=0.429;exitY=0.001;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.431;entryY=1.016;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1">
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-63" value="" style="endArrow=classic;html=1;rounded=0;dashed=1;dashPattern=8 8;strokeColor=default;align=center;verticalAlign=middle;fontFamily=Helvetica;fontSize=11;fontColor=default;labelBackgroundColor=default;exitX=0;exitY=0;exitDx=70;exitDy=32;exitPerimeter=0;entryX=0.431;entryY=1.016;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-111">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
             <mxPoint x="84.75999999999999" y="524" as="sourcePoint" />
             <mxPoint x="84.75999999999999" y="420" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="20" y="410" />
+              <mxPoint x="20" y="450" />
+              <mxPoint x="85" y="450" />
+            </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-64" value="" style="group" vertex="1" connectable="0" parent="1">
@@ -292,7 +303,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-69" value="Sip server transaction" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="790" y="97.5" width="100" height="85" as="geometry" />
+          <mxGeometry x="800" y="37.5" width="100" height="85" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-71" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-70" target="QLOnrKLpHwwKSTS8j1C4-2">
           <mxGeometry relative="1" as="geometry" />
@@ -301,44 +312,62 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-70" value="Sip client transaction" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="910" y="97.5" width="100" height="85" as="geometry" />
+          <mxGeometry x="920" y="37.5" width="100" height="85" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-86" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-73" target="QLOnrKLpHwwKSTS8j1C4-69">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-102" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=1;startArrow=classic;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-73">
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-102" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=1;startArrow=classic;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-73" target="QLOnrKLpHwwKSTS8j1C4-104">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="-140" as="targetPoint" />
+            <mxPoint x="910" y="-200" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="760" y="-140" />
+              <mxPoint x="770" y="-220" />
+              <mxPoint x="770" y="-220" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-73" value="Sip Invite" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="710" y="-95" width="100" height="85" as="geometry" />
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-73" value="Sip Dialog" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="-155" width="100" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-108" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=1;startArrow=classic;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-81">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="910" y="-200" as="targetPoint" />
+          </mxGeometry>
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-81" value="Sip Register" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="-95" width="100" height="85" as="geometry" />
+          <mxGeometry x="860" y="-155" width="100" height="85" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-90" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-82" target="QLOnrKLpHwwKSTS8j1C4-70">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-100" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=1;startArrow=classic;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-82">
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-100" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;startFill=0;startArrow=none;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-82">
           <mxGeometry relative="1" as="geometry">
-            <mxPoint x="900" y="-140" as="targetPoint" />
+            <mxPoint x="910" y="-360" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="1040" y="-140" />
+              <mxPoint x="1050" y="-200" />
             </Array>
           </mxGeometry>
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-82" value="Sip Message" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="990" y="-95" width="100" height="85" as="geometry" />
-        </mxCell>
-        <mxCell id="QLOnrKLpHwwKSTS8j1C4-98" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-93" target="QLOnrKLpHwwKSTS8j1C4-81">
-          <mxGeometry relative="1" as="geometry" />
+          <mxGeometry x="1000" y="-155" width="100" height="85" as="geometry" />
         </mxCell>
         <mxCell id="QLOnrKLpHwwKSTS8j1C4-93" value="Sip UA" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="850" y="-260" width="100" height="85" as="geometry" />
+          <mxGeometry x="860" y="-450" width="100" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-106" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;endArrow=none;startFill=0;" edge="1" parent="1" source="QLOnrKLpHwwKSTS8j1C4-104" target="QLOnrKLpHwwKSTS8j1C4-93">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="769.9999999999995" y="-422.5" as="targetPoint" />
+            <Array as="points">
+              <mxPoint x="770" y="-330" />
+              <mxPoint x="910" y="-330" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-104" value="Sip Call" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="720" y="-300" width="100" height="85" as="geometry" />
+        </mxCell>
+        <mxCell id="QLOnrKLpHwwKSTS8j1C4-111" value="SIP&amp;nbsp;&lt;div&gt;dialog&lt;/div&gt;" style="shape=folder;fontStyle=1;spacingTop=10;tabWidth=40;tabHeight=14;tabPosition=left;html=1;whiteSpace=wrap;" vertex="1" parent="1">
+          <mxGeometry x="-90" y="377.5" width="70" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
