@@ -17,14 +17,17 @@ enum cmsu_SipStransState {
   cmsu_SipStransState_CONFIRMED,
 };
 
-struct cmsu_SipStrans {
+struct cmsu_SipServerTransaction {
   sip_core_t core;
   enum cmsu_SipStransState state;
 };
 
-cme_error_t cmsu_SipStrans_create(sip_msg_t sip_msg, sip_core_t sip_core,
-                                  struct cmsu_SipStrans **out);
+static inline cme_error_t
+cmsu_SipStrans_init(sip_msg_t sip_msg, sip_core_t sip_core,
+                    struct cmsu_SipServerTransaction *out) {
+  return 0;
+};
 
-void cmsu_SipStrans_destroy(struct cmsu_SipStrans **out);
+void cmsu_SipStrans_destroy(struct cmsu_SipServerTransaction **out);
 
 #endif

@@ -8,7 +8,16 @@
 #include "sip_core/sip_core.h"
 #include "sip_transp/sip_transp.h"
 
-void log_func(enum cmi_LogLevelEnum _, char *data) { printf("%s", data); }
+static void log_func(enum cmi_LogLevelEnum _, char *data) {
+  printf("%s", data);
+}
+
+static cme_error_t sip_core_request_handler(sip_msg_t sip_msg, ip_t peer_ip,
+                                            sip_strans_t strans,
+                                            sip_core_t sip_core, void *data) {
+  puts("Received Sip msg in MAIN!");
+  return 0;
+}
 
 int main(void) {
   event_loop_t evl;
@@ -38,7 +47,7 @@ int main(void) {
     goto error_event_loop_cleanup;
   }
 
-  err = sip_core_listen(sip_core);
+  err = sip_listen(sip_core_request_handler, NULL, sip_core);
   if (err) {
     goto error_sip_core_cleanup;
   }

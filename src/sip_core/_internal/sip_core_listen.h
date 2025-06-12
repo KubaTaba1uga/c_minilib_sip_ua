@@ -14,8 +14,8 @@
 #include "event_loop/event_loop.h"
 #include "sip_core/_internal/sip_core.h"
 #include "sip_core/_internal/sip_listener.h"
+#include "sip_core/_internal/sip_strans_hashmap.h"
 #include "sip_core/sip_core.h"
-#include "sip_strans/sip_strans.h"
 #include "sip_transp/sip_transp.h"
 #include "stc/common.h"
 #include "udp/udp.h"
@@ -80,15 +80,25 @@ This means we need sth to match client transactions and user callbacks.
   bool is_request = cmsc_sipmsg_is_field_present(
       sip_msg, cmsc_SupportedSipHeaders_REQUEST_LINE);
   cme_error_t err;
+  struct cmsc_String branch = {0};
+
+  if (sip_msg->vias.stqh_first) {
+    branch = cmsc_bs_msg_to_string(&sip_msg->vias.stqh_first->branch, sip_msg);
+  }
+
+  if (!branch.len) {
+    err = cme_error(EINVAL, "Received Sip message without via->branch");
+    goto error_out;
+  }
 
   if (is_request) {
     sip_strans_t strans;
-    err = sip_strans_create(sip_msg, sip_core, &strans);
+    err = my_hmap_cmsu_SipStransMap_insert_new(branch.buf, branch.len, sip_msg,
+                                               sip_core, &sip_core->sip_strans,
+                                               &strans);
     if (err) {
       goto error_out;
     }
-
-    // TO-DO: insert strans to strans hasmap using via barnch as key.
 
     c_foreach(lstner, list_cmsu_SipListeners, sip_core->sip_lstnrs) {
       err = lstner.ref->request_handler(sip_msg, peer_ip, strans, sip_core,

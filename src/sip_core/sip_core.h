@@ -15,7 +15,6 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
-#include "sip_strans/sip_strans.h"
 #include "sip_transp/sip_transp.h"
 #include "utils/ip.h"
 #include <stdint.h>
@@ -24,6 +23,7 @@
  *                             Event Loop                                     *
  ******************************************************************************/
 typedef struct cmsu_SipCore *sip_core_t;
+typedef struct cmsu_SipServerTransaction *sip_strans_t;
 
 typedef cme_error_t (*sip_core_request_handler_t)(sip_msg_t sip_msg,
                                                   ip_t peer_ip,
