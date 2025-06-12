@@ -3,5 +3,5 @@ sources += files(
   'fd.h',
   'fd_vec.h',
   'fd_helper.h',
-  'fd_helper_vec.h',  
+  'fd_helper_hmap.h',  
 )

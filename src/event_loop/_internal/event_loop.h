@@ -21,8 +21,9 @@
 #include <sys/poll.h>
 
 #include "c_minilib_error.h"
+#include "event_loop/_internal/common.h"
 #include "event_loop/_internal/fd_helper.h"
-#include "event_loop/_internal/fd_helper_vec.h"
+#include "event_loop/_internal/fd_helper_hmap.h"
 #include "event_loop/_internal/fd_vec.h"
 #include "stc/common.h"
 
@@ -32,7 +33,7 @@
 
 struct cmsu_EventLoop {
   struct vec_cmsu_Fds fds;
-  struct vec_cmsu_FdHelpers fds_helpers;
+  struct hmap_cmsu_FdHelpers fds_helpers;
 };
 
 static inline cme_error_t
@@ -47,7 +48,7 @@ static inline cme_error_t cmsu_EventLoop_create(struct cmsu_EventLoop **out) {
   }
 
   evl->fds = vec_cmsu_Fds_init();
-  evl->fds_helpers = vec_cmsu_FdHelpers_init();
+  evl->fds_helpers = hmap_cmsu_FdHelpers_init();
 
   *out = evl;
 
@@ -85,18 +86,18 @@ cmsu_EventLoop_process_events(struct cmsu_EventLoop *evl) {
 
   c_foreach(fd, vec_cmsu_Fds, evl->fds) {
     struct cmsu_FdHelper *fd_helper =
-        my_vec_cmsu_FdHelpers_find(fd.ref->fd, &evl->fds_helpers);
+        my_hmap_cmsu_FdHelpers_find(fd.ref->fd, &evl->fds_helpers);
 
     assert(fd_helper != NULL);
 
     if (fd.ref->revents & POLLIN) {
-      err = fd_helper->recvh(fd_helper->data);
+      err = cmsu_FdHelper_recvh(fd_helper);
       if (err) {
         goto error_out;
       }
     }
     if (fd.ref->revents & POLLOUT) {
-      err = fd_helper->sendh(fd_helper->data);
+      err = cmsu_FdHelper_sendh(fd_helper);
       if (err) {
         goto error_out;
       }
@@ -114,8 +115,8 @@ void cmsu_EventLoop_destroy(struct cmsu_EventLoop **evl) {
     return;
   }
 
-  vec_cmsu_FdHelpers_drop(&(*evl)->fds_helpers);
   vec_cmsu_Fds_drop(&(*evl)->fds);
+  hmap_cmsu_FdHelpers_drop(&(*evl)->fds_helpers);
 
   free(*evl);
   *evl = NULL;
@@ -130,14 +131,21 @@ cme_error_t cmsu_EventLoop_insert_fd(struct cmsu_EventLoop *evl, fd_t fd,
     goto error_out;
   }
 
-  err = my_vec_cmsu_FdHelpers_insert(&evl->fds_helpers, fd.fd, sendh, recvh,
-                                     data);
+  fd_helper_t helper;
+  err = cmsu_FdHelper_create(sendh, recvh, data, &helper);
   if (err) {
     goto error_fds_cleanup;
   }
 
+  err = my_hmap_cmsu_FdHelpers_insert(fd.fd, helper, &evl->fds_helpers);
+  if (err) {
+    goto error_helper_cleanup;
+  }
+
   return 0;
 
+error_helper_cleanup:
+  cmsu_FdHelper_destroy(&helper);
 error_fds_cleanup:
   my_vec_cmsu_Fds_remove(fd.fd, &evl->fds);
 error_out:
@@ -146,7 +154,7 @@ error_out:
 
 void cmsu_EventLoop_remove_fd(event_loop_t evl, int32_t fd) {
   my_vec_cmsu_Fds_remove(fd, &evl->fds);
-  my_vec_cmsu_FdHelpers_remove(fd, &evl->fds_helpers);
+  my_hmap_cmsu_FdHelpers_remove(fd, &evl->fds_helpers);
 }
 
 #endif // C_MINILIB_SIP_UA_INT_EVENT_LOOP_H
