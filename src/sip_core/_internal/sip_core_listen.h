@@ -6,6 +6,7 @@
 
 #ifndef C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
 #define C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
+#include <asm-generic/errno.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -14,7 +15,7 @@
 #include "event_loop/event_loop.h"
 #include "sip_core/_internal/sip_core.h"
 #include "sip_core/_internal/sip_listener.h"
-#include "sip_core/_internal/sip_strans_hashmap.h"
+#include "sip_core/_internal/sip_strans.h"
 #include "sip_core/sip_core.h"
 #include "sip_transp/sip_transp.h"
 #include "stc/common.h"
@@ -80,24 +81,32 @@ This means we need sth to match client transactions and user callbacks.
   bool is_request = cmsc_sipmsg_is_field_present(
       sip_msg, cmsc_SupportedSipHeaders_REQUEST_LINE);
   cme_error_t err;
-  struct cmsc_String branch = {0};
-
-  if (sip_msg->vias.stqh_first) {
-    branch = cmsc_bs_msg_to_string(&sip_msg->vias.stqh_first->branch, sip_msg);
-  }
-
-  if (!branch.len) {
-    err = cme_error(EINVAL, "Received Sip message without via->branch");
-    goto error_out;
-  }
 
   if (is_request) {
     sip_strans_t strans;
-    err = my_hmap_cmsu_SipStransMap_insert_new(branch.buf, branch.len, sip_msg,
-                                               sip_core, &sip_core->sip_strans,
-                                               &strans);
+
+    strans = cmsu_SipStrans_find(sip_msg, &sip_core->sip_strans);
+    if (strans) {
+      err = cme_error(ENOANO,
+                      "Handling exsisting transactions is not implemented");
+      goto error_out;
+    } else {
+      err = cmsu_SipStrans_create(sip_msg, sip_core, &sip_core->sip_strans,
+                                  &strans);
+      if (err) {
+        goto error_out;
+      }
+    }
+
+    bool is_sipmsg_meant_for_listener;
+    err = cmsu_SipStrans_process(sip_msg, &sip_core->sip_strans, strans,
+                                 &is_sipmsg_meant_for_listener);
     if (err) {
       goto error_out;
+    }
+
+    if (!is_sipmsg_meant_for_listener) {
+      goto out;
     }
 
     c_foreach(lstner, list_cmsu_SipListeners, sip_core->sip_lstnrs) {
@@ -117,6 +126,7 @@ This means we need sth to match client transactions and user callbacks.
     /* } */
   }
 
+out:
   puts("Sip core received message");
   return 0;
 error_out:

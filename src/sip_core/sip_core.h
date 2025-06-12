@@ -23,7 +23,7 @@
  *                             Event Loop                                     *
  ******************************************************************************/
 typedef struct cmsu_SipCore *sip_core_t;
-typedef struct cmsu_SipServerTransaction *sip_strans_t;
+typedef struct cmsu_SipStrans *sip_strans_t;
 
 typedef cme_error_t (*sip_core_request_handler_t)(sip_msg_t sip_msg,
                                                   ip_t peer_ip,

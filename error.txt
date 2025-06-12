@@ -1,5 +1,5 @@
 ====== ERROR DUMP ======
-Error code: Invalid argument
-Error message: No CLRF
+Error code: No anode
+Error message: Handling exsisting transactions is not implemented
 ------------------------
-0:cmsc_parse_sip_first_line:../subprojects/c_minilib_sip_codec/src/utils/parser.h:233
+0:cmsu_SipCore_sip_transp_recvh:../src/sip_core/_internal/sip_core_listen.h:91

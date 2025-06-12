@@ -16,7 +16,7 @@
 /* #define i_type hmap_cmsu_SipStransMap, cstr, struct cmsu_SipServerTransaction
  */
 #define i_tag cmsu_SipStransMap
-#define i_key cstr
+#define i_keypro cstr
 #define i_val struct cmsu_SipServerTransaction
 #include "stc/hmap.h"
 
@@ -47,18 +47,16 @@ error_out:
 
 static inline sip_strans_t
 my_hmap_cmsu_SipStransMap_find(const char *key, uint32_t key_len,
-                               struct hmap_cmsu_SipStransMap *stmap,
-                               sip_strans_t *out) {
+                               struct hmap_cmsu_SipStransMap *stmap) {
   cstr tmp_key = cstr_from_sv((csview){.buf = key, .size = key_len});
-  void *result = hmap_cmsu_SipStransMap_get_mut(stmap, tmp_key);
+  struct cmsu_SipServerTransaction *result =
+      &hmap_cmsu_SipStransMap_get_mut(stmap, cstr_toraw(&tmp_key))->second;
 
   if (!result) {
     return NULL;
   }
 
-  *out = result;
-
-  return 0;
+  return result;
 }
 
 #endif
