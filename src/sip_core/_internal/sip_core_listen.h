@@ -15,6 +15,7 @@
 #include "sip_core/_internal/sip_core.h"
 #include "sip_core/_internal/sip_listener.h"
 #include "sip_core/sip_core.h"
+#include "sip_strans/sip_strans.h"
 #include "sip_transp/sip_transp.h"
 #include "stc/common.h"
 #include "udp/udp.h"
@@ -73,36 +74,43 @@ callbacks.
      4. If it is sip status we are looking for client transaction that it
 matches to. We then run callback for client_transaction rather than listener.
 This means we need sth to match client transactions and user callbacks.
-
    */
 
-  /* struct cmsu_SipCore *sip_core = data; */
-  /* bool is_request = cmsc_sipmsg_is_field_present( */
-  /* sip_msg, cmsc_SupportedSipHeaders_REQUEST_LINE); */
-  /* cme_error_t err; */
+  struct cmsu_SipCore *sip_core = data;
+  bool is_request = cmsc_sipmsg_is_field_present(
+      sip_msg, cmsc_SupportedSipHeaders_REQUEST_LINE);
+  cme_error_t err;
 
-  /* if (is_request) { */
-  /*   c_foreach(lstner, list_cmsu_SipListeners, sip_core->sip_lstnrs) { */
-  /*     err = lstner.ref->request_handler(sip_msg, peer_ip, sip_core, */
-  /*                                       lstner.ref->arg); */
-  /*     if (err) { */
-  /*       goto error_out; */
-  /*     } */
-  /*   } */
-  /* } else { */
-  /*   c_foreach(lstner, list_cmsu_SipListeners, sip_core->sip_lstnrs) { */
-  /*     err = lstner.ref->response_handler(sip_msg, peer_ip, sip_core, */
-  /*                                        lstner.ref->arg); */
-  /*     if (err) { */
-  /*       goto error_out; */
-  /*     } */
-  /*   } */
-  /* } */
+  if (is_request) {
+    sip_strans_t strans;
+    err = sip_strans_create(sip_msg, sip_core, &strans);
+    if (err) {
+      goto error_out;
+    }
+
+    // TO-DO: insert strans to strans hasmap using via barnch as key.
+
+    c_foreach(lstner, list_cmsu_SipListeners, sip_core->sip_lstnrs) {
+      err = lstner.ref->request_handler(sip_msg, peer_ip, strans, sip_core,
+                                        lstner.ref->arg);
+      if (err) {
+        goto error_out;
+      }
+    }
+  } else {
+    /* c_foreach(lstner, list_cmsu_SipListeners, sip_core->sip_lstnrs) { */
+    /*   err = lstner.ref->response_handler(sip_msg, peer_ip, sip_core, */
+    /*                                      lstner.ref->arg); */
+    /*   if (err) { */
+    /*     goto error_out; */
+    /*   } */
+    /* } */
+  }
 
   puts("Sip core received message");
   return 0;
-  /* error_out: */
-  /* return cme_return(err); */
+error_out:
+  return cme_return(err);
 }
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_H

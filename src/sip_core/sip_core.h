@@ -15,6 +15,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
+#include "sip_strans/sip_strans.h"
 #include "sip_transp/sip_transp.h"
 #include "utils/ip.h"
 #include <stdint.h>
@@ -26,6 +27,7 @@ typedef struct cmsu_SipCore *sip_core_t;
 
 typedef cme_error_t (*sip_core_request_handler_t)(sip_msg_t sip_msg,
                                                   ip_t peer_ip,
+                                                  sip_strans_t strans,
                                                   sip_core_t sip_core,
                                                   void *data);
 typedef cme_error_t (*sip_core_response_handler_t)(sip_msg_t sip_msg,
@@ -39,10 +41,10 @@ cme_error_t sip_core_create(event_loop_t evl, ip_t ip_addr,
 
 void sip_core_destroy(sip_core_t *out);
 
-cme_error_t sip_core_listen(sip_core_request_handler_t requesth, void *data,
-                            sip_core_t sip_core);
+cme_error_t sip_listen(sip_core_request_handler_t requesth, void *data,
+                       sip_core_t sip_core);
 
-cme_error_t sip_core_send(sip_core_response_handler_t resph, sip_msg_t sipmsg,
-                          void *data, sip_core_t sip_core);
+cme_error_t sip_send(sip_core_response_handler_t resph, sip_msg_t sipmsg,
+                     void *data, sip_core_t sip_core);
 
 #endif // C_MINILIB_SIP_UA_SIP_TRANSP_H
