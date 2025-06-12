@@ -9,7 +9,7 @@
 #include <stdint.h>
 
 #include "c_minilib_error.h"
-#include "sip_core/_internal/sip_strans.h"
+#include "sip_core/_internal/common.h"
 #include "sip_core/sip_core.h"
 #include "stc/cstr.h"
 
@@ -17,18 +17,16 @@
  */
 #define i_tag cmsu_SipStransMap
 #define i_keypro cstr
-#define i_val struct cmsu_SipServerTransaction
+#define i_val sip_strans_t
 #include "stc/hmap.h"
 
 static inline cme_error_t my_hmap_cmsu_SipStransMap_insert_new(
-    const char *key, uint32_t key_len, sip_msg_t sip_msg, sip_core_t sip_core,
+    const char *key, uint32_t key_len, sip_strans_t strans,
     struct hmap_cmsu_SipStransMap *stmap, sip_strans_t *out) {
 
   void *result =
       hmap_cmsu_SipStransMap_insert_or_assign(
-          stmap, cstr_from_sv((csview){.buf = key, .size = key_len}),
-          (struct cmsu_SipServerTransaction){
-              .core = sip_core, .state = cmsu_SipStransState_PROCEEDING})
+          stmap, cstr_from_sv((csview){.buf = key, .size = key_len}), strans)
           .ref;
   cme_error_t err;
 
@@ -49,14 +47,7 @@ static inline sip_strans_t
 my_hmap_cmsu_SipStransMap_find(const char *key, uint32_t key_len,
                                struct hmap_cmsu_SipStransMap *stmap) {
   cstr tmp_key = cstr_from_sv((csview){.buf = key, .size = key_len});
-  struct cmsu_SipServerTransaction *result =
-      &hmap_cmsu_SipStransMap_get_mut(stmap, cstr_toraw(&tmp_key))->second;
-
-  if (!result) {
-    return NULL;
-  }
-
-  return result;
+  return *hmap_cmsu_SipStransMap_at_mut(stmap, cstr_toraw(&tmp_key));
 }
 
 #endif

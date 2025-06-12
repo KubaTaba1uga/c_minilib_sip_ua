@@ -9,9 +9,12 @@
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
+#include "sip_core/_internal/common.h"
+#include "sip_core/_internal/sip_strans_hashmap.h"
 #include "sip_core/sip_core.h"
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/queue.h>
 
@@ -30,15 +33,8 @@ struct cmsu_SipStrans {
   bool is_invite;
 };
 
-#include "stc/cstr.h"
-#define i_tag cmsu_SipStransMap
-#define i_keypro cstr
-#define i_val struct cmsu_SipStrans
-#include "stc/hmap.h"
-
 static inline cme_error_t cmsu_SipStrans_create(sip_msg_t sip_msg,
                                                 sip_core_t sip_core,
-                                                hmap_cmsu_SipStransMap *stmap,
                                                 struct cmsu_SipStrans **out) {
   struct cmsc_String branch = {0};
   struct cmsc_String method = {0};
@@ -61,24 +57,18 @@ static inline cme_error_t cmsu_SipStrans_create(sip_msg_t sip_msg,
     goto error_out;
   }
 
+  sip_strans_t strans = calloc(1, sizeof(struct cmsu_SipStrans));
+  if (!strans) {
+    err = cme_error(ENOMEM, "Cannot alocate memory for server transaction");
+    goto error_out;
+  }
+
   bool is_invite = strncmp(method.buf, "INVITE", method.len) == 0;
   if (is_invite) {
     // TO-DO: implement 1. timer.
   }
 
-  void *result =
-      hmap_cmsu_SipStransMap_insert_or_assign(
-          stmap, cstr_from_sv((csview){.buf = branch.buf, .size = branch.len}),
-          (struct cmsu_SipStrans){.core = sip_core,
-                                  .is_invite = is_invite,
-                                  .state = cmsu_SipStransState_PROCEEDING})
-          .ref;
-  if (!result) {
-    err = cme_error(ENOMEM, "Cannot insert new server transaction to sip core");
-    goto error_out;
-  }
-
-  *out = result;
+  *out = strans;
 
   return 0;
 
@@ -86,64 +76,76 @@ error_out:
   return cme_return(err);
 };
 
-static inline bool cmsu_SipStrans_is_done(struct cmsu_SipStrans *strans) {
-  return strans->state == cmsu_SipStransState_COMPLETED;
+static inline void cmsu_SipStrans_destroy(struct cmsu_SipStrans **out) {
+  if (!out || !*out) {
+    return;
+  }
+
+  free(*out);
+  *out = NULL;
 };
 
-static inline sip_strans_t cmsu_SipStrans_find(sip_msg_t sip_msg,
-                                               hmap_cmsu_SipStransMap *stmap) {
-  struct cmsc_String branch = {0};
+static inline bool cmsu_SipStrans_is_done(struct cmsu_SipStrans *strans) {
+  return strans->state == cmsu_SipStransState_COMPLETED ||
+         strans->state == cmsu_SipStransState_TERMINATED;
+};
 
-  struct cmsc_SipHeaderVia *via = STAILQ_FIRST(&sip_msg->vias);
-  if (via) {
-    branch = cmsc_bs_msg_to_string(&via->branch, sip_msg);
-  }
+  /* static inline cme_error_t */
+  /* cmsu_SipStrans_handle_request(sip_msg_t sip_msg, hmap_cmsu_SipStransMap
+   * *stmap, */
+  /*                               struct cmsu_SipStrans *strans, */
+  /*                               bool *is_meant_for_listener) { */
 
-  if (!branch.len) {
-    goto error_out;
-  }
+  /*   switch (strans->state) { */
+  /*   case cmsu_SipStransState_COMPLETED: */
+  /*     // TO-DO: Handle ACK. In completed state ACK should not reach TU. They
+   * are */
+  /*     // meant only for transaction. */
+  /*     *is_meant_for_listener = false; */
+  /*     strans->state = cmsu_SipStransState_CONFIRMED; */
+  /*     break; */
+  /*   default: */
+  /*     *is_meant_for_listener = true; */
+  /*     break; */
+  /*   } */
 
-  cstr tmp_cstr_key =
-      cstr_from_sv((csview){.buf = branch.buf, .size = branch.len});
+  /*   return 0; */
+  /* } */
 
-  const char *tmp_str_key = cstr_toraw(&tmp_cstr_key);
+  /* static inline sip_strans_t cmsu_SipStrans_find(sip_msg_t sip_msg, */
+  /*                                                hmap_cmsu_SipStransMap
+   * *stmap)
+   * { */
+  /*   struct cmsc_String branch = {0}; */
 
-  if (!hmap_cmsu_SipStransMap_contains(stmap, tmp_str_key)) {
-    goto error_out;
-  }
+  /*   struct cmsc_SipHeaderVia *via = STAILQ_FIRST(&sip_msg->vias); */
+  /*   if (via) { */
+  /*     branch = cmsc_bs_msg_to_string(&via->branch, sip_msg); */
+  /*   } */
 
-  struct cmsu_SipStrans *value =
-      hmap_cmsu_SipStransMap_at_mut(stmap, tmp_str_key);
-  if (!value) {
-    goto error_out;
-  }
+  /*   if (!branch.len) { */
+  /*     goto error_out; */
+  /*   } */
 
-  return value;
+  /*   cstr tmp_cstr_key = */
+  /*       cstr_from_sv((csview){.buf = branch.buf, .size = branch.len}); */
 
-error_out:
-  return NULL;
-}
+  /*   const char *tmp_str_key = cstr_toraw(&tmp_cstr_key); */
 
-void cmsu_SipStrans_destroy(struct cmsu_SipStrans **out);
+  /*   if (!hmap_cmsu_SipStransMap_contains(stmap, tmp_str_key)) { */
+  /*     goto error_out; */
+  /*   } */
 
-static inline cme_error_t cmsu_SipStrans_process(sip_msg_t sip_msg,
-                                                 hmap_cmsu_SipStransMap *stmap,
-                                                 struct cmsu_SipStrans *strans,
-                                                 bool *is_meant_for_listener) {
+  /*   struct cmsu_SipStrans *value = */
+  /*       hmap_cmsu_SipStransMap_at_mut(stmap, tmp_str_key); */
+  /*   if (!value) { */
+  /*     goto error_out; */
+  /*   } */
 
-  switch (strans->state) {
-  case cmsu_SipStransState_COMPLETED:
-    // TO-DO: Handle ACK. In completed state ACK should not reach TU. They are
-    // meant only for transaction.
-    *is_meant_for_listener = false;
-    strans->state = cmsu_SipStransState_CONFIRMED;
-    break;
-  default:
-    *is_meant_for_listener = true;
-    break;
-  }
+  /*   return value; */
 
-  return 0;
-}
+  /* error_out: */
+  /*   return NULL; */
+  /* } */
 
 #endif
