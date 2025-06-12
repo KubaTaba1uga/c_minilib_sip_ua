@@ -10,7 +10,6 @@
 #include "sip_core/sip_core.h"
 
 struct cmsu_SipListener {
-  sip_core_response_handler_t response_handler;
   sip_core_request_handler_t request_handler;
 
   void *arg;
