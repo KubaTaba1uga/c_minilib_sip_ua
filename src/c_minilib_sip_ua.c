@@ -53,7 +53,6 @@ int main(void) {
   }
 
   log_func(0, "Starting event loop...\n");
-
   err = event_loop_start(evl);
   if (err) {
     goto error_sip_core_cleanup;

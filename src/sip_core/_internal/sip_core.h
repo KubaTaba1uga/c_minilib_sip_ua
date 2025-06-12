@@ -41,6 +41,7 @@ cmsu_SipCore_create(event_loop_t evl, ip_t ip_addr,
   }
 
   sip_core->sip_lstnrs = list_cmsu_SipListeners_init();
+  sip_core->sip_strans = hmap_cmsu_SipStransMap_init();
 
   *out = sip_core;
 
