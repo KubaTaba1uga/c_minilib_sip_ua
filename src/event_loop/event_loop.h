@@ -27,13 +27,17 @@ typedef struct cmsu_EventLoop *event_loop_t;
 typedef struct pollfd fd_t;
 typedef cme_error_t (*event_loop_sendh_t)(void *data);
 typedef cme_error_t (*event_loop_recvh_t)(void *data);
+typedef cme_error_t (*event_loop_timeouth_t)(void *data);
 
 cme_error_t event_loop_create(event_loop_t *out);
 cme_error_t event_loop_start(event_loop_t evl);
 void event_loop_destroy(event_loop_t *out);
-cme_error_t event_loop_insert_fd(event_loop_t evl, fd_t fd,
-                                 event_loop_sendh_t sendh,
-                                 event_loop_recvh_t recvh, void *data);
+cme_error_t event_loop_insert_socketfd(event_loop_t evl, fd_t fd,
+                                       event_loop_sendh_t sendh,
+                                       event_loop_recvh_t recvh, void *data);
+cme_error_t event_loop_insert_timerfd(event_loop_t evl, fd_t fd,
+                                      event_loop_timeouth_t timeouth,
+                                      void *data);
 void event_loop_remove_fd(event_loop_t evl, int32_t fd);
 cme_error_t event_loop_fd_set_pollout(event_loop_t evl, int32_t fd);
 cme_error_t event_loop_fd_unset_pollout(event_loop_t evl, int32_t fd);

@@ -25,6 +25,7 @@
 #include "event_loop/_internal/fd_helper.h"
 #include "event_loop/_internal/fd_helper_hmap.h"
 #include "event_loop/_internal/fd_vec.h"
+#include "event_loop/event_loop.h"
 #include "stc/common.h"
 
 /******************************************************************************
@@ -91,13 +92,14 @@ cmsu_EventLoop_process_events(struct cmsu_EventLoop *evl) {
     assert(fd_helper != NULL);
 
     if (fd.ref->revents & POLLIN) {
-      err = cmsu_FdHelper_recvh(fd_helper);
+      err = cmsu_FdHelper_pollinh(fd_helper);
       if (err) {
         goto error_out;
       }
     }
+
     if (fd.ref->revents & POLLOUT) {
-      err = cmsu_FdHelper_sendh(fd_helper);
+      err = cmsu_FdHelper_pollouth(fd_helper);
       if (err) {
         goto error_out;
       }
@@ -122,9 +124,9 @@ void cmsu_EventLoop_destroy(struct cmsu_EventLoop **evl) {
   *evl = NULL;
 };
 
-cme_error_t cmsu_EventLoop_insert_fd(struct cmsu_EventLoop *evl, fd_t fd,
-                                     event_loop_sendh_t sendh,
-                                     event_loop_recvh_t recvh, void *data) {
+cme_error_t cmsu_EventLoop_insert_timerfd(struct cmsu_EventLoop *evl, fd_t fd,
+                                          event_loop_timeouth_t timeouth,
+                                          void *data) {
   cme_error_t err;
   err = my_vec_cmsu_Fds_push(&evl->fds, fd);
   if (err) {
@@ -132,7 +134,45 @@ cme_error_t cmsu_EventLoop_insert_fd(struct cmsu_EventLoop *evl, fd_t fd,
   }
 
   fd_helper_t helper;
-  err = cmsu_FdHelper_create(sendh, recvh, data, &helper);
+  err = cmsu_FdHelper_create(cmsu_FdType_TIMER, timeouth, NULL, NULL, data,
+                             &helper);
+  if (err) {
+    goto error_fds_cleanup;
+  }
+
+  err = my_hmap_cmsu_FdHelpers_insert(fd.fd, helper, &evl->fds_helpers);
+  if (err) {
+    goto error_helper_cleanup;
+  }
+
+  return 0;
+
+error_helper_cleanup:
+  cmsu_FdHelper_destroy(&helper);
+error_fds_cleanup:
+  my_vec_cmsu_Fds_remove(fd.fd, &evl->fds);
+error_out:
+  return cme_return(err);
+};
+
+// This function needs to be split up into two:
+//  1. It has to do what already does, insert socket.
+//  2. It has to insert timer instead of socket. FdHelper can contain
+//     handlers for both 1. and 2. with some FdType shich indicate whether
+//     it is socket fd or timer fd.
+cme_error_t cmsu_EventLoop_insert_socketfd(struct cmsu_EventLoop *evl, fd_t fd,
+                                           event_loop_sendh_t sendh,
+                                           event_loop_recvh_t recvh,
+                                           void *data) {
+  cme_error_t err;
+  err = my_vec_cmsu_Fds_push(&evl->fds, fd);
+  if (err) {
+    goto error_out;
+  }
+
+  fd_helper_t helper;
+  err = cmsu_FdHelper_create(cmsu_FdType_SOCKET, NULL, sendh, recvh, data,
+                             &helper);
   if (err) {
     goto error_fds_cleanup;
   }

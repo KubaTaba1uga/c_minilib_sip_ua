@@ -81,8 +81,9 @@ static inline cme_error_t cmsu_UdpSocket_create(event_loop_t evl, ip_t ip_addr,
     goto error_socket_cleanup;
   }
 
-  err = event_loop_insert_fd(evl, (fd_t){.fd = sockfd, .events = 0},
-                             cmsu_UdpSocket_send, cmsu_UdpSocket_recv, udpsock);
+  err = event_loop_insert_socketfd(evl, (fd_t){.fd = sockfd, .events = 0},
+                                   cmsu_UdpSocket_send, cmsu_UdpSocket_recv,
+                                   udpsock);
   if (err) {
     err = cme_errorf(errno,
                      "Cannot insert udp socket into event loop for IP=%s:%s",

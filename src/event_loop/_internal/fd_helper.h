@@ -15,16 +15,23 @@
 /******************************************************************************
  *                             Fd Helper                                      *
  ******************************************************************************/
-struct cmsu_FdHelper {
-  event_loop_sendh_t sendh;
-  event_loop_recvh_t recvh;
-  void *data;
+enum cmsu_FdType {
+  cmsu_FdType_SOCKET,
+  cmsu_FdType_TIMER,
 };
 
-static inline cme_error_t cmsu_FdHelper_create(event_loop_sendh_t sendh,
-                                               event_loop_recvh_t recvh,
-                                               void *data,
-                                               struct cmsu_FdHelper **out) {
+struct cmsu_FdHelper {
+  event_loop_timeouth_t timeouth; // This is used by timer
+  event_loop_sendh_t sendh;       // This is used by socket
+  event_loop_recvh_t recvh;       // This is used by socket
+  enum cmsu_FdType fd_type;       // This is used by socket and timer
+  void *data;                     // This is used by socket and timer
+};
+
+static inline cme_error_t
+cmsu_FdHelper_create(enum cmsu_FdType fd_type, event_loop_timeouth_t timeouth,
+                     event_loop_sendh_t sendh, event_loop_recvh_t recvh,
+                     void *data, struct cmsu_FdHelper **out) {
   struct cmsu_FdHelper *helper = calloc(1, sizeof(struct cmsu_FdHelper));
   cme_error_t err;
   if (!helper) {
@@ -32,6 +39,8 @@ static inline cme_error_t cmsu_FdHelper_create(event_loop_sendh_t sendh,
     goto error_out;
   }
 
+  helper->timeouth = timeouth;
+  helper->fd_type = fd_type;
   helper->sendh = sendh;
   helper->recvh = recvh;
   helper->data = data;
@@ -53,12 +62,24 @@ static inline void cmsu_FdHelper_destroy(struct cmsu_FdHelper **out) {
   *out = NULL;
 }
 
-static inline cme_error_t cmsu_FdHelper_recvh(struct cmsu_FdHelper *helper) {
-  return helper->recvh(helper->data);
+static inline cme_error_t cmsu_FdHelper_pollinh(struct cmsu_FdHelper *helper) {
+  switch (helper->fd_type) {
+  case cmsu_FdType_SOCKET:
+    return helper->recvh(helper->data);
+  case cmsu_FdType_TIMER:
+    return helper->timeouth(helper->data);
+  default:
+    return 0;
+  }
 }
 
-static inline cme_error_t cmsu_FdHelper_sendh(struct cmsu_FdHelper *helper) {
-  return helper->sendh(helper->data);
+static inline cme_error_t cmsu_FdHelper_pollouth(struct cmsu_FdHelper *helper) {
+  switch (helper->fd_type) {
+  case cmsu_FdType_SOCKET:
+    return helper->sendh(helper->data);
+  default:
+    return 0;
+  }
 }
 
 #endif

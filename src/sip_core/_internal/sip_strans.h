@@ -12,6 +12,7 @@
 #include "sip_core/_internal/common.h"
 #include "sip_core/_internal/sip_strans_hashmap.h"
 #include "sip_core/sip_core.h"
+#include "timer/timer.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +32,7 @@ struct cmsu_SipStrans {
   sip_core_t core;
   enum cmsu_SipStransState state;
   bool is_invite;
+  mytimer_t invite_100_timer;
 };
 
 static inline cme_error_t cmsu_SipStrans_create(sip_msg_t sip_msg,
@@ -68,15 +70,15 @@ static inline cme_error_t cmsu_SipStrans_create(sip_msg_t sip_msg,
   }
 
   bool is_invite = strncmp(method.buf, "INVITE", method.len) == 0;
-  if (is_invite) {
-    // TO-DO: implement 1. timer.
-  }
 
   err = my_hmap_cmsu_SipStransMap_insert(branch.buf, branch.len, strans,
                                          &sip_core->sip_strans, out);
   if (err) {
     goto error_strans_cleanup;
   }
+
+  strans->is_invite = is_invite;
+  strans->state = cmsu_SipStransState_PROCEEDING;
 
   *out = strans;
 
@@ -121,26 +123,38 @@ static inline bool cmsu_SipStrans_is_done(struct cmsu_SipStrans *strans) {
          strans->state == cmsu_SipStransState_TERMINATED;
 };
 
+cme_error_t cmsu_SipStrans_timer_timeouth_invite_100_timer(mytimer_t timer,
+                                                           void *data) {
+  puts("Hit cmsu_SipStrans_invite_timer_timeouth");
+  return 0;
+}
+
 static inline bool cmsu_SipStrans_next_state(sip_msg_t sip_msg,
                                              sip_core_t sip_core,
                                              struct cmsu_SipStrans *strans) {
+  puts("Hit cmsu_SipStrans_next_state");
   switch (strans->state) {
   case cmsu_SipStransState_PROCEEDING: {
     struct cmsc_String sip_method = {0};
-
     sip_method =
         cmsc_bs_msg_to_string(&sip_msg->request_line.sip_method, sip_msg);
+    printf("Hit cmsu_SipStrans_next_state::processing AA`%.*s`AA\n",
+           sip_method.len, sip_method.buf);
+
     if (strncmp(sip_method.buf, "INVITE", sip_method.len) == 0) {
+      puts("Hit cmsu_SipStrans_next_state::invite");
       // send 100 if TU won't in 200ms
+      mytimer_create(sip_core->evl, 0,
+                     200000000, // 200ms
+                     cmsu_SipStrans_timer_timeouth_invite_100_timer, strans,
+                     &strans->invite_100_timer);
     }
 
-    break;
+    return true;
   }
-  default:;
+  default:
+    return true;
   }
-  puts("Hit");
-
-  return true;
 };
 
 #endif

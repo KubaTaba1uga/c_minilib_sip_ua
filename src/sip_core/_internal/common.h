@@ -6,6 +6,7 @@
 #include "sip_core/_internal/sip_strans_hashmap.h"
 
 struct cmsu_SipCore {
+  event_loop_t evl;
   sip_transp_t sip_transp;
   list_cmsu_SipListeners sip_lstnrs;
   hmap_cmsu_SipStransMap sip_strans;
