@@ -83,29 +83,21 @@ This means we need sth to match client transactions and user callbacks.
   cme_error_t err;
 
   if (is_request) {
-    sip_strans_t strans;
+    sip_strans_t strans = NULL;
 
-    strans = cmsu_SipStrans_find(sip_msg, &sip_core->sip_strans);
-    if (strans) {
-      err = cme_error(ENOANO,
-                      "Handling exsisting transactions is not implemented");
-      goto error_out;
-    } else {
-      err = cmsu_SipStrans_create(sip_msg, sip_core, &sip_core->sip_strans,
-                                  &strans);
+    // we are ignoring return error on purpose
+    strans = cmsu_SipStrans_find(sip_msg, sip_core);
+    if (!strans) {
+      err = cmsu_SipStrans_create(sip_msg, sip_core, &strans);
+
       if (err) {
         goto error_out;
       }
     }
 
-    bool is_sipmsg_meant_for_listener;
-    err = cmsu_SipStrans_process(sip_msg, &sip_core->sip_strans, strans,
-                                 &is_sipmsg_meant_for_listener);
-    if (err) {
-      goto error_out;
-    }
-
-    if (!is_sipmsg_meant_for_listener) {
+    bool should_code_continue =
+        cmsu_SipStrans_next_state(sip_msg, sip_core, strans);
+    if (!should_code_continue) {
       goto out;
     }
 

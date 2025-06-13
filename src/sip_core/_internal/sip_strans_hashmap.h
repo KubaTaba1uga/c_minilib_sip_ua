@@ -9,7 +9,6 @@
 #include <stdint.h>
 
 #include "c_minilib_error.h"
-#include "sip_core/_internal/common.h"
 #include "sip_core/sip_core.h"
 #include "stc/cstr.h"
 
@@ -20,7 +19,7 @@
 #define i_val sip_strans_t
 #include "stc/hmap.h"
 
-static inline cme_error_t my_hmap_cmsu_SipStransMap_insert_new(
+static inline cme_error_t my_hmap_cmsu_SipStransMap_insert(
     const char *key, uint32_t key_len, sip_strans_t strans,
     struct hmap_cmsu_SipStransMap *stmap, sip_strans_t *out) {
 
@@ -47,7 +46,13 @@ static inline sip_strans_t
 my_hmap_cmsu_SipStransMap_find(const char *key, uint32_t key_len,
                                struct hmap_cmsu_SipStransMap *stmap) {
   cstr tmp_key = cstr_from_sv((csview){.buf = key, .size = key_len});
-  return *hmap_cmsu_SipStransMap_at_mut(stmap, cstr_toraw(&tmp_key));
+  const char *tmp_key_2 = cstr_toraw(&tmp_key);
+
+  if (!hmap_cmsu_SipStransMap_contains(stmap, tmp_key_2)) {
+    return NULL;
+  }
+
+  return *hmap_cmsu_SipStransMap_at_mut(stmap, tmp_key_2);
 }
 
 #endif

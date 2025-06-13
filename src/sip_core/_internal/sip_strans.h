@@ -36,6 +36,10 @@ struct cmsu_SipStrans {
 static inline cme_error_t cmsu_SipStrans_create(sip_msg_t sip_msg,
                                                 sip_core_t sip_core,
                                                 struct cmsu_SipStrans **out) {
+  /* Server transaction is co,posed of one or more SIP request and multiple SIP
+   * statuses. This function is reposnible for creating new sip server
+   * transaction. Once new transaction is created use match on new sip messages
+   * to change it's state. */
   struct cmsc_String branch = {0};
   struct cmsc_String method = {0};
   cme_error_t err;
@@ -68,13 +72,40 @@ static inline cme_error_t cmsu_SipStrans_create(sip_msg_t sip_msg,
     // TO-DO: implement 1. timer.
   }
 
+  err = my_hmap_cmsu_SipStransMap_insert(branch.buf, branch.len, strans,
+                                         &sip_core->sip_strans, out);
+  if (err) {
+    goto error_strans_cleanup;
+  }
+
   *out = strans;
 
   return 0;
 
+error_strans_cleanup:
+  free(strans);
 error_out:
   return cme_return(err);
 };
+
+static inline struct cmsu_SipStrans *cmsu_SipStrans_find(sip_msg_t sip_msg,
+                                                         sip_core_t sip_core) {
+  struct cmsc_SipHeaderVia *via = STAILQ_FIRST(&sip_msg->vias);
+  struct cmsc_String branch = {0};
+  if (via) {
+    branch = cmsc_bs_msg_to_string(&via->branch, sip_msg);
+  }
+
+  if (!branch.len) {
+    goto error_out;
+  }
+
+  return my_hmap_cmsu_SipStransMap_find(branch.buf, branch.len,
+                                        &sip_core->sip_strans);
+
+error_out:
+  return NULL;
+}
 
 static inline void cmsu_SipStrans_destroy(struct cmsu_SipStrans **out) {
   if (!out || !*out) {
@@ -90,62 +121,12 @@ static inline bool cmsu_SipStrans_is_done(struct cmsu_SipStrans *strans) {
          strans->state == cmsu_SipStransState_TERMINATED;
 };
 
-  /* static inline cme_error_t */
-  /* cmsu_SipStrans_handle_request(sip_msg_t sip_msg, hmap_cmsu_SipStransMap
-   * *stmap, */
-  /*                               struct cmsu_SipStrans *strans, */
-  /*                               bool *is_meant_for_listener) { */
+static inline bool cmsu_SipStrans_next_state(sip_msg_t sip_msg,
+                                             sip_core_t sip_core,
+                                             struct cmsu_SipStrans *strans) {
+  puts("Hit");
 
-  /*   switch (strans->state) { */
-  /*   case cmsu_SipStransState_COMPLETED: */
-  /*     // TO-DO: Handle ACK. In completed state ACK should not reach TU. They
-   * are */
-  /*     // meant only for transaction. */
-  /*     *is_meant_for_listener = false; */
-  /*     strans->state = cmsu_SipStransState_CONFIRMED; */
-  /*     break; */
-  /*   default: */
-  /*     *is_meant_for_listener = true; */
-  /*     break; */
-  /*   } */
-
-  /*   return 0; */
-  /* } */
-
-  /* static inline sip_strans_t cmsu_SipStrans_find(sip_msg_t sip_msg, */
-  /*                                                hmap_cmsu_SipStransMap
-   * *stmap)
-   * { */
-  /*   struct cmsc_String branch = {0}; */
-
-  /*   struct cmsc_SipHeaderVia *via = STAILQ_FIRST(&sip_msg->vias); */
-  /*   if (via) { */
-  /*     branch = cmsc_bs_msg_to_string(&via->branch, sip_msg); */
-  /*   } */
-
-  /*   if (!branch.len) { */
-  /*     goto error_out; */
-  /*   } */
-
-  /*   cstr tmp_cstr_key = */
-  /*       cstr_from_sv((csview){.buf = branch.buf, .size = branch.len}); */
-
-  /*   const char *tmp_str_key = cstr_toraw(&tmp_cstr_key); */
-
-  /*   if (!hmap_cmsu_SipStransMap_contains(stmap, tmp_str_key)) { */
-  /*     goto error_out; */
-  /*   } */
-
-  /*   struct cmsu_SipStrans *value = */
-  /*       hmap_cmsu_SipStransMap_at_mut(stmap, tmp_str_key); */
-  /*   if (!value) { */
-  /*     goto error_out; */
-  /*   } */
-
-  /*   return value; */
-
-  /* error_out: */
-  /*   return NULL; */
-  /* } */
+  return true;
+};
 
 #endif
