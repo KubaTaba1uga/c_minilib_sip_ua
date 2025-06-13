@@ -124,6 +124,20 @@ static inline bool cmsu_SipStrans_is_done(struct cmsu_SipStrans *strans) {
 static inline bool cmsu_SipStrans_next_state(sip_msg_t sip_msg,
                                              sip_core_t sip_core,
                                              struct cmsu_SipStrans *strans) {
+  switch (strans->state) {
+  case cmsu_SipStransState_PROCEEDING: {
+    struct cmsc_String sip_method = {0};
+
+    sip_method =
+        cmsc_bs_msg_to_string(&sip_msg->request_line.sip_method, sip_msg);
+    if (strncmp(sip_method.buf, "INVITE", sip_method.len) == 0) {
+      // send 100 if TU won't in 200ms
+    }
+
+    break;
+  }
+  default:;
+  }
   puts("Hit");
 
   return true;

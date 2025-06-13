@@ -12,8 +12,6 @@
 #include "sip_core/sip_core.h"
 #include "stc/cstr.h"
 
-/* #define i_type hmap_cmsu_SipStransMap, cstr, struct cmsu_SipServerTransaction
- */
 #define i_tag cmsu_SipStransMap
 #define i_keypro cstr
 #define i_val sip_strans_t
