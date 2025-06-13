@@ -6,16 +6,21 @@
 
 #ifndef C_MINILIB_SIP_UA_INT_TIMER_H
 #define C_MINILIB_SIP_UA_INT_TIMER_H
+#include <stdlib.h>
+#include <unistd.h>
+
+#include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
 #include "sys/timerfd.h"
 #include "timer/timer.h"
-#include <stdlib.h>
-#include <unistd.h>
 
 struct cmsu_Timer {
   // Event loop data
   event_loop_t evl;
   int32_t fd;
+
+  // Timer data
+  bool do_cleanup;
 
   // User data & ops
   timer_timeouth_t timeouth;
@@ -24,8 +29,18 @@ struct cmsu_Timer {
 
 cme_error_t cmsu_Timer_timeouth(void *data) {
   mytimer_t timer = data;
+  cme_error_t err;
 
-  return timer->timeouth(timer, timer->timeouth_arg);
+  timer->do_cleanup = true;
+
+  err = timer->timeouth(timer, timer->timeouth_arg);
+
+  if (timer->do_cleanup) {
+    event_loop_remove_fd(timer->evl, timer->fd);
+    close(timer->fd);
+  }
+
+  return err;
 };
 
 cme_error_t cmsu_Timer_create(event_loop_t evl, time_t seconds, long nseconds,
@@ -55,10 +70,16 @@ cme_error_t cmsu_Timer_create(event_loop_t evl, time_t seconds, long nseconds,
     goto error_timerfd_cleanup;
   };
 
-  err = event_loop_insert_timerfd(evl, (fd_t){.fd = timerfd, .events = 0},
+  err = event_loop_insert_timerfd(evl, (fd_t){.fd = timerfd},
                                   cmsu_Timer_timeouth, timer);
   if (err) {
     err = cme_errorf(errno, "Cannot insert timer into event loop");
+    goto error_socket_cleanup;
+  }
+
+  err = event_loop_fd_set_pollin(evl, timerfd);
+  if (err) {
+    err = cme_errorf(errno, "Cannot set POLLIN on timer in event loop");
     goto error_socket_cleanup;
   }
 

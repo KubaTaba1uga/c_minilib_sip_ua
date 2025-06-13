@@ -1,7 +1,7 @@
 import socket
 
 # Modify this SIP request as needed
-SIP_METHOD = "MESSAGE"
+SIP_METHOD = "INVITE"
 SIP_REQUEST = (
     f"{SIP_METHOD} sip:bob@example.com SIP/2.0\r\n"
     "Via: SIP/2.0/UDP pc33.example.com;branch=z9hG4bKbranch123\r\n"
