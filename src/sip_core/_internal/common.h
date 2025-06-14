@@ -20,15 +20,21 @@ struct cmsu_SipCore {
   hmap_cmsu_SipStransMap sip_strans;
 };
 
-static inline const char *cmsu_sip_msg_generate_to_tag(void) {
-  const uint64_t seed = (uint64_t)time(NULL);
-  crand64 rng = crand64_from(seed);
+static inline cme_error_t cmsu_sip_msg_add_to_tag(struct cmsc_String to_uri,
+                                                  sip_msg_t sipmsg) {
+  const uint32_t seed = (uint32_t)time(NULL);
+  crand32 rng = crand32_from(seed);
 
-  char random = (char)crand64_uint_r(&rng, 1);
+  char new_tag[10];
+  uint32_t chunk_size = 2;
+  for (uint32_t i = 0; i < 4; i++) {
+    char random = abs((char)crand32_uint_r(&rng, 1));
+    sprintf(new_tag + (i * chunk_size), "%.*d", chunk_size, random);
+  }
 
-  printf("Random=%d\n", random);
+  printf("Random=%.*s\n", 8, new_tag);
 
-  return 0;
+  return cmsc_sipmsg_insert_to(to_uri.len, to_uri.buf, 8, new_tag, sipmsg);
 }
 
 static inline cme_error_t
@@ -153,11 +159,11 @@ cmsu_sip_msg_create_response_from_request(sip_msg_t request, sip_msg_t *out) {
     struct cmsc_String request_to_tag =
         cmsc_bs_msg_to_string(&request->to.tag, request);
     if (!request_to_tag.len) {
-      err = cme_error(ENODATA, "No To field in the sip request");
-      goto error_response_cleanup;
+      err = cmsu_sip_msg_add_to_tag(request_to_uri, response);
+      if (err) {
+        goto error_response_cleanup;
+      }
     }
-
-    cmsu_sip_msg_generate_to_tag();
   }
 
   *out = response;

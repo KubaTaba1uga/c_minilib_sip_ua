@@ -142,6 +142,12 @@ static inline cme_error_t cmsu_SipStrans_reply(uint32_t status_code,
     goto error_out;
   }
 
+  err = cmsc_sipmsg_insert_status_line(3, "2.0", strlen("Trying"), "Trying",
+                                       100, response_msg);
+  if (err) {
+    goto error_response_cleanup;
+  }
+
   // TO-DO: send actual message
 
   if (status_code == 100) {
@@ -150,9 +156,8 @@ static inline cme_error_t cmsu_SipStrans_reply(uint32_t status_code,
 
   return 0;
 
-  /* error_response_cleanup: */
-  /* cmsc_sipmsg_destroy_with_buf(&response_msg); */
-
+error_response_cleanup:
+  cmsc_sipmsg_destroy_with_buf(&response_msg);
 error_out:
   return cme_return(err);
 }
