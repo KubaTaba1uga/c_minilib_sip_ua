@@ -12,8 +12,10 @@
 #include "sip_core/_internal/common.h"
 #include "sip_core/_internal/sip_strans_hashmap.h"
 #include "sip_core/sip_core.h"
+#include "sip_transp/sip_transp.h"
 #include "timer/timer.h"
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,6 +34,7 @@ struct cmsu_SipStrans {
   sip_core_t core;
   enum cmsu_SipStransState state;
   bool is_invite;
+  bool is_100_send;
   mytimer_t invite_100_timer;
 };
 
@@ -123,29 +126,102 @@ static inline bool cmsu_SipStrans_is_done(struct cmsu_SipStrans *strans) {
          strans->state == cmsu_SipStransState_TERMINATED;
 };
 
-cme_error_t cmsu_SipStrans_timer_timeouth_invite_100_timer(mytimer_t timer,
-                                                           void *data) {
+static inline cme_error_t cmsu_SipStrans_reply(uint32_t status_code,
+                                               const char *status_msg,
+                                               sip_msg_t received_msg,
+                                               struct cmsu_SipStrans *strans) {
+
+  sip_msg_t response_msg;
+  cme_error_t err;
+
+  err = cmsc_sipmsg_create_with_buf(&response_msg);
+  if (err) {
+    goto error_out;
+  }
+
+  err = cmsc_sipmsg_insert_status_line(3, "2.0", strlen(status_msg), status_msg,
+                                       status_code, response_msg);
+  if (err) {
+    goto error_response_cleanup;
+  }
+
+  struct cmsc_String received_msg_sender =
+      cmsc_bs_msg_to_string(&received_msg->from.uri, received_msg);
+
+  if (!received_msg_sender.len) {
+    err = cme_error(ENODATA, "No FROM field in received message");
+    goto error_response_cleanup;
+  }
+
+  struct cmsc_String received_msg_sender_tag =
+      cmsc_bs_msg_to_string(&received_msg->from.tag, received_msg);
+
+  // We insert previous sender as current receiver
+  err = cmsc_sipmsg_insert_to(received_msg_sender.len, received_msg_sender.buf,
+                              received_msg_sender_tag.len,
+                              received_msg_sender_tag.buf, response_msg);
+  if (err) {
+    goto error_response_cleanup;
+  }
+
+  struct cmsc_String received_msg_recipient =
+      cmsc_bs_msg_to_string(&received_msg->to.uri, received_msg);
+
+  if (!received_msg_recipient.len) {
+    err = cme_error(ENODATA, "No TO field in received message");
+    goto error_response_cleanup;
+  }
+
+  struct cmsc_String received_msg_recipient_tag =
+      cmsc_bs_msg_to_string(&received_msg->from.tag, received_msg);
+
+  // We insert previous receiver as current sender
+  err = cmsc_sipmsg_insert_from(received_msg_recipient.len,
+                                received_msg_recipient.buf,
+                                received_msg_recipient_tag.len,
+                                received_msg_recipient_tag.buf, response_msg);
+  if (err) {
+    goto error_response_cleanup;
+  }
+
+  // TO-DO: send actual message
+
+  if (status_code == 100) {
+    strans->is_100_send = true;
+  }
+
+  return 0;
+
+error_response_cleanup:
+  cmsc_sipmsg_destroy_with_buf(&response_msg);
+
+error_out:
+  return cme_return(err);
+}
+
+static inline cme_error_t
+cmsu_SipStrans_timer_timeouth_invite_100_timer(mytimer_t timer, void *data) {
+  struct cmsu_SipStrans *strans = data;
+
   puts("Hit cmsu_SipStrans_invite_timer_timeouth");
 
   return 0;
 }
 
 static inline bool cmsu_SipStrans_next_state(sip_msg_t sip_msg,
-                                             sip_core_t sip_core,
                                              struct cmsu_SipStrans *strans) {
   puts("Hit cmsu_SipStrans_next_state");
+
   switch (strans->state) {
   case cmsu_SipStransState_PROCEEDING: {
-    struct cmsc_String sip_method = {0};
-    sip_method =
+    struct cmsc_String sip_method =
         cmsc_bs_msg_to_string(&sip_msg->request_line.sip_method, sip_msg);
-    printf("Hit cmsu_SipStrans_next_state::processing AA`%.*s`AA\n",
-           sip_method.len, sip_method.buf);
 
     if (strncmp(sip_method.buf, "INVITE", sip_method.len) == 0) {
       puts("Hit cmsu_SipStrans_next_state::invite");
+
       // send 100 if TU won't in 200ms
-      mytimer_create(sip_core->evl, 0,
+      mytimer_create(strans->core->evl, 0,
                      200000000, // 200ms
                      cmsu_SipStrans_timer_timeouth_invite_100_timer, strans,
                      &strans->invite_100_timer);

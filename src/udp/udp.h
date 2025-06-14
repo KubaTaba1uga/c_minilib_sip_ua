@@ -12,10 +12,11 @@
   always write real implementation as static inline in _internal.
  */
 
+#include <stdint.h>
+
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
 #include "utils/ip.h"
-#include <stdint.h>
 
 /******************************************************************************
  *                             Event Loop                                     *
