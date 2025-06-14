@@ -95,8 +95,7 @@ This means we need sth to match client transactions and user callbacks.
       }
     }
 
-    bool should_code_continue =
-        cmsu_SipStrans_next_state(sip_msg, sip_core, strans);
+    bool should_code_continue = cmsu_SipStrans_next_state(sip_msg, strans);
     if (!should_code_continue) {
       goto out;
     }

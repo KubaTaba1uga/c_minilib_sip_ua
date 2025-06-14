@@ -111,10 +111,10 @@ error_out:
 static inline cme_error_t cmsu_UdpSocket_recv(void *data) {
   struct cmsu_UdpSocket *udpsock = data;
   struct sockaddr_storage sender_addr;
-  char buffer[CMSU_UDP_MSG_SIZE_MAX];
   socklen_t sender_addr_len;
   int32_t buffer_len;
   cme_error_t err;
+  char *buffer;
 
   puts("Received data over UDP");
 
@@ -122,9 +122,16 @@ static inline cme_error_t cmsu_UdpSocket_recv(void *data) {
 
   sender_addr_len = sizeof(sender_addr);
 
+  buffer = calloc(CMSU_UDP_MSG_SIZE_MAX, sizeof(char));
+  if (!buffer) {
+    err = cme_error(errno, "Cannot allocate memory for `buffer`");
+    goto error_out;
+  }
+
   errno = 0;
-  buffer_len = recvfrom(udpsock->fd, buffer, sizeof(buffer) - 1, MSG_NOSIGNAL,
-                        (struct sockaddr *)&sender_addr, &sender_addr_len);
+  buffer_len =
+      recvfrom(udpsock->fd, buffer, CMSU_UDP_MSG_SIZE_MAX - 1, MSG_NOSIGNAL,
+               (struct sockaddr *)&sender_addr, &sender_addr_len);
 
   if (buffer_len < 0) {
     err = cme_error(errno, "Cannot recieve udp data");

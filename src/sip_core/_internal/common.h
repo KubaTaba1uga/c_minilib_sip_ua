@@ -1,6 +1,11 @@
 #ifndef C_MINILIB_SIP_UA_INT_SIP_CORE_COMMON_H
 #define C_MINILIB_SIP_UA_INT_SIP_CORE_COMMON_H
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
+
+#include "stc/random.h"
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
@@ -14,6 +19,17 @@ struct cmsu_SipCore {
   list_cmsu_SipListeners sip_lstnrs;
   hmap_cmsu_SipStransMap sip_strans;
 };
+
+static inline const char *cmsu_sip_msg_generate_to_tag(void) {
+  const uint64_t seed = (uint64_t)time(NULL);
+  crand64 rng = crand64_from(seed);
+
+  char random = (char)crand64_uint_r(&rng, 1);
+
+  printf("Random=%d\n", random);
+
+  return 0;
+}
 
 static inline cme_error_t
 cmsu_sip_msg_create_response_from_request(sip_msg_t request, sip_msg_t *out) {
@@ -30,6 +46,7 @@ cmsu_sip_msg_create_response_from_request(sip_msg_t request, sip_msg_t *out) {
 
      4.The Via header field values in the response MUST equal the Via header
    field values in the request and MUST maintain the same ordering.
+   (Implemented)
 
    5. If a request contained a To tag in the request, the To header field in the
    response MUST equal that of the request. However, if the To header field in
@@ -102,6 +119,48 @@ cmsu_sip_msg_create_response_from_request(sip_msg_t request, sip_msg_t *out) {
       goto error_response_cleanup;
     }
   }
+
+  { // Copy `Via` headers
+    struct cmsc_SipHeaderVia *via;
+    STAILQ_FOREACH(via, &request->vias, _next) {
+      struct cmsc_String proto = cmsc_bs_msg_to_string(&via->proto, request);
+      struct cmsc_String sent_by =
+          cmsc_bs_msg_to_string(&via->sent_by, request);
+      struct cmsc_String addr = cmsc_bs_msg_to_string(&via->addr, request);
+      struct cmsc_String branch = cmsc_bs_msg_to_string(&via->branch, request);
+      struct cmsc_String received =
+          cmsc_bs_msg_to_string(&via->received, request);
+
+      err = cmsc_sipmsg_insert_via(proto.len, proto.buf, sent_by.len,
+                                   sent_by.buf, addr.len, addr.buf, branch.len,
+                                   branch.buf, received.len, received.buf,
+                                   via->ttl, response);
+      if (err) {
+        goto error_response_cleanup;
+      }
+    }
+  }
+
+  { // Copy `To` header
+    struct cmsc_String request_to_uri =
+        cmsc_bs_msg_to_string(&request->to.uri, request);
+
+    if (!request_to_uri.len) {
+      err = cme_error(ENODATA, "No To field in the sip request");
+      goto error_response_cleanup;
+    }
+
+    struct cmsc_String request_to_tag =
+        cmsc_bs_msg_to_string(&request->to.tag, request);
+    if (!request_to_tag.len) {
+      err = cme_error(ENODATA, "No To field in the sip request");
+      goto error_response_cleanup;
+    }
+
+    cmsu_sip_msg_generate_to_tag();
+  }
+
+  *out = response;
 
   return 0;
 

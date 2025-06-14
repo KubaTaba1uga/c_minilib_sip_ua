@@ -31,6 +31,7 @@ enum cmsu_SipStransState {
 };
 
 struct cmsu_SipStrans {
+  sip_msg_t request;
   sip_core_t core;
   enum cmsu_SipStransState state;
   bool is_invite;
@@ -80,6 +81,8 @@ static inline cme_error_t cmsu_SipStrans_create(sip_msg_t sip_msg,
     goto error_strans_cleanup;
   }
 
+  strans->core = sip_core;
+  strans->request = sip_msg;
   strans->is_invite = is_invite;
   strans->state = cmsu_SipStransState_PROCEEDING;
 
@@ -134,54 +137,9 @@ static inline cme_error_t cmsu_SipStrans_reply(uint32_t status_code,
   sip_msg_t response_msg;
   cme_error_t err;
 
-  err = cmsc_sipmsg_create_with_buf(&response_msg);
+  err = cmsu_sip_msg_create_response_from_request(received_msg, &response_msg);
   if (err) {
     goto error_out;
-  }
-
-  err = cmsc_sipmsg_insert_status_line(3, "2.0", strlen(status_msg), status_msg,
-                                       status_code, response_msg);
-  if (err) {
-    goto error_response_cleanup;
-  }
-
-  struct cmsc_String received_msg_sender =
-      cmsc_bs_msg_to_string(&received_msg->from.uri, received_msg);
-
-  if (!received_msg_sender.len) {
-    err = cme_error(ENODATA, "No FROM field in received message");
-    goto error_response_cleanup;
-  }
-
-  struct cmsc_String received_msg_sender_tag =
-      cmsc_bs_msg_to_string(&received_msg->from.tag, received_msg);
-
-  // We insert previous sender as current receiver
-  err = cmsc_sipmsg_insert_to(received_msg_sender.len, received_msg_sender.buf,
-                              received_msg_sender_tag.len,
-                              received_msg_sender_tag.buf, response_msg);
-  if (err) {
-    goto error_response_cleanup;
-  }
-
-  struct cmsc_String received_msg_recipient =
-      cmsc_bs_msg_to_string(&received_msg->to.uri, received_msg);
-
-  if (!received_msg_recipient.len) {
-    err = cme_error(ENODATA, "No TO field in received message");
-    goto error_response_cleanup;
-  }
-
-  struct cmsc_String received_msg_recipient_tag =
-      cmsc_bs_msg_to_string(&received_msg->from.tag, received_msg);
-
-  // We insert previous receiver as current sender
-  err = cmsc_sipmsg_insert_from(received_msg_recipient.len,
-                                received_msg_recipient.buf,
-                                received_msg_recipient_tag.len,
-                                received_msg_recipient_tag.buf, response_msg);
-  if (err) {
-    goto error_response_cleanup;
   }
 
   // TO-DO: send actual message
@@ -192,8 +150,8 @@ static inline cme_error_t cmsu_SipStrans_reply(uint32_t status_code,
 
   return 0;
 
-error_response_cleanup:
-  cmsc_sipmsg_destroy_with_buf(&response_msg);
+  /* error_response_cleanup: */
+  /* cmsc_sipmsg_destroy_with_buf(&response_msg); */
 
 error_out:
   return cme_return(err);
@@ -202,6 +160,8 @@ error_out:
 static inline cme_error_t
 cmsu_SipStrans_timer_timeouth_invite_100_timer(mytimer_t timer, void *data) {
   struct cmsu_SipStrans *strans = data;
+
+  cmsu_SipStrans_reply(100, "Trying", strans->request, strans);
 
   puts("Hit cmsu_SipStrans_invite_timer_timeouth");
 
