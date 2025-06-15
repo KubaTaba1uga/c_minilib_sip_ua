@@ -6,13 +6,6 @@
 
 #ifndef C_MINILIB_SIP_UA_INT_EVENT_LOOP_H
 #define C_MINILIB_SIP_UA_INT_EVENT_LOOP_H
-/*
-  This is interface to int_event_loop module, if you need anything from
-  int_event_loop module, put interface declaration here and interface
-  implementation in .c but always write real implementation as static inline in
-  _internal.
- */
-
 #include <assert.h>
 #include <errno.h>
 #include <stdint.h>
@@ -31,7 +24,6 @@
 /******************************************************************************
  *                             Event Loop                                     *
  ******************************************************************************/
-
 struct cmsu_EventLoop {
   struct vec_cmsu_Fds fds;
   struct hmap_cmsu_FdHelpers fds_helpers;
