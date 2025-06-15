@@ -5,7 +5,7 @@
  ******************************************************************************/
 typedef struct __EventLoop __EventLoopRaw;
 
-static inline void __EventLoopRaw_drop(__EventLoopRaw **evlp) { free(*evlp); }
+void __EventLoopRaw_drop(__EventLoopRaw **evlp);
 static inline __EventLoopRaw *__EventLoopRaw_clone(__EventLoopRaw *evlp) {
   return evlp;
 }

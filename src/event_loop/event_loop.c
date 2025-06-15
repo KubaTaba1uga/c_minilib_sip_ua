@@ -8,3 +8,7 @@ cme_error_t event_loop_create(event_loop_t *out) {
 event_loop_t event_loop_ref(event_loop_t evl) { return __EventLoop_ref(evl); }
 
 void event_loop_deref(event_loop_t evl) { return __EventLoop_deref(evl); }
+
+void __EventLoopRaw_drop(__EventLoopRaw **evlp) {
+  return __EventLoop_destructor(evlp);
+}

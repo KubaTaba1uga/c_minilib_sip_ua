@@ -51,13 +51,13 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t __EventLoop_process_events(event_loop_t *evl);
+static inline cme_error_t __EventLoop_process_events(event_loop_t evl);
 
-static inline cme_error_t __EventLoop_start(event_loop_t *evl) {
+static inline cme_error_t __EventLoop_start(event_loop_t evl) {
   cme_error_t err;
 
   while (true) {
-    err = __PollFdsVec_poll(&(*evl->get)->fds);
+    err = __PollFdsVec_poll(&(*evl.get)->fds);
     if (err) {
       goto error_out;
     }
@@ -74,12 +74,12 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t __EventLoop_process_events(event_loop_t *evl) {
+static inline cme_error_t __EventLoop_process_events(event_loop_t evl) {
   cme_error_t err;
 
-  c_foreach(fd, vec__PollFdsVec, (*evl->get)->fds) {
+  c_foreach(fd, vec__PollFdsVec, (*evl.get)->fds) {
     __FdHelper *fd_helper =
-        my_hmap___FdHelpersMap_find(fd.ref->fd, &(*evl->get)->fds_helpers);
+        my_hmap___FdHelpersMap_find(fd.ref->fd, &(*evl.get)->fds_helpers);
 
     assert(fd_helper != NULL);
 
@@ -104,11 +104,11 @@ error_out:
   return cme_return(err);
 }
 
-cme_error_t __EventLoop_insert_socketfd(event_loop_t *evl, uint32_t fd,
+cme_error_t __EventLoop_insert_socketfd(event_loop_t evl, uint32_t fd,
                                         event_loop_sendh_t sendh,
                                         event_loop_recvh_t recvh, void *data) {
   cme_error_t err;
-  err = __PollFdsVec_push(&(*evl->get)->fds,
+  err = __PollFdsVec_push(&(*evl.get)->fds,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
   if (err) {
     goto error_out;
@@ -120,7 +120,7 @@ cme_error_t __EventLoop_insert_socketfd(event_loop_t *evl, uint32_t fd,
                                            .sendh = sendh,
                                            .recvh = recvh,
                                            .data = data},
-                              &(*evl->get)->fds_helpers);
+                              &(*evl.get)->fds_helpers);
   if (err) {
     goto error_fds_cleanup;
   }
@@ -128,16 +128,16 @@ cme_error_t __EventLoop_insert_socketfd(event_loop_t *evl, uint32_t fd,
   return 0;
 
 error_fds_cleanup:
-  __PollFdsVec_remove(fd, &(*evl->get)->fds);
+  __PollFdsVec_remove(fd, &(*evl.get)->fds);
 error_out:
   return cme_return(err);
 }
 
-cme_error_t __EventLoop_insert_timerfd(event_loop_t *evl, uint32_t fd,
+cme_error_t __EventLoop_insert_timerfd(event_loop_t evl, uint32_t fd,
                                        event_loop_timeouth_t timeouth,
                                        void *data) {
   cme_error_t err;
-  err = __PollFdsVec_push(&(*evl->get)->fds,
+  err = __PollFdsVec_push(&(*evl.get)->fds,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
   if (err) {
     goto error_out;
@@ -149,7 +149,7 @@ cme_error_t __EventLoop_insert_timerfd(event_loop_t *evl, uint32_t fd,
                                            .sendh = NULL,
                                            .recvh = NULL,
                                            .data = data},
-                              &(*evl->get)->fds_helpers);
+                              &(*evl.get)->fds_helpers);
   if (err) {
     goto error_fds_cleanup;
   }
@@ -157,15 +157,20 @@ cme_error_t __EventLoop_insert_timerfd(event_loop_t *evl, uint32_t fd,
   return 0;
 
 error_fds_cleanup:
-  __PollFdsVec_remove(fd, &(*evl->get)->fds);
+  __PollFdsVec_remove(fd, &(*evl.get)->fds);
 error_out:
   return cme_return(err);
 }
 
-event_loop_t __EventLoop_ref(event_loop_t *evl) {
-  return __EventLoopPtr_clone(*evl);
+event_loop_t __EventLoop_ref(event_loop_t evl) {
+  return __EventLoopPtr_clone(evl);
 };
 
 void __EventLoop_deref(event_loop_t *evl) { __EventLoopPtr_drop(evl); };
+
+void __EventLoop_destructor(__EventLoopRaw **evlp) {
+  vec__PollFdsVec_drop(&(*evlp)->fds);
+  hmap__FdHelpersMap_drop(&(*evlp)->fds_helpers);
+};
 
 #endif
