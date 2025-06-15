@@ -4,3 +4,7 @@
 cme_error_t event_loop_create(event_loop_t *out) {
   return __EventLoop_create(out);
 };
+
+event_loop_t event_loop_ref(event_loop_t evl) { return __EventLoop_ref(evl); }
+
+void event_loop_deref(event_loop_t evl) { return __EventLoop_deref(evl); }

@@ -31,6 +31,6 @@ typedef cme_error_t (*event_loop_timeouth_t)(void *data);
 
 cme_error_t event_loop_create(event_loop_t *out);
 event_loop_t event_loop_ref(event_loop_t evl);
-event_loop_t event_loop_deref(event_loop_t evl);
+void event_loop_deref(event_loop_t evl);
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H
