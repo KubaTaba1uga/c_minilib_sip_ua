@@ -14,22 +14,23 @@
 
 #include <poll.h>
 #include <stdint.h>
-#include <stdlib.h>
 #include <sys/poll.h>
 
 #include "c_minilib_error.h"
 
+// Helper to prettify this header
+#include "event_loop/event_loop_ptr.h"
+
 /******************************************************************************
  *                             Event Loop                                     *
  ******************************************************************************/
+typedef struct __EventLoopPtr event_loop_t;
+typedef cme_error_t (*event_loop_sendh_t)(void *data);
+typedef cme_error_t (*event_loop_recvh_t)(void *data);
+typedef cme_error_t (*event_loop_timeouth_t)(void *data);
 
-typedef struct cmsu_EventLoop *EventLoop_t;
-typedef cme_error_t (*EventLoop_sendh_t)(void *data);
-typedef cme_error_t (*EventLoop_recvh_t)(void *data);
-typedef cme_error_t (*EventLoop_timeouth_t)(void *data);
-
-cme_error_t EventLoop_create(EventLoop_t out);
-cme_error_t EventLoop_ref(EventLoop_t evl);
-cme_error_t EventLoop_deref(EventLoop_t evl);
+cme_error_t event_loop_create(event_loop_t *out);
+event_loop_t event_loop_ref(event_loop_t evl);
+event_loop_t event_loop_deref(event_loop_t evl);
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

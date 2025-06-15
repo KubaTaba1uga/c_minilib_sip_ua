@@ -20,17 +20,28 @@
 /******************************************************************************
  *                             Event Loop                                     *
  ******************************************************************************/
-typedef struct {
-} __EventLoop;
+struct __EventLoop {
+  int32_t dummy_int;
+};
 
-__EventLoop __EventLoop_make() { return (__EventLoop){}; }
+cme_error_t __EventLoop_create(event_loop_t *out) {
+  struct __EventLoop *evl = calloc(1, sizeof(struct __EventLoop));
+  cme_error_t err;
+  if (!evl) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for `evl`");
+    goto error_out;
+  }
 
-__EventLoop __EventLoop_clone(__EventLoop evl) { return evl; }
+  /* evl->fds = vec_cmsu_Fds_init(); */
+  /* evl->fds_helpers = hmap_cmsu_FdHelpers_init(); */
 
-void __EventLoop_drop(__EventLoop *evl) { c_drop(__EventLoop, evl); }
+  *out = __EventLoopPtr_from(evl);
 
-#define i_type EventLoop
-#define i_keyclass __EventLoop
-#include "stc/arc.h"
+  return 0;
+
+error_out:
+  *out = (struct __EventLoopPtr){0};
+  return cme_return(err);
+};
 
 #endif
