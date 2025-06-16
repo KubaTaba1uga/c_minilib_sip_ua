@@ -3,3 +3,4 @@ sources = files(
 )
 
 subdir('event_loop')
+subdir('udp_socket')

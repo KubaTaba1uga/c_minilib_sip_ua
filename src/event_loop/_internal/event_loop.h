@@ -164,6 +164,11 @@ error_out:
   return cme_return(err);
 }
 
+static inline void __EventLoop_remove_fd(event_loop_t evl, int32_t fd) {
+  __FdHelpersMap_remove(fd, &(*evl.get)->fds_helpers);
+  __PollFdsVec_remove(fd, &(*evl.get)->fds);
+}
+
 static inline event_loop_t __EventLoop_ref(event_loop_t evl) {
   return __EventLoopPtr_clone(evl);
 };

@@ -33,4 +33,10 @@ cme_error_t event_loop_create(event_loop_t *out);
 event_loop_t event_loop_ref(event_loop_t evl);
 void event_loop_deref(event_loop_t *evl);
 
+cme_error_t event_loop_insert_socketfd(event_loop_t evl, uint32_t fd,
+                                       event_loop_sendh_t sendh,
+                                       event_loop_recvh_t recvh, void *data);
+
+void event_loop_remove_fd(event_loop_t evl, int32_t fd);
+
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

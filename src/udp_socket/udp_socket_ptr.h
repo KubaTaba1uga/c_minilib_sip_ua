@@ -1,17 +1,15 @@
 #include <stdlib.h>
 
 /******************************************************************************
- *                             Event Loop Ptr                                 *
+ *                             Udp Socket Ptr                                 *
  ******************************************************************************/
-typedef struct __UdpSocket __UdpSocketRaw;
+typedef struct __UdpSocket __UdpSocket;
 
-void __UdpSocketRaw_drop(__UdpSocketRaw **evlp);
-static inline __UdpSocketRaw *__UdpSocketRaw_clone(__UdpSocketRaw *evlp) {
-  return evlp;
-}
+void __UdpSocket_destroy(__UdpSocket **evlp);
+__UdpSocket *__UdpSocket_clone(__UdpSocket *evlp);
 
 #define i_type __UdpSocketPtr
-#define i_key __UdpSocketRaw *
-#define i_keydrop __UdpSocketRaw_drop
-#define i_keyclone __UdpSocketRaw_clone
+#define i_key __UdpSocket *
+#define i_keydrop __UdpSocket_drop
+#define i_keyclone __UdpSocket_clone
 #include "stc/arc.h"

@@ -12,4 +12,5 @@ __EventLoop *__EventLoop_clone(__EventLoop *evlp);
 #define i_key __EventLoop *
 #define i_keydrop __EventLoop_destroy
 #define i_keyclone __EventLoop_clone
+
 #include "stc/arc.h"

@@ -64,8 +64,7 @@ c_minilib_sip_ua_lib = library('c_minilib_sip_ua',
   sources,
   include_directories: c_minilib_sip_ua_inc,
   dependencies: c_minilib_sip_ua_deps,
-  c_args: ['-DENABLE_MOCKS'], # This should be disabled when tests are disabled
-  
+  c_args: ['-DENABLE_MOCKS'], # This should be disabled when tests are disabled  
 )
 
 c_minilib_sip_ua_dep = declare_dependency(
