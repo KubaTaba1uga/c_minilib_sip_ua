@@ -1,15 +1,15 @@
-#include <stdlib.h>
-
 /******************************************************************************
  *                             Sip Transport Ptr                              *
  ******************************************************************************/
-typedef struct __SipTransport __SipTransport;
+typedef struct __SipTransport *__SipTransportPtr;
 
-void __SipTransport_destroy(__SipTransport **evlp);
-__SipTransport *__SipTransport_clone(__SipTransport *evlp);
+void __sip_transp_ptr_destroy(__SipTransportPtr *evlp);
+__SipTransportPtr __sip_transp_ptr_clone(__SipTransportPtr evlp);
 
-#define i_type __SipTransportPtr
-#define i_key __SipTransport *
-#define i_keydrop __SipTransport_destroy
-#define i_keyclone __SipTransport_clone
+#define i_type sip_transp_ptr
+#define i_key __SipTransportPtr
+#define i_keydrop __sip_transp_ptr_destroy
+#define i_keyclone __sip_transp_ptr_clone
 #include "stc/arc.h"
+
+typedef struct sip_transp_ptr sip_transp_ptr_t;

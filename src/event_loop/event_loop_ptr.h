@@ -1,16 +1,15 @@
-#include <stdlib.h>
-
 /******************************************************************************
  *                             Event Loop Ptr                                 *
  ******************************************************************************/
-typedef struct __EventLoop __EventLoop;
+typedef struct __EventLoop *__EventLoopPtr;
 
-void __EventLoop_destroy(__EventLoop **evlp);
-__EventLoop *__EventLoop_clone(__EventLoop *evlp);
+void __event_loop_ptr_destroy(__EventLoopPtr *evlp);
+__EventLoopPtr __event_loop_ptr_clone(__EventLoopPtr evlp);
 
-#define i_type __EventLoopPtr
-#define i_key __EventLoop *
-#define i_keydrop __EventLoop_destroy
-#define i_keyclone __EventLoop_clone
-
+#define i_type event_loop_ptr
+#define i_key __EventLoopPtr
+#define i_keydrop __event_loop_ptr_destroy
+#define i_keyclone __event_loop_ptr_clone
 #include "stc/arc.h"
+
+typedef struct event_loop_ptr event_loop_ptr_t;
