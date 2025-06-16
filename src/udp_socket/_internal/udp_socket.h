@@ -18,7 +18,9 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
+#include "stc/cstr.h"
 #include "udp_socket/udp_socket.h"
+#include "utils/buffer.h"
 #include "utils/ip.h"
 #include "utils/socket.h"
 
@@ -39,66 +41,8 @@ struct __UdpSocket {
   void *recvh_arg;
 };
 
-static inline cme_error_t __UdpSocket_recv(void *data) {
-  struct __UdpSocket *udpsock = data;
-  struct sockaddr_storage sender_addr;
-  socklen_t sender_addr_len;
-  int32_t buffer_len;
-  cme_error_t err;
-  char *buffer;
-
-  puts("Received data over UDP");
-
-  assert(data != NULL);
-
-  sender_addr_len = sizeof(sender_addr);
-
-  buffer = calloc(__UDP_MSG_SIZE_MAX, sizeof(char));
-  if (!buffer) {
-    err = cme_error(errno, "Cannot allocate memory for `buffer`");
-    goto error_out;
-  }
-
-  errno = 0;
-  buffer_len =
-      recvfrom(udpsock->fd, buffer, __UDP_MSG_SIZE_MAX - 1, MSG_NOSIGNAL,
-               (struct sockaddr *)&sender_addr, &sender_addr_len);
-
-  if (buffer_len < 0) {
-    err = cme_error(errno, "Cannot recieve udp data");
-    goto error_out;
-  } else if (buffer_len == 0) {
-    err = cme_error(errno, "Connection closed by peer");
-    goto error_out;
-  }
-
-  if (udpsock->recvh) {
-    char ip_str[INET6_ADDRSTRLEN];
-    char port_str[6];
-
-    struct sockaddr_in *s = (struct sockaddr_in *)&sender_addr;
-    inet_ntop(AF_INET, &s->sin_addr, ip_str, sizeof(ip_str));
-    snprintf(port_str, sizeof(port_str), "%u", ntohs(s->sin_port));
-
-    err = udpsock->recvh(buffer, buffer_len,
-                         (ip_t){.ip = ip_str, .port = port_str}, udpsock,
-                         udpsock->recvh_arg);
-    if (err) {
-      goto error_out;
-    }
-  }
-
-  return 0;
-
-error_out:
-  return cme_return(err);
-}
-
-static inline cme_error_t __UdpSocket_send(void *data) {
-  struct __UdpSocket *udpsock = data;
-  (void)udpsock;
-  return 0;
-}
+static cme_error_t __UdpSocket_recv(void *data);
+static cme_error_t __UdpSocket_send(void *data);
 
 static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
                                              udp_socket_t *out) {
@@ -173,6 +117,73 @@ static inline udp_socket_t __UdpSocket_ref(udp_socket_t udp) {
 static inline void __UdpSocket_deref(udp_socket_t *udp) {
   __UdpSocketPtr_drop(udp);
 };
+
+static cme_error_t __UdpSocket_recv(void *data) {
+  struct __UdpSocket *udpsock = data;
+  struct sockaddr_storage sender_addr;
+  socklen_t sender_addr_len;
+  int32_t buf_raw_len;
+  cme_error_t err;
+  char *buf_raw;
+
+  puts("Received data over UDP");
+
+  assert(data != NULL);
+
+  sender_addr_len = sizeof(sender_addr);
+
+  buf_raw = calloc(__UDP_MSG_SIZE_MAX, sizeof(char));
+  if (!buf_raw) {
+    err = cme_error(errno, "Cannot allocate memory for `buffer`");
+    goto error_out;
+  }
+
+  errno = 0;
+  buf_raw_len =
+      recvfrom(udpsock->fd, buf_raw, __UDP_MSG_SIZE_MAX - 1, MSG_NOSIGNAL,
+               (struct sockaddr *)&sender_addr, &sender_addr_len);
+
+  if (buf_raw_len < 0) {
+    err = cme_error(errno, "Cannot recieve udp data");
+    goto error_out;
+  } else if (buf_raw_len == 0) {
+    err = cme_error(errno, "Connection closed by peer");
+    goto error_out;
+  }
+
+  cstr buf = cstr_from_sv((csview){.buf = buf_raw, .size = buf_raw_len});
+  buffer_t buf_ptr = buffer_from(buf);
+
+  if (udpsock->recvh) {
+    char ip_str[INET6_ADDRSTRLEN];
+    char port_str[6];
+
+    struct sockaddr_in *s = (struct sockaddr_in *)&sender_addr;
+    inet_ntop(AF_INET, &s->sin_addr, ip_str, sizeof(ip_str));
+    snprintf(port_str, sizeof(port_str), "%u", ntohs(s->sin_port));
+
+    err = udpsock->recvh(buf_ptr, (ip_t){.ip = ip_str, .port = port_str},
+                         udpsock, udpsock->recvh_arg);
+    if (err) {
+      goto error_buf_cleanup;
+    }
+  }
+
+  buffer_drop(&buf_ptr);
+
+  return 0;
+
+error_buf_cleanup:
+  buffer_drop(&buf_ptr);
+error_out:
+  return cme_return(err);
+}
+
+static cme_error_t __UdpSocket_send(void *data) {
+  struct __UdpSocket *udpsock = data;
+  (void)udpsock;
+  return 0;
+}
 
 void __UdpSocket_destroy(__UdpSocket **udpp) {
   if (!udpp || !*udpp) {

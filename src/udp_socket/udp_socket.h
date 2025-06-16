@@ -17,23 +17,23 @@
 #include <sys/poll.h>
 
 #include "c_minilib_error.h"
+#include "event_loop/event_loop.h"
+#include "utils/ip.h"
+#include "utils/socket.h"
 
 // Helper to prettify this header
-#include "event_loop/event_loop.h"
 #include "udp_socket/udp_socket_ptr.h"
-#include "utils/ip.h"
 
 /******************************************************************************
  *                             Udp Socket                                     *
  ******************************************************************************/
 typedef struct __UdpSocketPtr udp_socket_t;
-typedef cme_error_t (*udp_socket_sendh_t)(void *data);
-typedef cme_error_t (*udp_socket_recvh_t)(void *data);
-typedef cme_error_t (*udp_socket_timeouth_t)(void *data);
 
 cme_error_t udp_socket_create(event_loop_t evl, ip_t ip_addr,
                               udp_socket_t *out);
 udp_socket_t udp_socket_ref(udp_socket_t evl);
 void udp_socket_deref(udp_socket_t *evl);
+cme_error_t udp_socket_listen(udp_socket_t udp_socket, socket_recvh_t recvh,
+                              void *arg);
 
 #endif // C_MINILIB_SIP_UA_UDP_SOCKET_H

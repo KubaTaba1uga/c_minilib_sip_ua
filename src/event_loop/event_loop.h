@@ -38,5 +38,8 @@ cme_error_t event_loop_insert_socketfd(event_loop_t evl, uint32_t fd,
                                        event_loop_recvh_t recvh, void *data);
 
 void event_loop_remove_fd(event_loop_t evl, int32_t fd);
+cme_error_t event_loop_set_pollin(event_loop_t evl, int32_t fd);
+cme_error_t event_loop_set_pollout(event_loop_t evl, int32_t fd);
+cme_error_t event_loop_unset_pollout(event_loop_t evl, int32_t fd);
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

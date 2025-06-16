@@ -9,9 +9,11 @@
 #include <inttypes.h>
 #include <stdint.h>
 
+#include "c_minilib_error.h"
+#include "utils/buffer.h"
 #include "utils/ip.h"
 
-typedef cme_error_t (*socket_recvh_t)(char *buffer, int32_t buffer_len, ip_t peer,
-                                   void *socket, void *data);
+typedef cme_error_t (*socket_recvh_t)(buffer_t bufptr, ip_t peer, void *socket,
+                                      void *data);
 
 #endif // C_MINILIB_SIP_UA_SOCKET_H
