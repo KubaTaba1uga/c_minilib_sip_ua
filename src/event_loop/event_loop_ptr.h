@@ -3,15 +3,13 @@
 /******************************************************************************
  *                             Event Loop Ptr                                 *
  ******************************************************************************/
-typedef struct __EventLoop __EventLoopRaw;
+typedef struct __EventLoop __EventLoop;
 
-void __EventLoopRaw_drop(__EventLoopRaw **evlp);
-static inline __EventLoopRaw *__EventLoopRaw_clone(__EventLoopRaw *evlp) {
-  return evlp;
-}
+void __EventLoop_destroy(__EventLoop **evlp);
+__EventLoop *__EventLoop_clone(__EventLoop *evlp);
 
 #define i_type __EventLoopPtr
-#define i_key __EventLoopRaw *
-#define i_keydrop __EventLoopRaw_drop
-#define i_keyclone __EventLoopRaw_clone
+#define i_key __EventLoop *
+#define i_keydrop __EventLoop_destroy
+#define i_keyclone __EventLoop_clone
 #include "stc/arc.h"

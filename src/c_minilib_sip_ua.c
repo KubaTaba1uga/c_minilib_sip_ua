@@ -3,6 +3,7 @@
 
 #include "c_minilib_error.h"
 #include "c_minilib_init.h"
+#include "event_loop/event_loop.h"
 
 static void log_func(enum cmi_LogLevelEnum _, char *data) {
   printf("%s", data);
@@ -18,11 +19,15 @@ int main(void) {
     goto error_out;
   }
 
-  err = cmi_init();
+  event_loop_t evl;
+  err = event_loop_create(&evl);
   if (err) {
     goto error_out;
   }
+
   log_func(0, "Starting ua...\n");
+  // Create socket with event loop
+
   cmi_destroy();
 
   return 0;

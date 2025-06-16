@@ -18,4 +18,14 @@ static inline __PollFd __PollFd_clone(__PollFd src) { return src; }
 
 static inline void __PollFd_drop(__PollFd *self) { close(self->fd); };
 
+static inline int __PollFd_cmp(const __PollFd *a, const __PollFd *b) {
+  if (a->fd == b->fd) {
+    return 0;
+  }
+  if (a->fd > b->fd) {
+    return 1;
+  }
+  return -1;
+}
+
 #endif

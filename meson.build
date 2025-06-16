@@ -36,11 +36,6 @@ c_minilib_mock_dep = dependency('c_minilib_mock',
   required: true,
 )
 
-c_minilib_init_dep = dependency('c_minilib_init',
-  fallback: ['c_minilib_init', 'c_minilib_init_dep'],
-  required: true,
-)
-
 c_minilib_config_dep = dependency('c_minilib_config',
   fallback: ['c_minilib_config', 'c_minilib_config_dep'],
   required: true,
@@ -57,19 +52,11 @@ stc_dep = dependency('stc',
   required: true,
 )
 
-socket99_dep = dependency(
-  'socket99',
-  fallback: ['socket99', 'socket99_dep'],
-  required: true
-)
-
 c_minilib_sip_ua_deps = [c_minilib_error_dep,
                          c_minilib_mock_dep,
-			 c_minilib_init_dep,
 			 c_minilib_config_dep,
 			 c_minilib_sip_codec_dep,			 
 			 stc_dep,
-			 socket99_dep,
 			 ]
 c_minilib_sip_ua_inc = include_directories('include', 'src')
 

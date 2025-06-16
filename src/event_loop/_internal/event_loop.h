@@ -31,7 +31,7 @@ struct __EventLoop {
 
 typedef struct __EventLoop __EventLoop;
 
-cme_error_t __EventLoop_create(event_loop_t *out) {
+static inline cme_error_t __EventLoop_create(event_loop_t *out) {
   __EventLoop *evl = malloc(sizeof(__EventLoop));
   cme_error_t err;
   if (!evl) {
@@ -104,9 +104,11 @@ error_out:
   return cme_return(err);
 }
 
-cme_error_t __EventLoop_insert_socketfd(event_loop_t evl, uint32_t fd,
-                                        event_loop_sendh_t sendh,
-                                        event_loop_recvh_t recvh, void *data) {
+static inline cme_error_t __EventLoop_insert_socketfd(event_loop_t evl,
+                                                      uint32_t fd,
+                                                      event_loop_sendh_t sendh,
+                                                      event_loop_recvh_t recvh,
+                                                      void *data) {
   cme_error_t err;
   err = __PollFdsVec_push(&(*evl.get)->fds,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
@@ -133,9 +135,9 @@ error_out:
   return cme_return(err);
 }
 
-cme_error_t __EventLoop_insert_timerfd(event_loop_t evl, uint32_t fd,
-                                       event_loop_timeouth_t timeouth,
-                                       void *data) {
+static inline cme_error_t
+__EventLoop_insert_timerfd(event_loop_t evl, uint32_t fd,
+                           event_loop_timeouth_t timeouth, void *data) {
   cme_error_t err;
   err = __PollFdsVec_push(&(*evl.get)->fds,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
@@ -162,13 +164,17 @@ error_out:
   return cme_return(err);
 }
 
-event_loop_t __EventLoop_ref(event_loop_t evl) {
+static inline event_loop_t __EventLoop_ref(event_loop_t evl) {
   return __EventLoopPtr_clone(evl);
 };
 
-void __EventLoop_deref(event_loop_t *evl) { __EventLoopPtr_drop(evl); };
+static inline void __EventLoop_deref(event_loop_t *evl) {
+  __EventLoopPtr_drop(evl);
+};
 
-void __EventLoop_destructor(__EventLoopRaw **evlp) {
+__EventLoop *__EventLoop_clone(__EventLoop *evlp) { return evlp; };
+
+void __EventLoop_destroy(__EventLoop **evlp) {
   vec__PollFdsVec_drop(&(*evlp)->fds);
   hmap__FdHelpersMap_drop(&(*evlp)->fds_helpers);
 };

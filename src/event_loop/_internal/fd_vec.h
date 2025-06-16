@@ -14,7 +14,7 @@
 
 #define i_tag _PollFdsVec
 #define i_key __PollFd
-#define i_cmp fd_cmp
+#define i_cmp __PollFd_cmp
 #include <stc/vec.h>
 
 typedef struct vec__PollFdsVec __PollFdsVec;
