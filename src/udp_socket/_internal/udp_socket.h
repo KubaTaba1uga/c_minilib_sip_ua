@@ -84,23 +84,27 @@ static inline cme_error_t __UdpSocket_create(event_loop_ptr_t evl, ip_t ip_addr,
     goto error_socket_cleanup;
   }
 
-  err = event_loop_insert_socketfd(evl, sockfd, __UdpSocket_send,
-                                   __UdpSocket_recv, udpsock);
-  if (err) {
-    err = cme_errorf(errno,
-                     "Cannot insert udp socket into event loop for IP=%s:%s",
-                     ip_addr.ip, ip_addr.port);
-    goto error_socket_cleanup;
-  }
-
   udpsock->evl = event_loop_ref(evl);
   udpsock->ip_addr = ip_addr;
   udpsock->fd = sockfd;
 
   *out = udp_socket_ptr_from(udpsock);
 
+  err = event_loop_insert_socketfd(evl, sockfd, __UdpSocket_send,
+                                   __UdpSocket_recv, out);
+  if (err) {
+    err = cme_errorf(errno,
+                     "Cannot insert udp socket into event loop for IP=%s:%s",
+                     ip_addr.ip, ip_addr.port);
+    goto error_socket_ptr_cleanup;
+  }
+
+  printf("udpsock=%p, udpsock->fd=%d\n", out, sockfd);
+
   return 0;
 
+error_socket_ptr_cleanup:
+  udp_socket_ptr_drop(out);
 error_socket_cleanup:
   close(sockfd);
 error_udpsock_cleanup:
@@ -129,6 +133,7 @@ static cme_error_t __UdpSocket_recv(void *data) {
   cme_error_t err;
   char *buf_raw;
 
+  printf("udpsoc=%p, udpsock->fd=%d\n", udp_ptr, *udp_fd);
   puts("Received data over UDP");
 
   assert(data != NULL);
@@ -146,6 +151,7 @@ static cme_error_t __UdpSocket_recv(void *data) {
                          (struct sockaddr *)&sender_addr, &sender_addr_len);
 
   if (buf_raw_len < 0) {
+    perror("UDP");
     err = cme_error(errno, "Cannot recieve udp data");
     goto error_out;
   } else if (buf_raw_len == 0) {
