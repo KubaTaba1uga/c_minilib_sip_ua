@@ -30,7 +30,7 @@
 
 struct __UdpSocket {
   // Event loop data
-  event_loop_ptr_t evl;
+  event_loop_t evl;
   int32_t fd;
 
   // Udp local data
@@ -44,8 +44,8 @@ struct __UdpSocket {
 static cme_error_t __UdpSocket_recv(void *data);
 static cme_error_t __UdpSocket_send(void *data);
 
-static inline cme_error_t __UdpSocket_create(event_loop_ptr_t evl, ip_t ip_addr,
-                                             udp_socket_ptr_t *out) {
+static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
+                                             udp_socket_t *out) {
   struct __UdpSocket *udpsock = calloc(1, sizeof(struct __UdpSocket));
   cme_error_t err;
   if (!udpsock) {
@@ -114,16 +114,8 @@ error_out:
   return err;
 };
 
-static inline udp_socket_ptr_t __UdpSocket_ref(udp_socket_ptr_t udp) {
-  return udp_socket_ptr_clone(udp);
-};
-
-static inline void __UdpSocket_deref(udp_socket_ptr_t *udp) {
-  udp_socket_ptr_drop(udp);
-};
-
 static cme_error_t __UdpSocket_recv(void *data) {
-  udp_socket_ptr_t *udp_ptr = data;
+  udp_socket_t *udp_ptr = data;
   udp_socket_recvh_t udp_recvh = *SP_GET_PTR(*udp_ptr, recvh);
   void *udp_recvh_arg = SP_GET_PTR(*udp_ptr, recvh_arg);
   int32_t *udp_fd = SP_GET_PTR(*udp_ptr, fd);
@@ -198,7 +190,7 @@ void __udp_socket_ptr_destroy(__UdpSocketPtr *udp_ptr) {
     return;
   }
 
-  event_loop_ptr_t evl = (*udp_ptr)->evl;
+  event_loop_t evl = (*udp_ptr)->evl;
   int32_t fd = (*udp_ptr)->fd;
 
   // Remove fd from event loop

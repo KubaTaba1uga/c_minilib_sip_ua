@@ -8,6 +8,7 @@
 #define C_MINILIB_SIP_UA_SMART_PTR_H
 
 /* #define SP_GET_VALUE(sp, name) (sp).get->name */
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -17,6 +18,7 @@
 struct __sp_handlers {
   void *value;
   void (*value_destroyh)(void *);
+  bool is_destroyed;
 };
 
 static inline struct my_generic_sp *
@@ -31,9 +33,11 @@ static inline void __sp_handlers_destroy(struct __sp_handlers *sp_handler) {
     sp_handler->value_destroyh(sp_handler->value);
   }
 
+  sp_handler->is_destroyed = true;
+
   void *sp = sp_get_from_handlers(sp_handler);
 
-  free(sp);
+  /* free(sp); */
 };
 
 static inline struct __sp_handlers
@@ -64,13 +68,16 @@ static inline void *sp_alloc(uint32_t size, void (*value_destroyh)(void *)) {
     return NULL;
   }
 
-  struct __sp_handlers *sp_handlers = sp + sizeof(struct my_generic_sp);
+  struct __sp_handlers *sp_handlers =
+      (struct __sp_handlers *)((unsigned char *)sp +
+                               sizeof(struct my_generic_sp));
 
-  void *sp_value =
-      sp + sizeof(struct my_generic_sp) + sizeof(struct __sp_handlers);
+  void *sp_value = (void *)((unsigned char *)sp + sizeof(struct my_generic_sp) +
+                            sizeof(struct __sp_handlers));
 
   *sp_handlers = (struct __sp_handlers){.value = sp_value,
-                                        .value_destroyh = value_destroyh};
+                                        .value_destroyh = value_destroyh,
+                                        .is_destroyed = false};
 
   *sp = my_generic_sp_from_ptr(sp_handlers);
 
@@ -78,12 +85,15 @@ static inline void *sp_alloc(uint32_t size, void (*value_destroyh)(void *)) {
 };
 
 static inline struct my_generic_sp *sp_get(void *value) {
-  return value - sizeof(struct my_generic_sp) - sizeof(struct __sp_handlers);
+  return (struct my_generic_sp *)((unsigned char *)value -
+                                  sizeof(struct my_generic_sp) -
+                                  sizeof(struct __sp_handlers));
 };
 
 static inline struct my_generic_sp *
 sp_get_from_handlers(struct __sp_handlers *handlers) {
-  return handlers - sizeof(struct my_generic_sp);
+  unsigned char *data = (unsigned char *)handlers;
+  return (struct my_generic_sp *)(data - sizeof(struct my_generic_sp));
 };
 
 static inline void *sp_ref(void *value) {
@@ -94,12 +104,14 @@ static inline void *sp_ref(void *value) {
   return value;
 }
 
-static inline void *sp_deref(void *value) {
+static inline void sp_deref(void *value) {
   struct my_generic_sp *sp = sp_get(value);
 
   my_generic_sp_drop(sp);
 
-  return value;
+  if (sp->get->is_destroyed) {
+    free(sp);
+  }
 }
 
 #endif

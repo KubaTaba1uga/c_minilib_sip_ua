@@ -2,7 +2,8 @@ sources = files(
    'c_minilib_sip_ua.c',
 )
 
-subdir('event_loop')
-subdir('udp_socket')
 subdir('utils')
-subdir('sip_transport')
+subdir('event_loop')
+# subdir('udp_socket')
+
+# subdir('sip_transport')
