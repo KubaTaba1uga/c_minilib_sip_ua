@@ -21,19 +21,21 @@
 #include "udp_socket/_internal/udp_socket.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/ip.h"
-#include "utils/socket.h"
+#include "utils/smart_ptr.h"
 
-static inline cme_error_t __UdpSocket_listen(udp_socket_t udp_socket,
-                                             socket_recvh_t recvh, void *arg) {
+static inline cme_error_t __UdpSocket_listen(udp_socket_ptr_t *udp_ptr,
+                                             udp_socket_recvh_t recvh,
+                                             void *arg) {
+  event_loop_ptr_t *evl = SP_GET_PTR(*udp_ptr, evl);
+  int32_t *fd = SP_GET_PTR(*udp_ptr, fd);
 
-  cme_error_t err =
-      event_loop_set_pollin((*udp_socket.get)->evl, (*udp_socket.get)->fd);
+  cme_error_t err = event_loop_set_pollin(*evl, *fd);
   if (err) {
     goto error_out;
   }
 
-  (*udp_socket.get)->recvh = recvh;
-  (*udp_socket.get)->recvh_arg = arg;
+  SP_SET_VALUE(*udp_ptr, recvh, recvh);
+  SP_SET_VALUE(*udp_ptr, recvh_arg, arg);
 
   return 0;
 

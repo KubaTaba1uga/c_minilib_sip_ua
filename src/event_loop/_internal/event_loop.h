@@ -20,6 +20,7 @@
 #include "event_loop/_internal/fd_vec.h"
 #include "event_loop/event_loop.h"
 #include "stc/common.h"
+#include "utils/smart_ptr.h"
 
 /******************************************************************************
  *                             Event Loop                                     *
@@ -31,7 +32,7 @@ struct __EventLoop {
 
 typedef struct __EventLoop __EventLoop;
 
-static inline cme_error_t __EventLoop_create(event_loop_t *out) {
+static inline cme_error_t __EventLoop_create(event_loop_ptr_t *out) {
   __EventLoop *evl = malloc(sizeof(__EventLoop));
   cme_error_t err;
   if (!evl) {
@@ -42,27 +43,28 @@ static inline cme_error_t __EventLoop_create(event_loop_t *out) {
   evl->fds = vec__PollFdsVec_init();
   evl->fds_helpers = hmap__FdHelpersMap_init();
 
-  *out = __EventLoopPtr_from(evl);
+  *out = event_loop_ptr_from(evl);
 
   return 0;
 
 error_out:
-  *out = (__EventLoopPtr){0};
+  *out = event_loop_ptr_init();
   return cme_return(err);
 };
 
-static inline cme_error_t __EventLoop_process_events(event_loop_t evl);
+static inline cme_error_t __EventLoop_process_events(event_loop_ptr_t evl_ptr);
 
-static inline cme_error_t __EventLoop_start(event_loop_t evl) {
+static inline cme_error_t __EventLoop_start(event_loop_ptr_t evl_ptr) {
+  __PollFdsVec *fds_vec = SP_GET_PTR(evl_ptr, fds);
   cme_error_t err;
 
   while (true) {
-    err = __PollFdsVec_poll(&(*evl.get)->fds);
+    err = __PollFdsVec_poll(fds_vec);
     if (err) {
       goto error_out;
     }
 
-    err = __EventLoop_process_events(evl);
+    err = __EventLoop_process_events(evl_ptr);
     if (err) {
       goto error_out;
     }
@@ -74,12 +76,13 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t __EventLoop_process_events(event_loop_t evl) {
+static inline cme_error_t __EventLoop_process_events(event_loop_ptr_t evl_ptr) {
+  __FdHelpersMap *helpers_map = SP_GET_PTR(evl_ptr, fds_helpers);
+  __PollFdsVec *fds_vec = SP_GET_PTR(evl_ptr, fds);
   cme_error_t err;
 
-  c_foreach(fd, vec__PollFdsVec, (*evl.get)->fds) {
-    __FdHelper *fd_helper =
-        my_hmap___FdHelpersMap_find(fd.ref->fd, &(*evl.get)->fds_helpers);
+  c_foreach(fd, vec__PollFdsVec, *fds_vec) {
+    __FdHelper *fd_helper = __FdHelpersMap_find(fd.ref->fd, helpers_map);
 
     assert(fd_helper != NULL);
 
@@ -104,13 +107,16 @@ error_out:
   return cme_return(err);
 }
 
-static inline cme_error_t __EventLoop_insert_socketfd(event_loop_t evl,
+static inline cme_error_t __EventLoop_insert_socketfd(event_loop_ptr_t evl_ptr,
                                                       uint32_t fd,
                                                       event_loop_sendh_t sendh,
                                                       event_loop_recvh_t recvh,
                                                       void *data) {
+  __FdHelpersMap *helpers_map = SP_GET_PTR(evl_ptr, fds_helpers);
+  __PollFdsVec *fds_vec = SP_GET_PTR(evl_ptr, fds);
+
   cme_error_t err;
-  err = __PollFdsVec_push(&(*evl.get)->fds,
+  err = __PollFdsVec_push(fds_vec,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
   if (err) {
     goto error_out;
@@ -122,7 +128,7 @@ static inline cme_error_t __EventLoop_insert_socketfd(event_loop_t evl,
                                            .sendh = sendh,
                                            .recvh = recvh,
                                            .data = data},
-                              &(*evl.get)->fds_helpers);
+                              helpers_map);
   if (err) {
     goto error_fds_cleanup;
   }
@@ -130,16 +136,19 @@ static inline cme_error_t __EventLoop_insert_socketfd(event_loop_t evl,
   return 0;
 
 error_fds_cleanup:
-  __PollFdsVec_remove(fd, &(*evl.get)->fds);
+  __PollFdsVec_remove(fd, fds_vec);
 error_out:
   return cme_return(err);
 }
 
 static inline cme_error_t
-__EventLoop_insert_timerfd(event_loop_t evl, uint32_t fd,
+__EventLoop_insert_timerfd(event_loop_ptr_t evl_ptr, uint32_t fd,
                            event_loop_timeouth_t timeouth, void *data) {
+  __FdHelpersMap *helpers_map = SP_GET_PTR(evl_ptr, fds_helpers);
+  __PollFdsVec *fds_vec = SP_GET_PTR(evl_ptr, fds);
   cme_error_t err;
-  err = __PollFdsVec_push(&(*evl.get)->fds,
+
+  err = __PollFdsVec_push(fds_vec,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
   if (err) {
     goto error_out;
@@ -151,7 +160,7 @@ __EventLoop_insert_timerfd(event_loop_t evl, uint32_t fd,
                                            .sendh = NULL,
                                            .recvh = NULL,
                                            .data = data},
-                              &(*evl.get)->fds_helpers);
+                              helpers_map);
   if (err) {
     goto error_fds_cleanup;
   }
@@ -159,29 +168,36 @@ __EventLoop_insert_timerfd(event_loop_t evl, uint32_t fd,
   return 0;
 
 error_fds_cleanup:
-  __PollFdsVec_remove(fd, &(*evl.get)->fds);
+  __PollFdsVec_remove(fd, fds_vec);
 error_out:
   return cme_return(err);
 }
 
-static inline void __EventLoop_remove_fd(event_loop_t evl, int32_t fd) {
-  __FdHelpersMap_remove(fd, &(*evl.get)->fds_helpers);
-  __PollFdsVec_remove(fd, &(*evl.get)->fds);
+static inline void __EventLoop_remove_fd(event_loop_ptr_t evl_ptr, int32_t fd) {
+  __FdHelpersMap_remove(fd, SP_GET_PTR(evl_ptr, fds_helpers));
+  __PollFdsVec_remove(fd, SP_GET_PTR(evl_ptr, fds));
 }
 
-static inline event_loop_t __EventLoop_ref(event_loop_t evl) {
-  return __EventLoopPtr_clone(evl);
+static inline event_loop_ptr_t __EventLoop_ref(event_loop_ptr_t evl_ptr) {
+  return event_loop_ptr_clone(evl_ptr);
 };
 
-static inline void __EventLoop_deref(event_loop_t *evl) {
-  __EventLoopPtr_drop(evl);
+static inline void __EventLoop_deref(event_loop_ptr_t *evl_ptr) {
+  event_loop_ptr_drop(evl_ptr);
 };
 
-__EventLoop *__EventLoop_clone(__EventLoop *evlp) { return evlp; };
+void __event_loop_ptr_destroy(__EventLoopPtr *evl) {
+  if (!evl || !*evl) {
+    return;
+  }
 
-void __EventLoop_destroy(__EventLoop **evlp) {
-  vec__PollFdsVec_drop(&(*evlp)->fds);
-  hmap__FdHelpersMap_drop(&(*evlp)->fds_helpers);
+  vec__PollFdsVec_drop(&(*evl)->fds);
+  hmap__FdHelpersMap_drop(&(*evl)->fds_helpers);
+
+  free(*evl);
+  *evl = NULL;
 };
+
+__EventLoopPtr __event_loop_ptr_clone(__EventLoopPtr evl) { return evl; };
 
 #endif

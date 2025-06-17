@@ -1,15 +1,15 @@
-#include <stdlib.h>
-
 /******************************************************************************
  *                             Udp Socket Ptr                                 *
  ******************************************************************************/
-typedef struct __UdpSocket __UdpSocket;
+typedef struct __UdpSocket *__UdpSocketPtr;
 
-void __UdpSocket_destroy(__UdpSocket **evlp);
-__UdpSocket *__UdpSocket_clone(__UdpSocket *evlp);
+void __udp_socket_ptr_destroy(__UdpSocketPtr *udp_ptr);
+__UdpSocketPtr __udp_socket_ptr_clone(__UdpSocketPtr udp);
 
-#define i_type __UdpSocketPtr
-#define i_key __UdpSocket *
-#define i_keydrop __UdpSocket_destroy
-#define i_keyclone __UdpSocket_clone
+#define i_type udp_socket_ptr
+#define i_key __UdpSocketPtr
+#define i_keydrop __udp_socket_ptr_destroy
+#define i_keyclone __udp_socket_ptr_clone
 #include "stc/arc.h"
+
+typedef struct udp_socket_ptr udp_socket_ptr_t;

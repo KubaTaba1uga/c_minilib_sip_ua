@@ -42,7 +42,7 @@ static inline void __FdHelpersMap_remove(uint32_t fd, __FdHelpersMap *helpers) {
 }
 
 static inline struct __FdHelper *
-my_hmap___FdHelpersMap_find(uint32_t fd, hmap__FdHelpersMap *helpers) {
+__FdHelpersMap_find(uint32_t fd, hmap__FdHelpersMap *helpers) {
   return hmap__FdHelpersMap_at_mut(helpers, fd);
 }
 

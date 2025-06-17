@@ -22,23 +22,29 @@
 // Helper to prettify this header
 #include "sip_transport/sip_transport_ptr.h"
 
+/*
+  Role of SIP transport is to unifiy data and ops for all transport protocols
+  used by SIP.
+*/
 /******************************************************************************
  *                             Sip Transport                                  *
  ******************************************************************************/
-typedef struct __SipTransportPtr sip_transp_t;
 typedef cme_error_t (*sip_transp_recvh_t)(sip_msg_t sip_msg, ip_t peer_ip,
-                                          sip_transp_t *sip_transp, void *data);
+                                          sip_transp_ptr_t *sip_transp,
+                                          void *data);
 enum SupportedSipTranspProtos {
   SupportedSipTranspProtos_UDP,
 };
 
-cme_error_t sip_transp_create(event_loop_t evl, ip_t ip_addr,
+cme_error_t sip_transp_create(event_loop_ptr_t evl, ip_t ip_addr,
                               enum SupportedSipTranspProtos sstp,
-                              sip_transp_t *out);
+                              sip_transp_ptr_t *out);
 
-void sip_transp_destroy(sip_transp_t *out);
+sip_transp_ptr_t sip_transp_ref(sip_transp_ptr_t udp_ptr);
 
-cme_error_t sip_transp_listen(sip_transp_t sip_transp, sip_transp_recvh_t recvh,
-                              void *arg);
+void sip_transp_deref(sip_transp_ptr_t *udp_ptr);
+
+cme_error_t sip_transp_listen(sip_transp_ptr_t *sip_transp_ptr,
+                              sip_transp_recvh_t recvh, void *arg);
 
 #endif // C_MINILIB_SIP_UA_SIP_TRANSP_H

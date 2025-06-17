@@ -20,19 +20,23 @@
 #include "utils/buffer.h"
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
+#include "utils/smart_ptr.h"
 
-static cme_error_t __SipTransport_recvh(buffer_t bufptr, ip_t peer, void *sock,
-                                        void *data);
+static cme_error_t __SipTransport_udp_recvh(buffer_ptr_t bufptr, ip_t peer,
+                                            void *data);
 
-static inline cme_error_t __SipTransport_listen(sip_transp_t *sip_transp,
-                                                sip_transp_recvh_t recvh,
-                                                void *arg) {
+static inline cme_error_t
+__SipTransport_listen(sip_transp_ptr_t *sip_transp_ptr,
+                      sip_transp_recvh_t recvh, void *arg) {
+  enum SupportedSipTranspProtos *proto_type =
+      SP_GET_PTR(*sip_transp_ptr, proto_type);
   cme_error_t err;
 
-  switch ((*sip_transp->get)->proto_type) {
+  // Each transport proto needs seperate handler
+  switch (*proto_type) {
   case SupportedSipTranspProtos_UDP:
-    err = udp_socket_listen((*sip_transp->get)->udp_socket,
-                            __SipTransport_recvh, sip_transp);
+    err = udp_socket_listen(SP_GET_PTR(*sip_transp_ptr, udp_socket_ptr),
+                            __SipTransport_udp_recvh, sip_transp_ptr);
     if (err) {
       goto error_out;
     }
@@ -43,8 +47,8 @@ static inline cme_error_t __SipTransport_listen(sip_transp_t *sip_transp,
     goto error_out;
   }
 
-  (*sip_transp->get)->recvh = recvh;
-  (*sip_transp->get)->recvh_arg = arg;
+  SP_SET_VALUE(*sip_transp_ptr, recvh, recvh);
+  SP_SET_VALUE(*sip_transp_ptr, recvh_arg, arg);
 
   return 0;
 
@@ -52,11 +56,16 @@ error_out:
   return cme_return(err);
 }
 
-static cme_error_t __SipTransport_recvh(buffer_t bufptr, ip_t peer, void *sock,
-                                        void *data) {
+static cme_error_t __SipTransport_udp_recvh(buffer_ptr_t bufptr, ip_t peer_ip,
+                                            void *data) {
+  sip_transp_ptr_t *sip_transp_ptr = data;
   struct cmsc_SipMessage *sip_msg;
-  sip_transp_t *sip_transp = data;
+  sip_transp_recvh_t *recvh;
+  void *recvh_arg;
   cme_error_t err;
+
+  recvh = SP_GET_PTR(*sip_transp_ptr, recvh);
+  recvh_arg = SP_GET_PTR(*sip_transp_ptr, recvh_arg);
 
   cstr_view buf_view = cstr_getview(bufptr.get);
   err = cmsc_parse_sip(buf_view.size, buf_view.data, &sip_msg);
@@ -72,14 +81,10 @@ static cme_error_t __SipTransport_recvh(buffer_t bufptr, ip_t peer, void *sock,
 
   puts("Received data over SIP");
 
-  err =
-      (*sip_transp->get)
-          ->recvh(sip_msg_ptr, peer, sip_transp, (*sip_transp->get)->recvh_arg);
+  err = (*recvh)(sip_msg_ptr, peer_ip, sip_transp_ptr, recvh_arg);
   if (err) {
     goto error_out;
   }
-
-  (void)sip_transp;
 
   return 0;
 
