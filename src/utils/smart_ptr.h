@@ -14,66 +14,58 @@
 #define SP_UNWRAP(sp) (*(sp).get)
 #define SP_GET_PTR(sp, name) &(*(sp).get)->name
 #define SP_SET_VALUE(sp, name, value) (*(sp).get)->name = value
-typedef struct my_generic_sp my_generic_sp;
-
-struct my_generic_sp_value {
+struct __sp_handlers {
   void *value;
   void (*value_destroyh)(void *);
 };
 
-static inline void __my_generic_sp_destroy(struct my_generic_sp_value *sp) {
+static inline void __sp_handlers_destroy(struct __sp_handlers *sp) {
   sp->value_destroyh(sp->value);
 };
 
-static inline struct my_generic_sp_value
-__my_generic_sp_clone(struct my_generic_sp_value sp) {
-  return (struct my_generic_sp_value){.value = sp.value,
-                                      .value_destroyh = sp.value_destroyh};
+static inline struct __sp_handlers
+__sp_handlers_clone(struct __sp_handlers sp) {
+  return (struct __sp_handlers){.value = sp.value,
+                                .value_destroyh = sp.value_destroyh};
 };
 
 #define i_type my_generic_sp
-#define i_key struct my_generic_sp_value
-#define i_keydrop __my_generic_sp_destroy
-#define i_keyclone __my_generic_sp_clone
+#define i_key struct __sp_handlers
+#define i_keydrop __sp_handlers_destroy
+#define i_keyclone __sp_handlers_clone
 #include "stc/arc.h"
 
 static inline void *sp_alloc(uint32_t size, void (*value_destroyh)(void *)) {
   /*
     We are creating our custom smart pointer frame which looks sth like this:
-     |                   |                            |       |
-     | STC smart poniter | struct my_generic_sp_value | value |
-     |                   |                            |       |
+     |                   |                      |       |
+     | STC smart poniter | struct __sp_handlers | value |
+     |                   |                      |       |
 
     Now we can use ptr to `value` part and go back to smart pointer part
     whenever needed.
   */
-  void *value = malloc(sizeof(struct my_generic_sp) +
-                       sizeof(struct my_generic_sp_value) + size);
-  if (!value) {
+  struct my_generic_sp *sp = malloc(sizeof(struct my_generic_sp) +
+                                    sizeof(struct __sp_handlers) + size);
+  if (!sp) {
     return NULL;
   }
 
-  struct my_generic_sp *sp = value;
+  struct __sp_handlers *sp_handlers = sp + sizeof(struct my_generic_sp);
 
-  *sp = my_generic_sp_make((struct my_generic_sp_value){
-      .value = value, .value_destroyh = value_destroyh});
+  void *sp_value =
+      sp + sizeof(struct my_generic_sp) + sizeof(struct __sp_handlers);
 
-  struct my_generic_sp_value *sp_value = value + sizeof(struct my_generic_sp);
+  *sp_handlers = (struct __sp_handlers){.value = sp_value,
+                                        .value_destroyh = value_destroyh};
 
-  sp_value->value_destroyh = value_destroyh;
-  sp_value->value =
-      value + sizeof(struct my_generic_sp) + sizeof(struct my_generic_sp_value);
+  *sp = my_generic_sp_from_ptr(sp_handlers);
 
-  return sp_value->value;
+  return sp_value;
 };
 
 static inline struct my_generic_sp *sp_get(void *value) {
-  return value - sizeof(struct my_generic_sp) -
-         sizeof(struct my_generic_sp_value);
-};
-
-static inline struct my_generic_sp_value *sp_value_get(void *value) {
-  return value - sizeof(struct my_generic_sp_value);
+  return value - sizeof(struct my_generic_sp) - sizeof(struct __sp_handlers);
 };
 
 static inline void *sp_ref(void *value) {
