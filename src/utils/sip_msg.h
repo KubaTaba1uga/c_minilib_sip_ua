@@ -10,15 +10,15 @@
 #include "stc/cstr.h"
 #include "stc/csview.h"
 
-static inline void __sip_msg_destroy(struct cmsc_SipMessage **sipmsg) {
+static inline void __sip_msg_ptr_destroy(struct cmsc_SipMessage **sipmsg) {
   cmsc_sipmsg_destroy(sipmsg);
 }
 
 #define i_type sip_msg_ptr
 #define i_key struct cmsc_SipMessage *
-#define i_keydrop __sip_msg_destroy
+#define i_keydrop __sip_msg_ptr_destroy
 #include "stc/arc.h"
 
-typedef struct sip_msg_ptr sip_msg_t;
+typedef struct sip_msg_ptr sip_msg_ptr_t;
 
 #endif // C_MINILIB_SIP_UA_SIP_MSG_H

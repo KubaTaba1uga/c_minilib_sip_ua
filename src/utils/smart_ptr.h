@@ -8,6 +8,7 @@
 #define C_MINILIB_SIP_UA_SMART_PTR_H
 
 /* #define SP_GET_VALUE(sp, name) (sp).get->name */
+#define SP_UNWRAP(sp) (*(sp).get)
 #define SP_GET_PTR(sp, name) &(*(sp).get)->name
 #define SP_SET_VALUE(sp, name, value) (*(sp).get)->name = value
 

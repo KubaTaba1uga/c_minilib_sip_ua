@@ -28,14 +28,13 @@ static cme_error_t __SipTransport_udp_recvh(buffer_ptr_t bufptr, ip_t peer,
 static inline cme_error_t
 __SipTransport_listen(sip_transp_ptr_t *sip_transp_ptr,
                       sip_transp_recvh_t recvh, void *arg) {
-  enum SupportedSipTranspProtos *proto_type =
-      SP_GET_PTR(*sip_transp_ptr, proto_type);
+  struct __SipTransport *sip_transp = SP_UNWRAP(*sip_transp_ptr);
   cme_error_t err;
 
   // Each transport proto needs seperate handler
-  switch (*proto_type) {
+  switch (sip_transp->proto_type) {
   case SupportedSipTranspProtos_UDP:
-    err = udp_socket_listen(SP_GET_PTR(*sip_transp_ptr, udp_socket_ptr),
+    err = udp_socket_listen(&sip_transp->udp_socket_ptr,
                             __SipTransport_udp_recvh, sip_transp_ptr);
     if (err) {
       goto error_out;
@@ -47,8 +46,8 @@ __SipTransport_listen(sip_transp_ptr_t *sip_transp_ptr,
     goto error_out;
   }
 
-  SP_SET_VALUE(*sip_transp_ptr, recvh, recvh);
-  SP_SET_VALUE(*sip_transp_ptr, recvh_arg, arg);
+  sip_transp->recvh = recvh;
+  sip_transp->recvh_arg = arg;
 
   return 0;
 
@@ -77,7 +76,7 @@ static cme_error_t __SipTransport_udp_recvh(buffer_ptr_t bufptr, ip_t peer_ip,
     goto error_out;
   }
 
-  sip_msg_t sip_msg_ptr = sip_msg_ptr_from(sip_msg);
+  sip_msg_ptr_t sip_msg_ptr = sip_msg_ptr_from(sip_msg);
 
   puts("Received data over SIP");
 

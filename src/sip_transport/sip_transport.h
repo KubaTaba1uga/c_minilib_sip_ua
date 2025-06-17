@@ -29,7 +29,7 @@
 /******************************************************************************
  *                             Sip Transport                                  *
  ******************************************************************************/
-typedef cme_error_t (*sip_transp_recvh_t)(sip_msg_t sip_msg, ip_t peer_ip,
+typedef cme_error_t (*sip_transp_recvh_t)(sip_msg_ptr_t sip_msg, ip_t peer_ip,
                                           sip_transp_ptr_t *sip_transp,
                                           void *data);
 enum SupportedSipTranspProtos {

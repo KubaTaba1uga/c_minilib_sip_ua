@@ -5,7 +5,7 @@
 #include "event_loop/event_loop.h"
 #include "sip_transport/sip_transport.h"
 
-static cme_error_t __sip_transp_recvh_t(sip_msg_t sip_msg, ip_t peer_ip,
+static cme_error_t __sip_transp_recvh_t(sip_msg_ptr_t sip_msg, ip_t peer_ip,
                                         sip_transp_ptr_t *sip_transp,
                                         void *data) {
   puts("Received sip msg!!! :)");
