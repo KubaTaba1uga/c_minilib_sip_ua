@@ -19,8 +19,21 @@ struct __sp_handlers {
   void (*value_destroyh)(void *);
 };
 
-static inline void __sp_handlers_destroy(struct __sp_handlers *sp) {
-  sp->value_destroyh(sp->value);
+static inline struct my_generic_sp *
+sp_get_from_handlers(struct __sp_handlers *handlers);
+
+static inline void __sp_handlers_destroy(struct __sp_handlers *sp_handler) {
+  if (!sp_handler) {
+    return;
+  }
+
+  if (sp_handler->value && sp_handler->value_destroyh) {
+    sp_handler->value_destroyh(sp_handler->value);
+  }
+
+  void *sp = sp_get_from_handlers(sp_handler);
+
+  free(sp);
 };
 
 static inline struct __sp_handlers
@@ -66,6 +79,11 @@ static inline void *sp_alloc(uint32_t size, void (*value_destroyh)(void *)) {
 
 static inline struct my_generic_sp *sp_get(void *value) {
   return value - sizeof(struct my_generic_sp) - sizeof(struct __sp_handlers);
+};
+
+static inline struct my_generic_sp *
+sp_get_from_handlers(struct __sp_handlers *handlers) {
+  return handlers - sizeof(struct my_generic_sp);
 };
 
 static inline void *sp_ref(void *value) {

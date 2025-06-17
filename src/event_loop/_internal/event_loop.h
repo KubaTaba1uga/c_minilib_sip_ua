@@ -30,10 +30,14 @@ struct __EventLoop {
   __FdHelpersMap fds_helpers;
 };
 
-typedef struct __EventLoop __EventLoop;
+static inline void __EventLoop_destroy(struct __EventLoop *evl) {
+  vec__PollFdsVec_drop(&evl->fds);
+  hmap__FdHelpersMap_drop(&evl->fds_helpers);
+};
 
 static inline cme_error_t __EventLoop_create(event_loop_ptr_t *out) {
-  __EventLoop *evl = malloc(sizeof(__EventLoop));
+  __EventLoop *evl =
+      sp_alloc(sizeof(struct __EventLoop), void (*value_destroyh)(void *));
   cme_error_t err;
   if (!evl) {
     err = cme_error(ENOMEM, "Cannot allocate memory for `evl`");
@@ -186,10 +190,7 @@ static inline void __EventLoop_deref(event_loop_ptr_t *evl_ptr) {
   event_loop_ptr_drop(evl_ptr);
 };
 
-void __event_loop_ptr_destroy(__EventLoopPtr *evl) {
-  if (!evl || !*evl) {
-    return;
-  }
+void __EventLoop_destroy(__EventLoopPtr *evl) {
 
   vec__PollFdsVec_drop(&(*evl)->fds);
   hmap__FdHelpersMap_drop(&(*evl)->fds_helpers);
