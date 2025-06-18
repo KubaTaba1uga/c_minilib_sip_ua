@@ -20,10 +20,8 @@
 #include "utils/buffer.h"
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
-#include "utils/smart_ptr.h"
 
-static cme_error_t __SipTransport_udp_recvh(byte_buf_t buf, ip_t peer,
-                                            void *data);
+static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer, void *data);
 
 static inline cme_error_t __SipTransport_listen(sip_transp_t sip_transp,
                                                 sip_transp_recvh_t recvh,
@@ -60,18 +58,12 @@ static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
   sip_msg_t sip_msg;
   cme_error_t err;
 
-  err = cmsc_parse_sip(buf->size, buf->buf, &sip_msg);
+  err = sip_msg_parse(buf, &sip_msg);
   if (err) {
     // TO-DO log that malformed sip msg send.
     if (err->code == EINVAL) {
       return 0;
     }
-    goto error_out;
-  }
-
-  sip_msg =
-      sip_msg_from(sip_msg, sizeof(struct cmsc_SipMessage), sip_msg_destroy);
-  if (!sip_msg) {
     goto error_out;
   }
 
@@ -83,12 +75,11 @@ static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
     goto error_sip_msg_sp_cleanup;
   }
 
-  sp_deref(sip_msg);
-
+  sip_msg_deref(&sip_msg);
   return 0;
 
 error_sip_msg_sp_cleanup:
-  sp_deref(sip_msg);
+  sip_msg_deref(&sip_msg);
 error_out:
   return cme_return(err);
 };

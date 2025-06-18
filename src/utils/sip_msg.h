@@ -12,25 +12,28 @@
 #include "c_minilib_sip_codec.h"
 #include "stc/cstr.h"
 
-static inline void __SipMessage_destroy(void *data) {
+static inline void __SipMessage_destroy(struct cmsc_SipMessage **data) {
   cmsc_sipmsg_destroy(data);
 };
-static inline struct SipMessage
-__SipMessage_clone(struct SipMessage udp_socket);
+static inline struct cmsc_SipMessage *
+__SipMessage_clone(struct cmsc_SipMessage *sip_msg) {
+  return sip_msg;
+};
 
-#define i_type sip_msg
-#define i_key struct cmsc_SipMessage
+#define i_type __SipMessagePtr
+#define i_key struct cmsc_SipMessage *
 #define i_keydrop __SipMessage_destroy
 #define i_keyclone __SipMessage_clone
 #include "stc/arc.h"
 
-typedef struct sip_msg sip_msg_t;
+typedef struct __SipMessagePtr sip_msg_t;
 
-static inline sip_msg_parse(cstr buf, sip_msg_t *out) {
+static inline cme_error_t sip_msg_parse(cstr buf, sip_msg_t *out) {
   csview buf_view = cstr_sv(&buf);
   cme_error_t err;
 
-  err = cmsc_parse_sip(buf_view.size, buf_view.buf, &out->get);
+  struct cmsc_SipMessage *msg;
+  err = cmsc_parse_sip(buf_view.size, buf_view.buf, &msg);
   if (err) {
     // TO-DO log that malformed sip msg send.
     if (err->code == EINVAL) {
@@ -38,13 +41,22 @@ static inline sip_msg_parse(cstr buf, sip_msg_t *out) {
     }
     goto error_out;
   }
+
+  *out = __SipMessagePtr_from(msg);
+
+  return 0;
+
+error_out:
+  return cme_return(err);
 }
-/* typedef struct cmsc_SipMessage *sip_msg_t; */
 
-/* typedef struct cmsc_SipMessage *sip_msg_t; */
+static inline sip_msg_t sip_msg_ref(sip_msg_t msgp) {
+  __SipMessagePtr_clone(msgp);
+  return msgp;
+}
 
-/* static inline void sip_msg_destroy(void *sip_msg) { */
-/*   cmsc_sipmsg_destroy((sip_msg_t *)&sip_msg); */
-/* } */
+static inline void sip_msg_deref(sip_msg_t *msgp) {
+  __SipMessagePtr_drop(msgp);
+}
 
 #endif // C_MINILIB_SIP_UA_SIP_MSG_H
