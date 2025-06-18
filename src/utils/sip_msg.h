@@ -59,4 +59,24 @@ static inline void sip_msg_deref(sip_msg_t *msgp) {
   __SipMessagePtr_drop(msgp);
 }
 
+static inline csview *sip_msg_get_branch(sip_msg_t msgp, csview *out) {
+  struct cmsc_SipHeaderVia *via = STAILQ_FIRST(&(*msgp.get)->vias);
+  struct cmsc_String branch = {0};
+  if (via) {
+    branch = cmsc_bs_msg_to_string(&via->branch, *msgp.get);
+  }
+
+  if (!branch.len) {
+    goto error_out;
+  }
+
+  *out = (csview){.buf = branch.buf, .size = branch.len};
+
+  return out;
+
+error_out:
+  *out = (csview){0};
+  return NULL;
+}
+
 #endif // C_MINILIB_SIP_UA_SIP_MSG_H

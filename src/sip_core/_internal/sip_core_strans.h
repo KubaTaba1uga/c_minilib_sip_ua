@@ -14,14 +14,36 @@
 #include "c_minilib_sip_codec.h"
 #include "sip_core/_internal/common.h"
 #include "sip_core/sip_core.h"
+#include "utils/sip_msg.h"
 
-static inline cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
-                                           void *data, sip_core_t sip_core) {
-  queue__SipCoreListenersQueue_push(
-      &sip_core->get->listeners,
-      (struct __SipCoreListener){.request_handler = reqh, .arg = data});
+static inline cme_error_t
+__SipCoreStrans_create(sip_msg_t sip_msg, sip_core_t sip_core,
+                       struct __SipCoreStransPtr *out) {
+  /*
+    Server transaction is composed of one or more SIP request and multiple SIP
+    statuses. This function is reposnible for creating new sip server
+    transaction. Once new transaction is created use next on transaction
+    to change it's state.
+  */
+  csview branch = {0};
+  cme_error_t err;
+
+  void *result = sip_msg_get_branch(sip_msg, &branch);
+  if (!result) {
+    err = cme_error(ENODATA, "Missing via->branch in server transaction");
+    goto error_out;
+  }
+
+  sip_strans_t sip_stransp = malloc(sizeof(struct __SipCoreStransPtr));
+  if (!sip_stransp) {
+    err = cme_error(ENOMEM, "Cannot alocate memory for server transaction");
+    goto error_out;
+  }
 
   return 0;
+
+error_out:
+  return cme_return(err);
 };
 
 static inline cme_error_t __SipCore_sip_transp_recvh(sip_msg_t sip_msg,

@@ -18,6 +18,7 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
+#include "stc/cstr.h"
 #include "utils/buffer.h"
 #include "utils/ip.h"
 

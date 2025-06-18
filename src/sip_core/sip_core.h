@@ -44,8 +44,8 @@ sip_core_t sip_core_ref(sip_core_t sip_corep);
 
 void sip_core_deref(sip_core_t sip_corep);
 
-/* cme_error_t sip_listen(sip_core_request_handler_t requesth, void *data, */
-/*                        sip_core_t sip_core); */
+cme_error_t sip_core_listen(sip_core_request_handler_t requesth, void *data,
+                            sip_core_t sip_core);
 
 /* cme_error_t sip_send(sip_core_response_handler_t resph, sip_msg_t sipmsg, */
 /*                      void *data, sip_core_t sip_core); */

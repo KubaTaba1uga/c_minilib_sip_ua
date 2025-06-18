@@ -12,7 +12,6 @@
 #include "event_loop/event_loop.h"
 #include "sip_core/_internal/common.h"
 #include "sip_core/_internal/sip_core_listen.h"
-#include "sip_core/_internal/sip_core_listener_queue.h"
 #include "sip_core/sip_core.h"
 #include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
@@ -74,15 +73,5 @@ static inline void __SipCore_deref(sip_core_t sip_corep) {
     free(sip_corep);
   }
 }
-
-static inline cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
-                                           void *data,
-                                           struct __SipCore *sip_core) {
-  queue__SipCoreListenersQueue_push(
-      &sip_core->listeners,
-      (struct __SipCoreListener){.request_handler = reqh, .arg = data});
-
-  return 0;
-};
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_H

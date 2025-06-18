@@ -12,3 +12,8 @@ sip_core_t sip_core_ref(sip_core_t sip_corep) {
 };
 
 void sip_core_deref(sip_core_t sip_corep) { __SipCore_deref(sip_corep); };
+
+cme_error_t sip_core_listen(sip_core_request_handler_t requesth, void *data,
+                            sip_core_t sip_core) {
+  return __SipCore_listen(requesth, data, sip_core);
+}
