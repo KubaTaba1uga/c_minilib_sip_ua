@@ -31,3 +31,9 @@ cme_error_t event_loop_unset_pollout(event_loop_t evlp, int32_t fd) {
 cme_error_t event_loop_start(event_loop_t evlp) {
   return __EventLoop_start(evlp);
 }
+
+event_loop_t event_loop_ref(event_loop_t evlp) {
+  return __EventLoop_ref(evlp);
+};
+
+void event_loop_deref(event_loop_t evlp) { __EventLoop_deref(evlp); };

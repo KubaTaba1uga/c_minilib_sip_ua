@@ -42,4 +42,8 @@ cme_error_t event_loop_unset_pollout(event_loop_t evlp, int32_t fd);
 
 cme_error_t event_loop_start(event_loop_t evlp);
 
+event_loop_t event_loop_ref(event_loop_t evlp);
+
+void event_loop_deref(event_loop_t evlp);
+
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

@@ -20,7 +20,6 @@
 #include "event_loop/_internal/fd_vec.h"
 #include "event_loop/event_loop.h"
 #include "stc/common.h"
-#include "utils/generic_sp.h"
 
 /******************************************************************************
  *                             Event Loop                                     *
@@ -35,7 +34,7 @@ static inline void __EventLoop_destroy(struct __EventLoop *evl) {
   hmap__FdHelpersMap_drop(&evl->fds_helpers);
 };
 
-static inline struct __EventLoop *__EventLoop_clone(struct __EventLoop *evl) {
+static inline struct __EventLoop __EventLoop_clone(struct __EventLoop evl) {
   return evl;
 };
 
