@@ -21,23 +21,17 @@
 #include "utils/buffer.h"
 #include "utils/ip.h"
 
-// Helper to prettify this header
-#include "udp_socket/udp_socket_ptr.h"
-
 /******************************************************************************
  *                             Udp Socket                                     *
  ******************************************************************************/
-typedef cme_error_t (*udp_socket_recvh_t)(buffer_ptr_t buf_ptr, ip_t peer,
+typedef struct __UdpSocket *udp_socket_t;
+typedef cme_error_t (*udp_socket_recvh_t)(byte_buf_t buf, ip_t peer,
                                           void *data);
 
-cme_error_t udp_socket_create(event_loop_ptr_t udp_ptr, ip_t ip_addr,
-                              udp_socket_ptr_t *out);
+cme_error_t udp_socket_create(event_loop_t udp_socket, ip_t ip_addr,
+                              udp_socket_t *out);
 
-udp_socket_ptr_t udp_socket_ref(udp_socket_ptr_t udp_ptr);
-
-void udp_socket_deref(udp_socket_ptr_t *udp_ptr);
-
-cme_error_t udp_socket_listen(udp_socket_ptr_t *udp_ptr,
-                              udp_socket_recvh_t recvh, void *arg);
+cme_error_t udp_socket_listen(udp_socket_t udp_socket, udp_socket_recvh_t recvh,
+                              void *arg);
 
 #endif // C_MINILIB_SIP_UA_UDP_SOCKET_H

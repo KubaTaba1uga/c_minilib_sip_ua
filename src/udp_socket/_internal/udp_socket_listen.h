@@ -23,19 +23,16 @@
 #include "utils/ip.h"
 #include "utils/smart_ptr.h"
 
-static inline cme_error_t __UdpSocket_listen(udp_socket_ptr_t *udp_ptr,
+static inline cme_error_t __UdpSocket_listen(udp_socket_t udp_socket,
                                              udp_socket_recvh_t recvh,
                                              void *arg) {
-  event_loop_ptr_t *evl = SP_GET_PTR(*udp_ptr, evl);
-  int32_t *fd = SP_GET_PTR(*udp_ptr, fd);
-
-  cme_error_t err = event_loop_set_pollin(*evl, *fd);
+  cme_error_t err = event_loop_set_pollin(udp_socket->evl, udp_socket->fd);
   if (err) {
     goto error_out;
   }
 
-  SP_SET_VALUE(*udp_ptr, recvh, recvh);
-  SP_SET_VALUE(*udp_ptr, recvh_arg, arg);
+  udp_socket->recvh = recvh;
+  udp_socket->recvh_arg = arg;
 
   return 0;
 

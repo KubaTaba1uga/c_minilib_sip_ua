@@ -32,10 +32,9 @@ static inline void __sp_payload_destroy(struct __sp_payload *sp_handler) {
   }
 };
 
-static inline struct __sp_payload __sp_payload_clone(struct __sp_payload sp) {
-  return (struct __sp_payload){.value = sp.value,
-                               .value_destroyh = sp.value_destroyh};
-};
+static inline struct __sp_payload __sp_payload_clone(struct __sp_payload data) {
+  return data;
+}
 
 #define i_type my_generic_sp
 #define i_key struct __sp_payload
@@ -43,7 +42,10 @@ static inline struct __sp_payload __sp_payload_clone(struct __sp_payload sp) {
 #define i_keyclone __sp_payload_clone
 #include "stc/arc.h"
 
-static inline void *sp_alloc(uint32_t size, void (*value_destroyh)(void *)) {
+typedef void *(*__sp_alloch_t)(uint32_t);
+
+static inline void *__sp_alloc(uint32_t size, void (*value_destroyh)(void *),
+                               __sp_alloch_t alloc_fn) {
   /*
     We are creating our custom smart pointer frame which looks sth like this:
      |                   |        |                     |       |
@@ -53,30 +55,36 @@ static inline void *sp_alloc(uint32_t size, void (*value_destroyh)(void *)) {
     Now we can use ptr to `value` part and go back to smart pointer part
     whenever needed.
   */
-  struct my_generic_sp *sp = malloc(sizeof(struct my_generic_sp));
-  if (!sp) {
+  struct my_generic_sp *sp = alloc_fn(sizeof(struct my_generic_sp));
+  if (!sp)
     return NULL;
-  }
 
-  struct __sp_payload *sp_payload = malloc(sizeof(struct __sp_payload) + size);
-  if (!sp_payload) {
+  struct __sp_payload *pl = alloc_fn(sizeof(struct __sp_payload) + size);
+  if (!pl) {
     free(sp);
     return NULL;
   }
 
-  void *sp_value =
-      (void *)((unsigned char *)sp_payload + sizeof(struct __sp_payload));
+  void *val = (unsigned char *)pl + sizeof(struct __sp_payload);
 
-  *sp_payload = (struct __sp_payload){
-      .value = sp_value,
+  *pl = (struct __sp_payload){
+      .value = val,
       .value_destroyh = value_destroyh,
       .sp = sp,
   };
+  *sp = my_generic_sp_from_ptr(pl);
+  return val;
+}
 
-  *sp = my_generic_sp_from_ptr(sp_payload);
+static inline void *sp_malloc(uint32_t size, void (*value_destroyh)(void *)) {
+  return __sp_alloc(size, value_destroyh, (__sp_alloch_t)malloc);
+}
 
-  return sp_value;
-};
+static void *__sp_calloc_adapter(uint32_t n) { return calloc(1, n); }
+
+static inline void *sp_zalloc(uint32_t size, void (*value_destroyh)(void *)) {
+  return __sp_alloc(size, value_destroyh, __sp_calloc_adapter);
+}
 
 static inline struct my_generic_sp *sp_get(void *value) {
   return ((struct __sp_payload *)((unsigned char *)value -
@@ -95,6 +103,7 @@ static inline void *sp_ref(void *value) {
 static inline void sp_deref(void *value) {
   struct my_generic_sp *sp = sp_get(value);
   uint32_t use_count = my_generic_sp_use_count(sp);
+
   my_generic_sp_drop(sp);
 
   if (--use_count == 0) {

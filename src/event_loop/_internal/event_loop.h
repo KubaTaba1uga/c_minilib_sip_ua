@@ -38,7 +38,7 @@ static inline void __EventLoop_destroy(void *data) {
 
 static inline cme_error_t __EventLoop_create(event_loop_t *out) {
   struct __EventLoop *evl =
-      sp_alloc(sizeof(struct __EventLoop), __EventLoop_destroy);
+      sp_malloc(sizeof(struct __EventLoop), __EventLoop_destroy);
   cme_error_t err;
   if (!evl) {
     err = cme_error(ENOMEM, "Cannot allocate memory for `evl`");

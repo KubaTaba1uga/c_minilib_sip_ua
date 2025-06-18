@@ -42,10 +42,10 @@ int main(void) {
   /* } */
 
   puts("Starting event loop...\n");
-  /* err = event_loop_start(evl); */
-  /* if (err) { */
-  /*   goto error_out; */
-  /* } */
+  err = event_loop_start(evl);
+  if (err) {
+    goto error_out;
+  }
 
   // Create socket with event loop
   /* sip_transp_deref(&sip_transp); */
