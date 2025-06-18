@@ -40,19 +40,9 @@ struct __UdpSocket {
   void *recvh_arg;
 };
 
-static inline void __UdpSocket_destroy(struct __UdpSocket *udp_socket) {
-  // Remove fd from event loop
-  event_loop_remove_fd(udp_socket->evl, udp_socket->fd);
-  event_loop_deref(udp_socket->evl);
-
-  // Close socket file descriptor
-  close(udp_socket->fd);
-};
-
+static inline void __UdpSocket_destroy(struct __UdpSocket *udp_socket);
 static inline struct __UdpSocket
-__UdpSocket_clone(struct __UdpSocket udp_socket) {
-  return udp_socket;
-};
+__UdpSocket_clone(struct __UdpSocket udp_socket);
 
 #define i_type __UdpSocketPtr
 #define i_key struct __UdpSocket
@@ -216,5 +206,19 @@ static inline void __UdpSocket_deref(udp_socket_t udp_socketp) {
     free(udp_socketp);
   }
 }
+
+static inline void __UdpSocket_destroy(struct __UdpSocket *udp_socket) {
+  // Remove fd from event loop
+  event_loop_remove_fd(udp_socket->evl, udp_socket->fd);
+  event_loop_deref(udp_socket->evl);
+
+  // Close socket file descriptor
+  close(udp_socket->fd);
+};
+
+static inline struct __UdpSocket
+__UdpSocket_clone(struct __UdpSocket udp_socket) {
+  return udp_socket;
+};
 
 #endif
