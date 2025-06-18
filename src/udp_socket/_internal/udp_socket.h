@@ -136,6 +136,7 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
   struct sockaddr_storage sender_addr;
   socklen_t sender_addr_len;
   int32_t buf_raw_len;
+  cstr_view buf_view;
   cme_error_t err;
   cstr buf_raw;
 
@@ -148,9 +149,10 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
   sender_addr_len = sizeof(sender_addr);
 
   buf_raw = cstr_with_capacity(__UDP_MSG_SIZE_MAX);
+  buf_view = cstr_getview(&buf_raw);
 
   errno = 0;
-  buf_raw_len = recvfrom(udp_socket->get->fd, (void *)cstr_data(&buf_raw),
+  buf_raw_len = recvfrom(udp_socket->get->fd, (void *)buf_view.data,
                          cstr_capacity(&buf_raw) - 1, MSG_NOSIGNAL,
                          (struct sockaddr *)&sender_addr, &sender_addr_len);
 
@@ -163,8 +165,7 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
     goto error_buf_cleanup;
   }
 
-  buf_raw =
-      cstr_from_sv((csview){.buf = cstr_data(&buf_raw), .size = buf_raw_len});
+  cstr_resize(&buf_raw, buf_raw_len, 0);
 
   if (udp_socket->get->recvh) {
     char ip_str[INET6_ADDRSTRLEN];

@@ -1,5 +1,5 @@
 ====== ERROR DUMP ======
-Error code: Bad file descriptor
-Error message: Cannot recieve udp data
+Error code: Cannot allocate memory
+Error message: No Memory
 ------------------------
-0:__UdpSocket_recv:../src/udp_socket/_internal/udp_socket.h:159
+0:__SipTransport_udp_recvh:../src/sip_transport/_internal/sip_transport_listen.h:74

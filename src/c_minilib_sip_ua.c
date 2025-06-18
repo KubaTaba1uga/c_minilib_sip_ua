@@ -48,18 +48,18 @@ int main(void) {
   err = sip_transp_create(evl, (ip_t){.ip = "0.0.0.0", .port = "7337"},
                           SupportedSipTranspProtos_UDP, &sip_transp);
   if (err) {
-    goto error_out;
+    goto error_evl_cleanup;
   }
 
   err = sip_transp_listen(sip_transp, __sip_transp_recvh_t, NULL);
   if (err) {
-    goto error_out;
+    goto error_transp_cleanup;
   }
 
   puts("Starting event loop...\n");
   err = event_loop_start(evl);
   if (err) {
-    goto error_out;
+    goto error_transp_cleanup;
   }
 
   /* udp_socket_deref(udp); */
@@ -68,9 +68,13 @@ int main(void) {
   cme_destroy();
 
   return 0;
-
+error_transp_cleanup:
+  sip_transp_deref(sip_transp);
+error_evl_cleanup:
+  event_loop_deref(evl);
 error_out:
   printf("Error: %s\n", err->msg);
   cme_error_dump_to_file(err, "error.txt");
+  cme_destroy();
   return 1;
 }

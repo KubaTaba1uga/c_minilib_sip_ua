@@ -60,7 +60,7 @@ static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
 
   err = sip_msg_parse(buf, &sip_msg);
   if (err) {
-    // TO-DO log that malformed sip msg send.
+    // TO-DO: log that sip msg is malformed, more info in err->msg.
     if (err->code == EINVAL) {
       return 0;
     }
@@ -69,16 +69,22 @@ static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
 
   puts("Received data over SIP");
 
+  static int i = 0;
+  if (i++ > 5) {
+    err = cme_error(ENOMEM, "No Memory");
+    goto error_sip_msg_cleanup;
+  }
+
   err = sip_transp->get->recvh(sip_msg, peer_ip, sip_transp,
                                sip_transp->get->recvh_arg);
   if (err) {
-    goto error_sip_msg_sp_cleanup;
+    goto error_sip_msg_cleanup;
   }
 
   sip_msg_deref(&sip_msg);
   return 0;
 
-error_sip_msg_sp_cleanup:
+error_sip_msg_cleanup:
   sip_msg_deref(&sip_msg);
 error_out:
   return cme_return(err);
