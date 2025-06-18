@@ -26,7 +26,7 @@
 /******************************************************************************
  *                             Sip Transport                                  *
  ******************************************************************************/
-typedef struct __SipTransport *sip_transp_t;
+typedef struct __SipTransportPtr *sip_transp_t;
 typedef cme_error_t (*sip_transp_recvh_t)(sip_msg_t sip_msg, ip_t peer_ip,
                                           sip_transp_t sip_transp, void *data);
 enum SupportedSipTranspProtos {

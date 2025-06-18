@@ -13,7 +13,6 @@
 #include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/ip.h"
-#include "utils/smart_ptr.h"
 
 struct __SipTransport {
   // Transp Protocol data
@@ -29,24 +28,31 @@ struct __SipTransport {
 };
 
 static inline void __SipTransport_destroy(void *data);
+static inline struct __SipTransport
+__SipTransport_clone(struct __SipTransport udp_socket);
+
+#define i_type __SipTransportPtr
+#define i_key struct __SipTransport
+#define i_keydrop __SipTransport_destroy
+#define i_keyclone __SipTransport_clone
+#include "stc/arc.h"
 
 static inline cme_error_t
 __SipTransport_create(event_loop_t evl, ip_t ip_addr,
                       enum SupportedSipTranspProtos proto_type,
                       sip_transp_t *out) {
-  struct __SipTransport *sip_transp =
-      sp_zalloc(sizeof(struct __SipTransport), __SipTransport_destroy);
+  struct __SipTransportPtr *sip_transpp =
+      calloc(1, sizeof(struct __SipTransportPtr));
   cme_error_t err;
-
-  if (!sip_transp) {
+  if (!sip_transpp) {
     err = cme_error(ENOMEM, "Cannot allocate memory for `sip_transp`");
     goto error_out;
   }
 
   switch (proto_type) {
   case SupportedSipTranspProtos_UDP:
-    sip_transp->proto_type = SupportedSipTranspProtos_UDP;
-    err = udp_socket_create(evl, ip_addr, &sip_transp->udp_socket);
+    sip_transpp->get->proto_type = SupportedSipTranspProtos_UDP;
+    err = udp_socket_create(evl, ip_addr, &sip_transpp->get->udp_socket);
     if (err) {
       goto error_sip_transp_cleanup;
     }
@@ -56,13 +62,13 @@ __SipTransport_create(event_loop_t evl, ip_t ip_addr,
     goto error_sip_transp_cleanup;
   }
 
-  sip_transp->evl = sp_ref(evl);
-  *out = sip_transp;
+  sip_transpp->get->evl = event_loop_ref(evl);
+  *out = sip_transpp;
 
   return 0;
 
 error_sip_transp_cleanup:
-  sp_deref(sip_transp);
+  free(sip_transpp);
 error_out:
   *out = NULL;
   return cme_return(err);
@@ -70,8 +76,13 @@ error_out:
 
 static inline void __SipTransport_destroy(void *data) {
   struct __SipTransport *sip_transp = data;
-  sp_deref(sip_transp->evl);
-  sp_deref(sip_transp->udp_socket);
+  udp_socket_deref(sip_transp->udp_socket);
+  event_loop_deref(sip_transp->evl);
+};
+
+static inline struct __SipTransport
+__SipTransport_clone(struct __SipTransport udp_socket) {
+  return udp_socket;
 };
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_H

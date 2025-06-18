@@ -31,10 +31,10 @@ static inline cme_error_t __SipTransport_listen(sip_transp_t sip_transp,
   cme_error_t err;
 
   // Each transport proto needs seperate handler
-  switch (sip_transp->proto_type) {
+  switch (sip_transp->get->proto_type) {
   case SupportedSipTranspProtos_UDP:
-    err = udp_socket_listen(sip_transp->udp_socket, __SipTransport_udp_recvh,
-                            sip_transp);
+    err = udp_socket_listen(sip_transp->get->udp_socket,
+                            __SipTransport_udp_recvh, sip_transp);
     if (err) {
       goto error_out;
     }
@@ -45,8 +45,8 @@ static inline cme_error_t __SipTransport_listen(sip_transp_t sip_transp,
     goto error_out;
   }
 
-  sip_transp->recvh = recvh;
-  sip_transp->recvh_arg = arg;
+  sip_transp->get->recvh = recvh;
+  sip_transp->get->recvh_arg = arg;
 
   return 0;
 
@@ -54,7 +54,7 @@ error_out:
   return cme_return(err);
 }
 
-static cme_error_t __SipTransport_udp_recvh(byte_buf_t buf, ip_t peer_ip,
+static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
                                             void *data) {
   sip_transp_t sip_transp = data;
   sip_msg_t sip_msg;
@@ -69,14 +69,16 @@ static cme_error_t __SipTransport_udp_recvh(byte_buf_t buf, ip_t peer_ip,
     goto error_out;
   }
 
-  sip_msg = sp_from(sip_msg, sizeof(struct cmsc_SipMessage), sip_msg_destroy);
+  sip_msg =
+      sip_msg_from(sip_msg, sizeof(struct cmsc_SipMessage), sip_msg_destroy);
   if (!sip_msg) {
     goto error_out;
   }
 
   puts("Received data over SIP");
 
-  err = sip_transp->recvh(sip_msg, peer_ip, sip_transp, sip_transp->recvh_arg);
+  err = sip_transp->get->recvh(sip_msg, peer_ip, sip_transp,
+                               sip_transp->get->recvh_arg);
   if (err) {
     goto error_sip_msg_sp_cleanup;
   }
