@@ -13,26 +13,29 @@
 #include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/ip.h"
+#include "utils/smart_ptr.h"
 
 struct __SipTransport {
-
   // Transp Protocol data
   enum SupportedSipTranspProtos proto_type;
-  event_loop_ptr_t evl_ptr;
+  event_loop_t evl;
 
   // Udp socket data
-  udp_socket_ptr_t udp_socket_ptr;
+  udp_socket_t udp_socket;
 
   // User data & ops
   sip_transp_recvh_t recvh;
   void *recvh_arg;
 };
 
+static inline void __SipTransport_destroy(void *data);
+
 static inline cme_error_t
-__SipTransport_create(event_loop_ptr_t evl, ip_t ip_addr,
+__SipTransport_create(event_loop_t evl, ip_t ip_addr,
                       enum SupportedSipTranspProtos proto_type,
-                      sip_transp_ptr_t *out) {
-  struct __SipTransport *sip_transp = calloc(1, sizeof(struct __SipTransport));
+                      sip_transp_t *out) {
+  struct __SipTransport *sip_transp =
+      sp_zalloc(sizeof(struct __SipTransport), __SipTransport_destroy);
   cme_error_t err;
 
   if (!sip_transp) {
@@ -43,7 +46,7 @@ __SipTransport_create(event_loop_ptr_t evl, ip_t ip_addr,
   switch (proto_type) {
   case SupportedSipTranspProtos_UDP:
     sip_transp->proto_type = SupportedSipTranspProtos_UDP;
-    err = udp_socket_create(evl, ip_addr, &sip_transp->udp_socket_ptr);
+    err = udp_socket_create(evl, ip_addr, &sip_transp->udp_socket);
     if (err) {
       goto error_sip_transp_cleanup;
     }
@@ -53,35 +56,22 @@ __SipTransport_create(event_loop_ptr_t evl, ip_t ip_addr,
     goto error_sip_transp_cleanup;
   }
 
-  sip_transp->evl_ptr = event_loop_ref(evl);
-  *out = sip_transp_ptr_from(sip_transp);
+  sip_transp->evl = sp_ref(evl);
+  *out = sip_transp;
 
   return 0;
 
 error_sip_transp_cleanup:
-  free(sip_transp);
+  sp_deref(sip_transp);
 error_out:
-  *out = sip_transp_ptr_init();
+  *out = NULL;
   return cme_return(err);
 };
 
-static inline sip_transp_ptr_t __SipTransport_ref(sip_transp_ptr_t sip_transp) {
-  return sip_transp_ptr_clone(sip_transp);
-};
-
-static inline void __SipTransport_deref(sip_transp_ptr_t *sip_transp) {
-  sip_transp_ptr_drop(sip_transp);
-};
-
-void __sip_transp_ptr_destroy(__SipTransportPtr *sip_transp) {
-  event_loop_deref(&(*sip_transp)->evl_ptr);
-  udp_socket_deref(&(*sip_transp)->udp_socket_ptr);
-
-  free(sip_transp);
-};
-
-__SipTransportPtr __sip_transp_ptr_clone(__SipTransportPtr sip_transp) {
-  return sip_transp;
+static inline void __SipTransport_destroy(void *data) {
+  struct __SipTransport *sip_transp = data;
+  sp_deref(sip_transp->evl);
+  sp_deref(sip_transp->udp_socket);
 };
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_H

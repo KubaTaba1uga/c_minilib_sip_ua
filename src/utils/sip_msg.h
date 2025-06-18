@@ -6,19 +6,18 @@
 
 #ifndef C_MINILIB_SIP_UA_SIP_MSG_H
 #define C_MINILIB_SIP_UA_SIP_MSG_H
+
+#include "buffer.h"
+#include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
-#include "stc/cstr.h"
-#include "stc/csview.h"
 
-static inline void __sip_msg_ptr_destroy(struct cmsc_SipMessage **sipmsg) {
-  cmsc_sipmsg_destroy(sipmsg);
+#include "utils/buffer.h"
+#include <stdint.h>
+
+typedef struct cmsc_SipMessage *sip_msg_t;
+
+static inline void sip_msg_destroy(void *sip_msg) {
+  cmsc_sipmsg_destroy((sip_msg_t *)&sip_msg);
 }
-
-#define i_type sip_msg_ptr
-#define i_key struct cmsc_SipMessage *
-#define i_keydrop __sip_msg_ptr_destroy
-#include "stc/arc.h"
-
-typedef struct sip_msg_ptr sip_msg_ptr_t;
 
 #endif // C_MINILIB_SIP_UA_SIP_MSG_H
