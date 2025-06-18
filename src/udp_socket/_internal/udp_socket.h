@@ -22,7 +22,6 @@
 #include "udp_socket/udp_socket.h"
 #include "utils/buffer.h"
 #include "utils/ip.h"
-#include "utils/smart_ptr.h"
 
 #ifndef __UDP_MSG_SIZE_MAX
 #define __UDP_MSG_SIZE_MAX 2048
@@ -41,17 +40,35 @@ struct __UdpSocket {
   void *recvh_arg;
 };
 
+static inline void __UdpSocket_destroy(struct __UdpSocket *udp_socket) {
+  // Remove fd from event loop
+  event_loop_remove_fd(udp_socket->evl, udp_socket->fd);
+  event_loop_deref(udp_socket->evl);
+
+  // Close socket file descriptor
+  close(udp_socket->fd);
+};
+
+static inline struct __UdpSocket
+__UdpSocket_clone(struct __UdpSocket udp_socket) {
+  return udp_socket;
+};
+
+#define i_type __UdpSocketPtr
+#define i_key struct __UdpSocket
+#define i_keydrop __UdpSocket_destroy
+#define i_keyclone __UdpSocket_clone
+#include "stc/arc.h"
+
 static inline cme_error_t __UdpSocket_recv(void *data);
 static inline cme_error_t __UdpSocket_send(void *data);
-static inline void __UdpSocket_destroy(void *data);
 
 static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
                                              udp_socket_t *out) {
-  struct __UdpSocket *udp_socket =
-      sp_zalloc(sizeof(struct __UdpSocket), __UdpSocket_destroy);
+  struct __UdpSocketPtr *udp_socketp = malloc(sizeof(struct __UdpSocketPtr));
   cme_error_t err;
-  if (!udp_socket) {
-    err = cme_error(ENOMEM, "Cannot allocate memory for `udp_socket`");
+  if (!udp_socketp) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for `udp_socketp`");
     goto error_out;
   }
 
@@ -87,7 +104,7 @@ static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
   }
 
   err = event_loop_insert_socketfd(evl, sockfd, __UdpSocket_send,
-                                   __UdpSocket_recv, udp_socket);
+                                   __UdpSocket_recv, udp_socketp);
   if (err) {
     err = cme_errorf(errno,
                      "Cannot insert udp socket into event loop for IP=%s:%s",
@@ -95,49 +112,47 @@ static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
     goto error_socket_cleanup;
   }
 
-  udp_socket->evl = sp_ref(evl);
-  udp_socket->ip_addr = ip_addr;
-  udp_socket->fd = sockfd;
+  *udp_socketp = __UdpSocketPtr_from((struct __UdpSocket){
+      .evl = event_loop_ref(evl), .ip_addr = ip_addr, .fd = sockfd});
 
-  *out = udp_socket;
+  *out = udp_socketp;
 
-  printf("udp_socket=%p, udp_socket->fd=%d\n", out, sockfd);
+  printf("udp_socket=%p, udp_socket->fd=%d\n", udp_socketp,
+         udp_socketp->get->fd);
 
   return 0;
 
 error_socket_cleanup:
   close(sockfd);
 error_udp_socket_cleanup:
-  sp_deref(udp_socket);
+  free(udp_socketp);
 error_out:
   *out = NULL;
   return err;
 };
 
 inline static cme_error_t __UdpSocket_recv(void *data) {
-  struct __UdpSocket *udp_socket = data;
+  struct __UdpSocketPtr *udp_socket = data;
   struct sockaddr_storage sender_addr;
   socklen_t sender_addr_len;
   int32_t buf_raw_len;
-  byte_buf_t buf_raw;
   cme_error_t err;
+  cstr buf_raw;
 
-  printf("udpsoc=%p, udp_socket->fd=%d\n", udp_socket, udp_socket->fd);
+  printf("udpsoc=%p, udp_socket->fd=%d\n", udp_socket, udp_socket->get->fd);
+
   puts("Received data over UDP");
 
   assert(data != NULL);
 
   sender_addr_len = sizeof(sender_addr);
 
-  err = byte_buf_create(__UDP_MSG_SIZE_MAX, &buf_raw);
-  if (err) {
-    goto error_out;
-  }
+  buf_raw = cstr_with_capacity(__UDP_MSG_SIZE_MAX);
 
   errno = 0;
-  buf_raw_len =
-      recvfrom(udp_socket->fd, (void *)buf_raw->buf, __UDP_MSG_SIZE_MAX - 1,
-               MSG_NOSIGNAL, (struct sockaddr *)&sender_addr, &sender_addr_len);
+  buf_raw_len = recvfrom(udp_socket->get->fd, (void *)cstr_data(&buf_raw),
+                         cstr_capacity(&buf_raw) - 1, MSG_NOSIGNAL,
+                         (struct sockaddr *)&sender_addr, &sender_addr_len);
 
   if (buf_raw_len < 0) {
     perror("UDP");
@@ -148,9 +163,10 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
     goto error_buf_cleanup;
   }
 
-  buf_raw->size = buf_raw_len;
+  buf_raw =
+      cstr_from_sv((csview){.buf = cstr_data(&buf_raw), .size = buf_raw_len});
 
-  if (udp_socket->recvh) {
+  if (udp_socket->get->recvh) {
     char ip_str[INET6_ADDRSTRLEN];
     char port_str[6];
 
@@ -158,20 +174,20 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
     inet_ntop(AF_INET, &s->sin_addr, ip_str, sizeof(ip_str));
     snprintf(port_str, sizeof(port_str), "%u", ntohs(s->sin_port));
 
-    err = udp_socket->recvh(buf_raw, (ip_t){.ip = ip_str, .port = port_str},
-                            udp_socket->recvh_arg);
+    err =
+        udp_socket->get->recvh(buf_raw, (ip_t){.ip = ip_str, .port = port_str},
+                               udp_socket->get->recvh_arg);
     if (err) {
       goto error_buf_cleanup;
     }
   }
 
-  sp_deref(buf_raw);
+  cstr_drop(&buf_raw);
 
   return 0;
 
 error_buf_cleanup:
-  sp_deref(buf_raw);
-error_out:
+  cstr_drop(&buf_raw);
   return cme_return(err);
 }
 
@@ -181,17 +197,23 @@ inline static cme_error_t __UdpSocket_send(void *data) {
   return 0;
 }
 
-inline static void __UdpSocket_destroy(void *data) {
-  struct __UdpSocket *udp_socket = data;
+static inline udp_socket_t __UdpSocket_ref(udp_socket_t udp_socketp) {
 
-  // Remove fd from event loop
-  event_loop_remove_fd(udp_socket->evl, udp_socket->fd);
+  __UdpSocketPtr_clone(*udp_socketp);
 
-  // Dereference event loop
-  sp_deref(udp_socket->evl);
+  return udp_socketp;
+}
 
-  // Close socket file descriptor
-  close(udp_socket->fd);
-};
+static inline void __UdpSocket_deref(udp_socket_t udp_socketp) {
+  int32_t usage_count = __UdpSocketPtr_use_count(udp_socketp);
+
+  __UdpSocketPtr_drop(udp_socketp);
+
+  // If usage count is 1 before drop it means it will be 0
+  //  after drop but ptr holding usage count get freed on drop.
+  if (usage_count <= 1) {
+    free(udp_socketp);
+  }
+}
 
 #endif

@@ -11,3 +11,11 @@ cme_error_t udp_socket_listen(udp_socket_t udp_socket, udp_socket_recvh_t recvh,
                               void *arg) {
   return __UdpSocket_listen(udp_socket, recvh, arg);
 };
+
+udp_socket_t udp_socket_ref(udp_socket_t udp_socketp) {
+  return __UdpSocket_ref(udp_socketp);
+};
+
+void udp_socket_deref(udp_socket_t udp_socketp) {
+  __UdpSocket_deref(udp_socketp);
+};
