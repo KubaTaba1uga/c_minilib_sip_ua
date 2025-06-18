@@ -12,6 +12,9 @@
 #include "c_minilib_sip_codec.h"
 
 #include "utils/buffer.h"
+#include "utils/smart_ptr.h"
+
+typedef struct cmsc_SipMessage *sip_msg_t;
 
 typedef struct cmsc_SipMessage *sip_msg_t;
 

@@ -28,7 +28,7 @@ typedef struct __UdpSocket *udp_socket_t;
 typedef cme_error_t (*udp_socket_recvh_t)(byte_buf_t buf, ip_t peer,
                                           void *data);
 
-cme_error_t udp_socket_create(event_loop_t udp_socket, ip_t ip_addr,
+cme_error_t udp_socket_create(event_loop_t evlp, ip_t ip_addr,
                               udp_socket_t *out);
 
 cme_error_t udp_socket_listen(udp_socket_t udp_socket, udp_socket_recvh_t recvh,
