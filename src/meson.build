@@ -5,5 +5,4 @@ sources = files(
 subdir('utils')
 subdir('event_loop')
 subdir('udp_socket')
-
-# subdir('sip_transport')
+subdir('sip_transport')

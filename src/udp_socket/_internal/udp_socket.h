@@ -47,11 +47,11 @@ static inline void __UdpSocket_destroy(void *data);
 
 static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
                                              udp_socket_t *out) {
-  struct __UdpSocket *udpsock =
+  struct __UdpSocket *udp_socket =
       sp_zalloc(sizeof(struct __UdpSocket), __UdpSocket_destroy);
   cme_error_t err;
-  if (!udpsock) {
-    err = cme_error(ENOMEM, "Cannot allocate memory for `udpsock`");
+  if (!udp_socket) {
+    err = cme_error(ENOMEM, "Cannot allocate memory for `udp_socket`");
     goto error_out;
   }
 
@@ -60,7 +60,7 @@ static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
   if (sockfd == -1) {
     err = cme_errorf(errno, "Cannot create udp socket for IP=%s:%s", ip_addr.ip,
                      ip_addr.port);
-    goto error_udpsock_cleanup;
+    goto error_udp_socket_cleanup;
   }
 
   int optval = 1;
@@ -87,7 +87,7 @@ static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
   }
 
   err = event_loop_insert_socketfd(evl, sockfd, __UdpSocket_send,
-                                   __UdpSocket_recv, out);
+                                   __UdpSocket_recv, udp_socket);
   if (err) {
     err = cme_errorf(errno,
                      "Cannot insert udp socket into event loop for IP=%s:%s",
@@ -95,20 +95,20 @@ static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
     goto error_socket_cleanup;
   }
 
-  udpsock->evl = sp_ref(evl);
-  udpsock->ip_addr = ip_addr;
-  udpsock->fd = sockfd;
+  udp_socket->evl = sp_ref(evl);
+  udp_socket->ip_addr = ip_addr;
+  udp_socket->fd = sockfd;
 
-  *out = udpsock;
+  *out = udp_socket;
 
-  printf("udpsock=%p, udpsock->fd=%d\n", out, sockfd);
+  printf("udp_socket=%p, udp_socket->fd=%d\n", out, sockfd);
 
   return 0;
 
 error_socket_cleanup:
   close(sockfd);
-error_udpsock_cleanup:
-  sp_deref(udpsock);
+error_udp_socket_cleanup:
+  sp_deref(udp_socket);
 error_out:
   *out = NULL;
   return err;
@@ -122,7 +122,7 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
   byte_buf_t buf_raw;
   cme_error_t err;
 
-  printf("udpsoc=%p, udpsock->fd=%d\n", udp_socket, udp_socket->fd);
+  printf("udpsoc=%p, udp_socket->fd=%d\n", udp_socket, udp_socket->fd);
   puts("Received data over UDP");
 
   assert(data != NULL);

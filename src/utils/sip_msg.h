@@ -6,13 +6,12 @@
 
 #ifndef C_MINILIB_SIP_UA_SIP_MSG_H
 #define C_MINILIB_SIP_UA_SIP_MSG_H
+#include <stdint.h>
 
-#include "buffer.h"
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 
 #include "utils/buffer.h"
-#include <stdint.h>
 
 typedef struct cmsc_SipMessage *sip_msg_t;
 
