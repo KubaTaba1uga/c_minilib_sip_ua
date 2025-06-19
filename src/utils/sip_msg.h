@@ -79,4 +79,23 @@ error_out:
   return NULL;
 }
 
+static inline csview *sip_msg_get_method(sip_msg_t msgp, csview *out) {
+  struct cmsc_String method = {0};
+
+  method =
+      cmsc_bs_msg_to_string(&(*msgp.get)->request_line.sip_method, *msgp.get);
+
+  if (!method.len) {
+    goto error_out;
+  }
+
+  *out = (csview){.buf = method.buf, .size = method.len};
+
+  return out;
+
+error_out:
+  *out = (csview){0};
+  return NULL;
+}
+
 #endif // C_MINILIB_SIP_UA_SIP_MSG_H

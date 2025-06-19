@@ -13,6 +13,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "sip_core/_internal/common.h"
+#include "sip_core/_internal/sip_core_strans.h"
 #include "sip_core/sip_core.h"
 
 static inline cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
@@ -48,14 +49,23 @@ This means we need sth to match client transactions and user callbacks.
   struct __SipCorePtr *sip_core = data;
   cme_error_t err;
 
-  /* bool is_request = cmsc_sipmsg_is_field_present( */
-  /*     sip_msg.get, cmsc_SupportedSipHeaders_REQUEST_LINE); */
+  bool is_request = cmsc_sipmsg_is_field_present(
+      *sip_msg.get, cmsc_SupportedSipHeaders_REQUEST_LINE);
 
-  c_foreach(lstner, queue__SipCoreListenersQueue, sip_core->get->listeners) {
-    err = lstner.ref->request_handler(sip_msg, peer_ip, NULL, sip_core,
-                                      lstner.ref->arg);
+  if (is_request) {
+    sip_strans_t strans = NULL;
+
+    err = __SipCoreStrans_create(sip_msg, sip_core, &strans);
     if (err) {
       goto error_out;
+    }
+
+    c_foreach(lstner, queue__SipCoreListenersQueue, sip_core->get->listeners) {
+      err = lstner.ref->request_handler(sip_msg, peer_ip, strans, sip_core,
+                                        lstner.ref->arg);
+      if (err) {
+        goto error_out;
+      }
     }
   }
 

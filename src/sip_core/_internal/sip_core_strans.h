@@ -4,8 +4,8 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
-#define C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
+#ifndef C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H
+#define C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,26 +13,40 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "sip_core/_internal/common.h"
+#include "sip_core/_internal/sip_core_strans_map.h"
 #include "sip_core/sip_core.h"
 #include "utils/sip_msg.h"
 
-static inline cme_error_t
-__SipCoreStrans_create(sip_msg_t sip_msg, sip_core_t sip_core,
-                       struct __SipCoreStransPtr *out) {
+static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
+                                                 sip_core_t sip_core,
+                                                 sip_strans_t *out) {
   /*
     Server transaction is composed of one or more SIP request and multiple SIP
     statuses. This function is reposnible for creating new sip server
     transaction. Once new transaction is created use next on transaction
     to change it's state.
   */
+  bool is_invite = false;
   csview branch = {0};
+  csview method = {0};
   cme_error_t err;
 
   void *result = sip_msg_get_branch(sip_msg, &branch);
   if (!result) {
-    err = cme_error(ENODATA, "Missing via->branch in server transaction");
+    err =
+        cme_error(ENODATA, "Missing via->branch in server transaction request");
     goto error_out;
   }
+
+  result = sip_msg_get_method(sip_msg, &method);
+  if (!result) {
+    err = cme_error(
+        ENODATA,
+        "Missing request_line->sip_method in server transaction request");
+    goto error_out;
+  }
+
+  is_invite = strncmp(method.buf, "INVITE", method.size) == 0;
 
   sip_strans_t sip_stransp = malloc(sizeof(struct __SipCoreStransPtr));
   if (!sip_stransp) {
@@ -40,53 +54,42 @@ __SipCoreStrans_create(sip_msg_t sip_msg, sip_core_t sip_core,
     goto error_out;
   }
 
+  *sip_stransp = __SipCoreStransPtr_from((struct __SipCoreStrans){
+      .request = sip_msg,
+      .is_invite = is_invite,
+  });
+
+  err = __SipCoreStransMap_insert(branch, sip_stransp, &sip_core->get->stranses,
+                                  out);
+  if (err) {
+    goto error_stransp_cleanup;
+  }
+
   return 0;
 
+error_stransp_cleanup:
+  free(sip_stransp);
 error_out:
+  *out = NULL;
   return cme_return(err);
 };
 
-static inline cme_error_t __SipCore_sip_transp_recvh(sip_msg_t sip_msg,
-                                                     ip_t peer_ip,
-                                                     sip_transp_t sip_transp,
-                                                     void *data) {
-  /*
-    On every request we do:
-     1. If it is sip request (which is not ACK and is not matching to any
-current server tramsaction) we are creating new server transaction and running
-user callback with this new transaction.
+static inline sip_strans_t __SipCoreStrans_ref(sip_strans_t sip_stransp) {
+  __SipCoreStransPtr_clone(*sip_stransp);
 
-     2. If it is sip request which is matching to any current server tramsaction
-we are running user callback whith exsisting server transaction.
-
-     3. If it is sip request ACK we are looking for server transaction that it
-matches to to change it state to DONE. We are not running any user
-callbacks.
-
-     4. If it is sip status we are looking for client transaction that it
-matches to. We then run callback for client_transaction rather than listener.
-This means we need sth to match client transactions and user callbacks.
-   */
-  struct __SipCorePtr *sip_core = data;
-  cme_error_t err;
-
-  /* bool is_request = cmsc_sipmsg_is_field_present( */
-  /*     sip_msg.get, cmsc_SupportedSipHeaders_REQUEST_LINE); */
-
-  c_foreach(lstner, queue__SipCoreListenersQueue, sip_core->get->listeners) {
-    err = lstner.ref->request_handler(sip_msg, peer_ip, NULL, sip_core,
-                                      lstner.ref->arg);
-    if (err) {
-      goto error_out;
-    }
-  }
-
-  (void)data;
-
-  return 0;
-
-error_out:
-  return cme_return(err);
+  return sip_stransp;
 }
 
-#endif // C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
+static inline void __SipCoreStrans_deref(sip_strans_t sip_stransp) {
+  int32_t usage_count = __SipCoreStransPtr_use_count(sip_stransp);
+
+  __SipCoreStransPtr_drop(sip_stransp);
+
+  // If usage count is 1 before drop it means it will be 0
+  //  after drop but ptr holding usage count get freed on drop.
+  if (usage_count <= 1) {
+    free(sip_stransp);
+  }
+}
+
+#endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H

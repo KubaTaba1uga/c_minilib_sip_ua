@@ -22,8 +22,8 @@
 /******************************************************************************
  *                               Sip Core                                     *
  ******************************************************************************/
-typedef struct __SipCorePtr *sip_core_t;     // Sip core module
-typedef struct __SipStransPtr *sip_strans_t; // Sip server transaction
+typedef struct __SipCorePtr *sip_core_t;         // Sip core module
+typedef struct __SipCoreStransPtr *sip_strans_t; // Sip server transaction
 
 typedef cme_error_t (*sip_core_request_handler_t)(sip_msg_t sip_msg,
                                                   ip_t peer_ip,

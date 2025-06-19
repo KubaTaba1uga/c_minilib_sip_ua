@@ -42,6 +42,7 @@ __SipCore_create(event_loop_t evl, ip_t ip_addr,
 
   sip_core.evl = event_loop_ref(evl);
   sip_core.listeners = queue__SipCoreListenersQueue_init();
+  sip_core.stranses = hmap__SipCoreStransMap_init();
 
   *sip_corep = __SipCorePtr_from(sip_core);
 
