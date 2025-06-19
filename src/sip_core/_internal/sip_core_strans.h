@@ -38,6 +38,11 @@ static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
     goto error_out;
   }
 
+  *out = __SipCoreStransMap_find(branch, &sip_core->get->stranses);
+  if (*out != NULL) {
+    return 0;
+  }
+
   result = sip_msg_get_method(sip_msg, &method);
   if (!result) {
     err = cme_error(
@@ -68,7 +73,7 @@ static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
   return 0;
 
 error_stransp_cleanup:
-  free(sip_stransp);
+  __SipCoreStrans_deref(sip_stransp);
 error_out:
   *out = NULL;
   return cme_return(err);

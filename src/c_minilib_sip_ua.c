@@ -14,19 +14,6 @@ cme_error_t __sip_core_request_handler(sip_msg_t sip_msg, ip_t peer_ip,
   return 0;
 }
 
-/* static cme_error_t __sip_transp_recvh_t(sip_msg_t sip_msg, ip_t peer_ip, */
-/*                                         sip_transp_t sip_transp, void *data)
- * { */
-/*   puts("Received sip msg!!! :)"); */
-/*   return 0; */
-/* } */
-
-/* static cme_error_t __udp_transp_recvh_t(cstr buf, ip_t peer_ip, void *data) {
- */
-/*   puts("Received udp msg!!! :)"); */
-/*   return 0; */
-/* } */
-
 int main(void) {
   cme_error_t err;
 
@@ -59,7 +46,6 @@ int main(void) {
     goto error_core_cleanup;
   }
 
-  /* udp_socket_deref(udp); */
   sip_core_deref(sip_core);
   event_loop_deref(evl);
   cme_destroy();

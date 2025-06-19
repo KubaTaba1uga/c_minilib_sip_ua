@@ -6,7 +6,9 @@
 
 #ifndef C_MINILIB_SIP_UA_SIP_MSG_H
 #define C_MINILIB_SIP_UA_SIP_MSG_H
+#include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
@@ -32,17 +34,27 @@ static inline cme_error_t sip_msg_parse(cstr buf, sip_msg_t *out) {
   csview buf_view = cstr_sv(&buf);
   cme_error_t err;
 
+  puts("HIT");
+
   struct cmsc_SipMessage *msg;
   err = cmsc_parse_sip(buf_view.size, buf_view.buf, &msg);
   if (err) {
     // TO-DO log that malformed sip msg send.
     if (err->code == EINVAL) {
+      puts(err->msg);
+      puts("malformed msg");
       return 0;
     }
     goto error_out;
   }
 
+  assert(msg != NULL);
+
   *out = __SipMessagePtr_from(msg);
+
+  assert(out->get != NULL);
+
+  puts("Done");
 
   return 0;
 
@@ -96,6 +108,11 @@ static inline csview *sip_msg_get_method(sip_msg_t msgp, csview *out) {
 error_out:
   *out = (csview){0};
   return NULL;
+}
+
+static inline bool sip_msg_is_request(sip_msg_t msgp) {
+  return cmsc_sipmsg_is_field_present(*msgp.get,
+                                      cmsc_SupportedSipHeaders_REQUEST_LINE);
 }
 
 #endif // C_MINILIB_SIP_UA_SIP_MSG_H

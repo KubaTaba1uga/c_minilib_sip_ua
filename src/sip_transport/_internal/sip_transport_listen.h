@@ -67,6 +67,8 @@ static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
     goto error_out;
   }
 
+  assert(sip_msg.get != NULL);
+
   puts("Received data over SIP");
 
   static int i = 0;
@@ -82,6 +84,7 @@ static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
   }
 
   sip_msg_deref(&sip_msg);
+
   return 0;
 
 error_sip_msg_cleanup:

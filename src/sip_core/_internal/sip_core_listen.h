@@ -6,6 +6,7 @@
 
 #ifndef C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
 #define C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
+#include <assert.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,11 +47,18 @@ callbacks.
 matches to. We then run callback for client_transaction rather than listener.
 This means we need sth to match client transactions and user callbacks.
    */
-  struct __SipCorePtr *sip_core = data;
+  sip_core_t sip_core = data;
   cme_error_t err;
 
-  bool is_request = cmsc_sipmsg_is_field_present(
-      *sip_msg.get, cmsc_SupportedSipHeaders_REQUEST_LINE);
+  assert(sip_core != NULL);
+  assert(sip_msg.get != NULL);
+
+  // If there are no listeners there is no point in processing the message.
+  if (queue__SipCoreListenersQueue_is_empty(&sip_core->get->listeners)) {
+    return 0;
+  }
+
+  bool is_request = sip_msg_is_request(sip_msg);
 
   if (is_request) {
     sip_strans_t strans = NULL;
@@ -67,6 +75,8 @@ This means we need sth to match client transactions and user callbacks.
         goto error_out;
       }
     }
+  } else {
+    // TO-DO: handle client transaction
   }
 
   (void)data;
