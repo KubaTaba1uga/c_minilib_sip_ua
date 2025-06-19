@@ -4,8 +4,8 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_SIP_MSG_H
-#define C_MINILIB_SIP_UA_SIP_MSG_H
+#ifndef C_MINILIB_SIP_UA_UTILS_SIP_MSG_H
+#define C_MINILIB_SIP_UA_UTILS_SIP_MSG_H
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -13,6 +13,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "stc/cstr.h"
+#include "utils/csview_ptr.h"
 
 static inline void __SipMessage_destroy(struct cmsc_SipMessage **data) {
   cmsc_sipmsg_destroy(data);
@@ -30,14 +31,11 @@ __SipMessage_clone(struct cmsc_SipMessage *sip_msg) {
 
 typedef struct __SipMessagePtr sip_msg_t;
 
-static inline cme_error_t sip_msg_parse(cstr buf, sip_msg_t *out) {
-  csview buf_view = cstr_sv(&buf);
+static inline cme_error_t sip_msg_parse(csview_ptr_t buf, sip_msg_t *out) {
   cme_error_t err;
 
-  puts("HIT");
-
   struct cmsc_SipMessage *msg;
-  err = cmsc_parse_sip(buf_view.size, buf_view.buf, &msg);
+  err = cmsc_parse_sip(buf.get->size, buf.get->buf, &msg);
   if (err) {
     // TO-DO log that malformed sip msg send.
     if (err->code == EINVAL) {
@@ -53,8 +51,6 @@ static inline cme_error_t sip_msg_parse(cstr buf, sip_msg_t *out) {
   *out = __SipMessagePtr_from(msg);
 
   assert(out->get != NULL);
-
-  puts("Done");
 
   return 0;
 

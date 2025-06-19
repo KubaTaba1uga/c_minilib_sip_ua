@@ -60,7 +60,7 @@ static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
   }
 
   *sip_stransp = __SipCoreStransPtr_from((struct __SipCoreStrans){
-      .request = sip_msg,
+      .request = sip_msg_ref(sip_msg),
       .is_invite = is_invite,
   });
 
@@ -69,6 +69,10 @@ static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
   if (err) {
     goto error_stransp_cleanup;
   }
+
+  // We transferred ownership to hash map, if you want to delete
+  //  transaction just remove it from hash map.
+  __SipCoreStrans_deref(sip_stransp);
 
   return 0;
 

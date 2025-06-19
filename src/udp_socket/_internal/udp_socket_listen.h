@@ -18,8 +18,9 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
-#include "udp_socket/_internal/udp_socket.h"
+#include "udp_socket/_internal/common.h"
 #include "udp_socket/udp_socket.h"
+#include "utils/csview_ptr.h"
 #include "utils/ip.h"
 
 static inline cme_error_t __UdpSocket_listen(udp_socket_t udp_socket,
@@ -39,5 +40,66 @@ static inline cme_error_t __UdpSocket_listen(udp_socket_t udp_socket,
 error_out:
   return err;
 };
+
+inline static cme_error_t __UdpSocket_recv(void *data) {
+  struct __UdpSocketPtr *udp_socket = data;
+  struct sockaddr_storage sender_addr;
+  socklen_t sender_addr_len;
+  csview_ptr_t buf_ptr;
+  int32_t buf_len;
+  cme_error_t err;
+
+  assert(data != NULL);
+
+  puts("Received data over UDP");
+
+  err = csview_ptr_create(__UDP_MSG_SIZE_MAX, &buf_ptr);
+  if (err) {
+    goto error_out;
+  }
+
+  sender_addr_len = sizeof(sender_addr);
+
+  errno = 0;
+  buf_len =
+      recvfrom(udp_socket->get->fd, (void *)buf_ptr.get->buf, buf_ptr.get->size,
+               MSG_NOSIGNAL, (struct sockaddr *)&sender_addr, &sender_addr_len);
+
+  if (buf_len < 0) {
+    perror("UDP");
+    err = cme_error(errno, "Cannot recieve udp data");
+    goto error_buf_cleanup;
+  } else if (buf_len == 0) {
+    err = cme_error(errno, "Connection closed by peer");
+    goto error_buf_cleanup;
+  }
+
+  buf_ptr.get->size = buf_len;
+
+  if (udp_socket->get->recvh) {
+    char ip_str[INET6_ADDRSTRLEN];
+    char port_str[6];
+
+    struct sockaddr_in *s = (struct sockaddr_in *)&sender_addr;
+    inet_ntop(AF_INET, &s->sin_addr, ip_str, sizeof(ip_str));
+    snprintf(port_str, sizeof(port_str), "%u", ntohs(s->sin_port));
+
+    err =
+        udp_socket->get->recvh(buf_ptr, (ip_t){.ip = ip_str, .port = port_str},
+                               udp_socket->get->recvh_arg);
+    if (err) {
+      goto error_buf_cleanup;
+    }
+  }
+
+  csview_ptr_deref(buf_ptr);
+
+  return 0;
+
+error_buf_cleanup:
+  csview_ptr_deref(buf_ptr);
+error_out:
+  return cme_return(err);
+}
 
 #endif

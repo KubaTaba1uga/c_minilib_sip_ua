@@ -21,7 +21,8 @@
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
 
-static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer, void *data);
+static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer,
+                                            void *data);
 
 static inline cme_error_t __SipTransport_listen(sip_transp_t sip_transp,
                                                 sip_transp_recvh_t recvh,
@@ -52,7 +53,7 @@ error_out:
   return cme_return(err);
 }
 
-static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
+static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer_ip,
                                             void *data) {
   sip_transp_t sip_transp = data;
   sip_msg_t sip_msg;
@@ -70,12 +71,6 @@ static cme_error_t __SipTransport_udp_recvh(cstr buf, ip_t peer_ip,
   assert(sip_msg.get != NULL);
 
   puts("Received data over SIP");
-
-  static int i = 0;
-  if (i++ > 5) {
-    err = cme_error(ENOMEM, "No Memory");
-    goto error_sip_msg_cleanup;
-  }
 
   err = sip_transp->get->recvh(sip_msg, peer_ip, sip_transp,
                                sip_transp->get->recvh_arg);

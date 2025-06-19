@@ -4,8 +4,8 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_IP_H
-#define C_MINILIB_SIP_UA_IP_H
+#ifndef C_MINILIB_SIP_UA_UTILS_IP_H
+#define C_MINILIB_SIP_UA_UTILS_IP_H
 #include <inttypes.h>
 #include <stdint.h>
 
@@ -14,4 +14,4 @@ typedef struct {
   const char *port;
 } ip_t;
 
-#endif // C_MINILIB_SIP_UA_IP_H
+#endif // C_MINILIB_SIP_UA_UTILS_IP_H

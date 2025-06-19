@@ -47,6 +47,7 @@ callbacks.
 matches to. We then run callback for client_transaction rather than listener.
 This means we need sth to match client transactions and user callbacks.
    */
+  sip_strans_t strans = NULL;
   sip_core_t sip_core = data;
   cme_error_t err;
 
@@ -61,7 +62,6 @@ This means we need sth to match client transactions and user callbacks.
   bool is_request = sip_msg_is_request(sip_msg);
 
   if (is_request) {
-    sip_strans_t strans = NULL;
 
     err = __SipCoreStrans_create(sip_msg, sip_core, &strans);
     if (err) {
@@ -72,7 +72,7 @@ This means we need sth to match client transactions and user callbacks.
       err = lstner.ref->request_handler(sip_msg, peer_ip, strans, sip_core,
                                         lstner.ref->arg);
       if (err) {
-        goto error_out;
+        goto error_strans_cleanup;
       }
     }
   } else {
@@ -83,6 +83,8 @@ This means we need sth to match client transactions and user callbacks.
 
   return 0;
 
+error_strans_cleanup:
+  __SipCoreStrans_deref(strans);
 error_out:
   return cme_return(err);
 }

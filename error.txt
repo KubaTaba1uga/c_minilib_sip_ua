@@ -2,4 +2,4 @@
 Error code: Cannot allocate memory
 Error message: No Memory
 ------------------------
-0:__SipTransport_udp_recvh:../src/sip_transport/_internal/sip_transport_listen.h:74
+0:__SipTransport_udp_recvh:../src/sip_transport/_internal/sip_transport_listen.h:77

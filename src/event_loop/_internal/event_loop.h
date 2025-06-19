@@ -20,6 +20,7 @@
 #include "event_loop/_internal/fd_vec.h"
 #include "event_loop/event_loop.h"
 #include "stc/common.h"
+#include "stc/cstr.h"
 
 /******************************************************************************
  *                             Event Loop                                     *
@@ -63,7 +64,9 @@ static inline cme_error_t __EventLoop_process_events(event_loop_t evlp);
 static inline cme_error_t __EventLoop_start(event_loop_t evlp) {
   cme_error_t err;
 
-  while (true) {
+  // TO-DO delete this dummy mechanism
+  int i = 0;
+  while (true && i++ < 3) {
     err = __PollFdsVec_poll(&evlp->get->fds);
     if (err) {
       goto error_out;

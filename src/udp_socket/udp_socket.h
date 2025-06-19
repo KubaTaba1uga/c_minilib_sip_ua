@@ -20,13 +20,15 @@
 #include "event_loop/event_loop.h"
 #include "stc/cstr.h"
 #include "utils/buffer.h"
+#include "utils/csview_ptr.h"
 #include "utils/ip.h"
 
 /******************************************************************************
  *                             Udp Socket                                     *
  ******************************************************************************/
 typedef struct __UdpSocketPtr *udp_socket_t;
-typedef cme_error_t (*udp_socket_recvh_t)(cstr buf, ip_t peer, void *data);
+typedef cme_error_t (*udp_socket_recvh_t)(csview_ptr_t buf, ip_t peer,
+                                          void *data);
 
 cme_error_t udp_socket_create(event_loop_t evlp, ip_t ip_addr,
                               udp_socket_t *out);
