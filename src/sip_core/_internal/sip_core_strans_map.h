@@ -21,9 +21,9 @@ static inline cme_error_t __SipCoreStransMap_insert(csview key,
                                                     __SipCoreStransMap *stmap,
                                                     sip_strans_t *out) {
 
-  void *result =
-      hmap__SipCoreStransMap_insert_or_assign(stmap, cstr_from_sv(key), strans)
-          .ref;
+  void *result = hmap__SipCoreStransMap_insert_or_assign(
+                     stmap, cstr_from_sv(key), __SipCoreStrans_ref(strans))
+                     .ref;
   cme_error_t err;
 
   if (!result) {
@@ -36,6 +36,7 @@ static inline cme_error_t __SipCoreStransMap_insert(csview key,
   return 0;
 
 error_out:
+  __SipCoreStrans_deref(strans);
   *out = NULL;
   return cme_return(err);
 }

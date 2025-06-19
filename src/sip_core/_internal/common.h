@@ -80,4 +80,22 @@ static inline struct __SipCore __SipCore_clone(struct __SipCore sip_core) {
 #define i_keyclone __SipCore_clone
 #include "stc/arc.h"
 
+static inline sip_strans_t __SipCoreStrans_ref(sip_strans_t sip_stransp) {
+  __SipCoreStransPtr_clone(*sip_stransp);
+
+  return sip_stransp;
+}
+
+static inline void __SipCoreStrans_deref(sip_strans_t sip_stransp) {
+  int32_t usage_count = __SipCoreStransPtr_use_count(sip_stransp);
+
+  __SipCoreStransPtr_drop(sip_stransp);
+
+  // If usage count is 1 before drop it means it will be 0
+  //  after drop but ptr holding usage count get freed on drop.
+  if (usage_count <= 1) {
+    free(sip_stransp);
+  }
+}
+
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_COMMON_H
