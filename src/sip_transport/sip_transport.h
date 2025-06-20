@@ -44,4 +44,8 @@ sip_transp_t sip_transp_ref(sip_transp_t sip_transpp);
 
 void sip_transp_deref(sip_transp_t sip_transpp);
 
+cme_error_t sip_transp_create(event_loop_t evl, ip_t ip_addr,
+                              enum SupportedSipTranspProtos proto_type,
+                              sip_transp_t *out);
+
 #endif // C_MINILIB_SIP_UA_SIP_TRANSP_H

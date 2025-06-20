@@ -7,6 +7,7 @@
 #ifndef C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H
 #define C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H
 #include <errno.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -15,6 +16,7 @@
 #include "sip_core/_internal/common.h"
 #include "sip_core/_internal/sip_core_strans_map.h"
 #include "sip_core/sip_core.h"
+#include "stc/cstr.h"
 #include "timer_fd/timer_fd.h"
 #include "utils/sip_msg.h"
 
@@ -90,8 +92,6 @@ static inline cme_error_t __SipCoreStrans_next_state(sip_msg_t sip_msg,
   switch (strans->get->state) {
   case __SipCoreStransState_TRYING: {
     if (strans->get->is_invite) {
-      puts("Hit __SipCoreStrans_next_state::invite");
-
       // send 100 if TU won't in 200ms
       timer_fd_create(strans->get->sip_core->get->evl, 0,
                       200000000, // 200ms
@@ -119,17 +119,56 @@ static inline cme_error_t __SipCoreStrans_next_state(sip_msg_t sip_msg,
   return 0;
 }
 
+static inline cme_error_t __SipCoreStrans_reply(uint32_t status_code,
+                                                const char *status,
+                                                sip_strans_t strans);
+
 static inline cme_error_t
 __SipCoreStrans_timer_timeouth_invite_100_timer(timer_fd_t timer, void *data) {
-  struct __SipCoreStrans *strans = data;
+  sip_strans_t strans = data;
+  cme_error_t err;
+  puts("Hit __SipCoreStrans_invite_100_timeouth");
 
-  (void)strans;
+  switch (strans->get->state) {
+  case __SipCoreStransState_TRYING:
+    err = __SipCoreStrans_reply(100, "Trying", strans);
+    if (err) {
+      goto error_out;
+    }
 
-  /* __SipCoreStrans_reply(100, "Trying", strans->request, strans); */
+  default:
+    return 0;
+  }
 
-  puts("Hit __SipCoreStrans_invite_timer_timeouth");
+error_out:
+  return cme_return(err);
+};
+
+static inline cme_error_t __SipCoreStrans_reply(uint32_t status_code,
+                                                const char *status,
+                                                sip_strans_t strans) {
+  puts("Hit __SipCoreStrans_reply");
+  sip_msg_t sipmsg;
+  cme_error_t err;
+
+  err = sip_msg_status_from_request(status_code, cstr_from(status), &sipmsg);
+  if (err) {
+    goto error_out;
+  }
+
+  // TO-DO: generate bytes based on sipmsg
+  // TO-DO: send bytes via transport
+
+  switch (strans->get->state) {
+  case __SipCoreStransState_TRYING:
+    strans->get->state = __SipCoreStransState_PROCEEDING;
+
+  default:;
+  }
 
   return 0;
+error_out:
+  return cme_return(err);
 };
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H
