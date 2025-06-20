@@ -59,10 +59,7 @@ This means we need sth to match client transactions and user callbacks.
     return 0;
   }
 
-  bool is_request = sip_msg_is_request(sip_msg);
-
-  if (is_request) {
-
+  if (sip_msg_is_request(sip_msg)) {
     err = __SipCoreStrans_create(sip_msg, sip_core, &strans);
     if (err) {
       goto error_out;
