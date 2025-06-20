@@ -7,8 +7,8 @@
 #ifndef C_MINILIB_SIP_UA_INT_UDP_SEND_H
 #define C_MINILIB_SIP_UA_INT_UDP_SEND_H
 #include <arpa/inet.h>
-#include <asm-generic/errno.h>
 #include <assert.h>
+#include <errno.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdint.h>
@@ -20,12 +20,11 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
-#include "udp_socket/_internal/common.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/csview_ptr.h"
 #include "utils/ip.h"
 
-static inline cme_error_t __UdpSocket_send(udp_socket_t udp_socket,
+static inline cme_error_t __UdpSocket_send(struct UdpSocketPtr udp_socket,
                                            ip_t ip_addr, csview_ptr_t bytes) {
   struct addrinfo *receiver_addr = NULL;
   cme_error_t err;
@@ -48,7 +47,7 @@ static inline cme_error_t __UdpSocket_send(udp_socket_t udp_socket,
   { // Send data to receiver
     errno = 0;
     int32_t sent_bytes =
-        sendto(udp_socket->get->fd, bytes.get->buf, bytes.get->size,
+        sendto(udp_socket.get->fd, bytes.get->buf, bytes.get->size,
                MSG_NOSIGNAL, receiver_addr->ai_addr, receiver_addr->ai_addrlen);
     if (sent_bytes < 0) {
       err = cme_error(errno, "Cannot send udp data");

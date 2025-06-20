@@ -6,46 +6,36 @@
 
 #ifndef C_MINILIB_SIP_UA_UDP_SOCKET_H
 #define C_MINILIB_SIP_UA_UDP_SOCKET_H
-/*
-  This is interface to udp_socket module, if you need anything from udp_socket
-  module, put interface declaration here and interface implementation in .c but
-  always write real implementation as static inline in _internal.
- */
-
 #include <poll.h>
 #include <stdint.h>
 #include <sys/poll.h>
 
 #include "c_minilib_error.h"
-#include "event_loop/event_loop.h"
 #include "stc/cstr.h"
+
+#include "event_loop/event_loop.h"
 #include "utils/buffer.h"
 #include "utils/csview_ptr.h"
 #include "utils/ip.h"
 
+#include "udp_socket/_internal/udp_socket.h"
+
 /******************************************************************************
  *                             Udp Socket                                     *
  ******************************************************************************/
-typedef struct __UdpSocketPtr *udp_socket_t;
-typedef cme_error_t (*udp_socket_recvh_t)(csview_ptr_t buf, ip_t peer,
-                                          void *data);
+#define i_type UdpSocketPtr
+#define i_key struct __UdpSocket
+#define i_keydrop __UdpSocket_destroy
+#define i_keyclone __UdpSocket_clone
+#include "stc/arc.h"
 
-typedef cme_error_t (*udp_socket_sendh_ok_t)(csview_ptr_t buf, ip_t peer,
-                                             void *data);
-typedef cme_error_t (*udp_socket_sendh_fail_t)(csview_ptr_t buf, ip_t peer,
-                                               void *data);
+cme_error_t UdpSocket_create(struct EventLoopPtr evlp, ip_t ip_addr,
+                             struct UdpSocketPtr *out);
 
-cme_error_t udp_socket_create(event_loop_t evlp, ip_t ip_addr,
-                              udp_socket_t *out);
+cme_error_t UdpSocket_listen(struct UdpSocketPtr udp_socket,
+                             udp_socket_recvh_t recvh, void *arg);
 
-cme_error_t udp_socket_listen(udp_socket_t udp_socket, udp_socket_recvh_t recvh,
-                              void *arg);
-
-udp_socket_t udp_socket_ref(udp_socket_t udp_socketp);
-
-void udp_socket_deref(udp_socket_t udp_socketp);
-
-cme_error_t udp_socket_send(udp_socket_t udp_socket, ip_t ip_addr,
-                            csview_ptr_t bytes);
+cme_error_t UdpSocket_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
+                           csview_ptr_t bytes);
 
 #endif // C_MINILIB_SIP_UA_UDP_SOCKET_H

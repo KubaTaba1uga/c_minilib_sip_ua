@@ -18,22 +18,24 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
-#include "udp_socket/_internal/common.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/csview_ptr.h"
 #include "utils/ip.h"
 
-static inline cme_error_t __UdpSocket_listen(udp_socket_t udp_socket,
+typedef cme_error_t (*udp_socket_recvh_t)(csview_ptr_t buf, ip_t peer,
+                                          void *data);
+
+static inline cme_error_t __UdpSocket_listen(struct UdpSocketPtr udp_socketp,
                                              udp_socket_recvh_t recvh,
                                              void *arg) {
   cme_error_t err =
-      event_loop_set_pollin(udp_socket->get->evl, udp_socket->get->fd);
+      EventLoopPtr_set_pollin(udp_socketp.get->evl, udp_socketp.get->fd);
   if (err) {
     goto error_out;
   }
 
-  udp_socket->get->recvh = recvh;
-  udp_socket->get->recvh_arg = arg;
+  udp_socketp.get->recvh = recvh;
+  udp_socketp.get->recvh_arg = arg;
 
   return 0;
 
@@ -42,7 +44,7 @@ error_out:
 };
 
 inline static cme_error_t __UdpSocket_recv(void *data) {
-  struct __UdpSocketPtr *udp_socket = data;
+  struct __UdpSocketPtr *udp_socketp = data;
   struct sockaddr_storage sender_addr;
   socklen_t sender_addr_len;
   csview_ptr_t buf_ptr;
@@ -61,9 +63,9 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
   sender_addr_len = sizeof(sender_addr);
 
   errno = 0;
-  buf_len =
-      recvfrom(udp_socket->get->fd, (void *)buf_ptr.get->buf, buf_ptr.get->size,
-               MSG_NOSIGNAL, (struct sockaddr *)&sender_addr, &sender_addr_len);
+  buf_len = recvfrom(udp_socketp->get->fd, (void *)buf_ptr.get->buf,
+                     buf_ptr.get->size, MSG_NOSIGNAL,
+                     (struct sockaddr *)&sender_addr, &sender_addr_len);
 
   if (buf_len < 0) {
     perror("UDP");
@@ -76,7 +78,7 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
 
   buf_ptr.get->size = buf_len;
 
-  if (udp_socket->get->recvh) {
+  if (udp_socketp->get->recvh) {
     char ip_str[INET6_ADDRSTRLEN];
     char port_str[6];
 
@@ -85,8 +87,8 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
     snprintf(port_str, sizeof(port_str), "%u", ntohs(s->sin_port));
 
     err =
-        udp_socket->get->recvh(buf_ptr, (ip_t){.ip = ip_str, .port = port_str},
-                               udp_socket->get->recvh_arg);
+        udp_socketp->get->recvh(buf_ptr, (ip_t){.ip = ip_str, .port = port_str},
+                                udp_socketp->get->recvh_arg);
     if (err) {
       goto error_buf_cleanup;
     }
