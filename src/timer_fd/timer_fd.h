@@ -18,20 +18,21 @@
 #include "event_loop/event_loop.h"
 #include "utils/ip.h"
 
+#include "timer_fd/_internal/timer_fd.h"
+
 /******************************************************************************
- *                             Event Loop                                     *
+ *                             Timer File Descriptor                          *
  ******************************************************************************/
-typedef struct __TimerFdPtr *timer_fd_t;
-typedef cme_error_t (*timer_fd_timeouth_t)(timer_fd_t timer, void *data);
+#define i_type TimerFdPtr
+#define i_key struct __TimerFd
+#define i_keydrop __TimerFd_destroy
+#define i_keyclone __TimerFd_clone
+#include "stc/arc.h"
 
-cme_error_t timer_fd_create(event_loop_t evl, time_t seconds, long nseconds,
-                            timer_fd_timeouth_t timeouth, void *timeouth_arg,
-                            timer_fd_t *out);
+cme_error_t TimerFdPtr_create(struct EventLoopPtr evl, time_t seconds,
+                              long nseconds, timer_fd_timeouth_t timeouth,
+                              void *timeouth_arg, struct TimerFdPtr *out);
 
-timer_fd_t timer_fd_ref(timer_fd_t timerp);
-
-void timer_fd_deref(timer_fd_t timerp);
-
-void trimer_fd_rearm(timer_fd_t timerp);
+void TimerFdPtr_rearm(struct TimerFdPtr timerp);
 
 #endif // C_MINILIB_SIP_UA_TIMER_FD_H
