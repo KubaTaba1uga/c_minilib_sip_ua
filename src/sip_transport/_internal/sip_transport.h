@@ -14,8 +14,8 @@
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
 
-enum __SipTransportProtocolType {
-  __SipTransportProtocolType_UDP,
+enum SipTransportProtocolType {
+  SipTransportProtocolType_UDP,
 };
 
 struct SipTransportPtr;
@@ -25,7 +25,7 @@ typedef cme_error_t (*sip_transp_recvh_t)(sip_msg_t sip_msg, ip_t peer_ip,
 
 struct __SipTransport {
   // Transp Protocol data
-  enum __SipTransportProtocolType proto_type;
+  enum SipTransportProtocolType proto_type;
   struct EventLoopPtr evl;
 
   // Udp socket data

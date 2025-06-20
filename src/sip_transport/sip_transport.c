@@ -4,13 +4,13 @@
 #include "sip_transport/_internal/sip_transport_send.h"
 
 cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
-                                   enum __SipTransportProtocolType proto_type,
+                                   enum SipTransportProtocolType proto_type,
                                    struct SipTransportPtr *out) {
   struct __SipTransport sip_transp = {0};
   cme_error_t err;
 
   switch (proto_type) {
-  case __SipTransportProtocolType_UDP:
+  case SipTransportProtocolType_UDP:
     err = UdpSocketPtr_create(evl, ip_addr, &sip_transp.udp_socket);
     if (err) {
       goto error_out;
@@ -53,5 +53,5 @@ cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
 };
 
 bool SipTransportPtr_is_reliable(struct SipTransportPtr sip_transpp) {
-  return sip_transpp.get->proto_type == __SipTransportProtocolType_UDP;
+  return sip_transpp.get->proto_type == SipTransportProtocolType_UDP;
 };

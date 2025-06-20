@@ -16,38 +16,26 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
+#include "sip_core/sip_core.h"
 #include "sip_transport/sip_transport.h"
 #include "utils/ip.h"
 
 /******************************************************************************
  *                               Sip Core                                     *
  ******************************************************************************/
-typedef struct __SipCorePtr *sip_core_t;         // Sip core module
-typedef struct __SipCoreStransPtr *sip_strans_t; // Sip server transaction
 
-typedef cme_error_t (*sip_core_request_handler_t)(sip_msg_t sip_msg,
-                                                  ip_t peer_ip,
-                                                  sip_strans_t strans,
-                                                  sip_core_t sip_core,
-                                                  void *data);
+cme_error_t SipCorePtr_create(struct EventLoopPtr evl, ip_t ip_addr,
+                              enum SipTransportProtocolType proto_type,
+                              struct SipCorePtr *out);
 
-typedef cme_error_t (*sip_core_response_handler_t)(sip_msg_t sip_msg,
-                                                   ip_t peer_ip,
-                                                   sip_core_t sip_core,
-                                                   void *data);
+struct SipCorePtr SipCorePtr_ref(struct SipCorePtr sip_corep);
 
-cme_error_t sip_core_create(event_loop_t evl, ip_t ip_addr,
-                            enum SupportedSipTranspProtos proto_type,
-                            sip_core_t *out);
+void SipCorePtr_deref(struct SipCorePtr sip_corep);
 
-sip_core_t sip_core_ref(sip_core_t sip_corep);
-
-void sip_core_deref(sip_core_t sip_corep);
-
-cme_error_t sip_core_listen(sip_core_request_handler_t requesth, void *data,
-                            sip_core_t sip_core);
+cme_error_t SipCorePtr_listen(sip_core_request_handler_t requesth, void *data,
+                              struct SipCorePtr sip_core);
 
 /* cme_error_t sip_send(sip_core_response_handler_t resph, sip_msg_t sipmsg, */
-/*                      void *data, sip_core_t sip_core); */
+/*                      void *data, struct SipCorePtr sip_core); */
 
 #endif // C_MINILIB_SIP_UA_SIP_CORE_H

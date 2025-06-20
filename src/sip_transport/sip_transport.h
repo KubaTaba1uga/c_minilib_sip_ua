@@ -37,7 +37,7 @@
 #include "stc/arc.h"
 
 cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
-                                   enum __SipTransportProtocolType proto_type,
+                                   enum SipTransportProtocolType proto_type,
                                    struct SipTransportPtr *out);
 
 cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,

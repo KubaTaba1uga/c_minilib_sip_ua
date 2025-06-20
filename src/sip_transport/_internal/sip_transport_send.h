@@ -17,7 +17,7 @@ cme_error_t __SipTransport_send(struct SipTransportPtr *sip_transpp,
   cme_error_t err;
 
   switch (sip_transpp->get->proto_type) {
-  case __SipTransportProtocolType_UDP: {
+  case SipTransportProtocolType_UDP: {
     err = UdpSocketPtr_send(sip_transpp->get->udp_socket, ip_addr, bytes);
     if (err) {
       goto error_out;

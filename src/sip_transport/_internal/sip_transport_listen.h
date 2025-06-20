@@ -32,7 +32,7 @@ __SipTransport_listen(struct SipTransportPtr *sip_transp,
 
   // Each transport proto needs seperate handler
   switch (sip_transp->get->proto_type) {
-  case __SipTransportProtocolType_UDP:
+  case SipTransportProtocolType_UDP:
     err = UdpSocketPtr_listen(sip_transp->get->udp_socket,
                               __SipTransport_udp_recvh, sip_transp);
     if (err) {
