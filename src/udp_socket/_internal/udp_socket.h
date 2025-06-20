@@ -25,8 +25,6 @@
 #include "utils/buffer.h"
 #include "utils/ip.h"
 
-static inline cme_error_t __UdpSocket_send(void *data);
-
 static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
                                              udp_socket_t *out) {
   struct __UdpSocketPtr *udp_socketp = malloc(sizeof(struct __UdpSocketPtr));
@@ -67,8 +65,7 @@ static inline cme_error_t __UdpSocket_create(event_loop_t evl, ip_t ip_addr,
     goto error_socket_cleanup;
   }
 
-  err = event_loop_insert_socketfd(evl, sockfd, __UdpSocket_send,
-                                   __UdpSocket_recv, udp_socketp);
+  err = event_loop_insert_socketfd(evl, sockfd, __UdpSocket_recv, udp_socketp);
   if (err) {
     err = cme_errorf(errno,
                      "Cannot insert udp socket into event loop for IP=%s:%s",
@@ -91,12 +88,6 @@ error_out:
   *out = NULL;
   return err;
 };
-
-inline static cme_error_t __UdpSocket_send(void *data) {
-  struct __UdpSocket *udpsock = data;
-  (void)udpsock;
-  return 0;
-}
 
 static inline udp_socket_t __UdpSocket_ref(udp_socket_t udp_socketp) {
 

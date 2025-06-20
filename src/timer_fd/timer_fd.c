@@ -11,3 +11,5 @@ cme_error_t timer_fd_create(event_loop_t evl, time_t seconds, long nseconds,
 timer_fd_t timer_fd_ref(timer_fd_t timerp) { return __TimerFd_ref(timerp); };
 
 void timer_fd_deref(timer_fd_t timerp) { __TimerFd_deref(timerp); };
+
+void trimer_fd_rearm(timer_fd_t timerp) { __TimerFd_rearm(timerp); }

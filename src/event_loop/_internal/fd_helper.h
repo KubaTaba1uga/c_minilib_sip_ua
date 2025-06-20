@@ -23,7 +23,6 @@ enum __FdType {
 
 struct __FdHelper {
   event_loop_timeouth_t timeouth; // This is used by timer
-  event_loop_sendh_t sendh;       // This is used by socket
   event_loop_recvh_t recvh;       // This is used by socket
   enum __FdType fd_type;          // This is used by socket and timer
   void *data;                     // This is used by socket and timer
@@ -33,12 +32,10 @@ typedef struct __FdHelper __FdHelper;
 
 static inline cme_error_t __FdHelper_init(enum __FdType fd_type,
                                           event_loop_timeouth_t timeouth,
-                                          event_loop_sendh_t sendh,
                                           event_loop_recvh_t recvh, void *data,
                                           __FdHelper *out) {
   out->timeouth = timeouth;
   out->fd_type = fd_type;
-  out->sendh = sendh;
   out->recvh = recvh;
   out->data = data;
 
@@ -60,15 +57,6 @@ static inline cme_error_t __FdHelper_pollinh(__FdHelper *helper) {
     return helper->recvh(helper->data);
   case __FdType_TIMER:
     return helper->timeouth(helper->data);
-  default:
-    return 0;
-  }
-}
-
-static inline cme_error_t __FdHelper_pollouth(__FdHelper *helper) {
-  switch (helper->fd_type) {
-  case __FdType_SOCKET:
-    return helper->sendh(helper->data);
   default:
     return 0;
   }

@@ -99,13 +99,6 @@ static inline cme_error_t __EventLoop_process_events(event_loop_t evlp) {
         goto error_out;
       }
     }
-
-    if (fd.ref->revents & POLLOUT) {
-      err = __FdHelper_pollouth(fd_helper);
-      if (err) {
-        goto error_out;
-      }
-    }
   }
 
   return 0;

@@ -32,4 +32,6 @@ timer_fd_t timer_fd_ref(timer_fd_t timerp);
 
 void timer_fd_deref(timer_fd_t timerp);
 
+void trimer_fd_rearm(timer_fd_t timerp);
+
 #endif // C_MINILIB_SIP_UA_TIMER_FD_H

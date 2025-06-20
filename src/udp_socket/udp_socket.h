@@ -30,6 +30,11 @@ typedef struct __UdpSocketPtr *udp_socket_t;
 typedef cme_error_t (*udp_socket_recvh_t)(csview_ptr_t buf, ip_t peer,
                                           void *data);
 
+typedef cme_error_t (*udp_socket_sendh_ok_t)(csview_ptr_t buf, ip_t peer,
+                                             void *data);
+typedef cme_error_t (*udp_socket_sendh_fail_t)(csview_ptr_t buf, ip_t peer,
+                                               void *data);
+
 cme_error_t udp_socket_create(event_loop_t evlp, ip_t ip_addr,
                               udp_socket_t *out);
 
@@ -39,5 +44,8 @@ cme_error_t udp_socket_listen(udp_socket_t udp_socket, udp_socket_recvh_t recvh,
 udp_socket_t udp_socket_ref(udp_socket_t udp_socketp);
 
 void udp_socket_deref(udp_socket_t udp_socketp);
+
+cme_error_t udp_socket_send(udp_socket_t udp_socket, ip_t ip_addr,
+                            csview_ptr_t bytes);
 
 #endif // C_MINILIB_SIP_UA_UDP_SOCKET_H

@@ -10,32 +10,10 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
+#include "sip_transport/_internal/common.h"
 #include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/ip.h"
-
-struct __SipTransport {
-  // Transp Protocol data
-  enum SupportedSipTranspProtos proto_type;
-  event_loop_t evl;
-
-  // Udp socket data
-  udp_socket_t udp_socket;
-
-  // User data & ops
-  sip_transp_recvh_t recvh;
-  void *recvh_arg;
-};
-
-static inline void __SipTransport_destroy(void *data);
-static inline struct __SipTransport
-__SipTransport_clone(struct __SipTransport udp_socket);
-
-#define i_type __SipTransportPtr
-#define i_key struct __SipTransport
-#define i_keydrop __SipTransport_destroy
-#define i_keyclone __SipTransport_clone
-#include "stc/arc.h"
 
 static inline cme_error_t
 __SipTransport_create(event_loop_t evl, ip_t ip_addr,
@@ -105,5 +83,9 @@ static inline void __SipTransport_deref(sip_transp_t sip_transpp) {
     free(sip_transpp);
   }
 }
+
+bool __SipTransport_is_reliable(sip_transp_t sip_transpp) {
+  return sip_transpp->get->proto_type == SupportedSipTranspProtos_UDP;
+};
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_H

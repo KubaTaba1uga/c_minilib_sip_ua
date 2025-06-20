@@ -13,6 +13,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
+#include "sip_transport/_internal/common.h"
 #include "sip_transport/_internal/sip_transport.h"
 #include "sip_transport/sip_transport.h"
 #include "stc/cstr.h"

@@ -12,6 +12,7 @@
 #include "c_minilib_error.h"
 #include "sip_core/sip_core.h"
 #include "timer_fd/timer_fd.h"
+#include "utils/ip.h"
 #include "utils/sip_msg.h"
 
 struct __SipCoreListener {
@@ -39,9 +40,12 @@ enum __SipCoreStransState {
 struct __SipCoreStrans {
   enum __SipCoreStransState state;
   timer_fd_t invite_100_timer;
+  timer_fd_t invite_3xx_6xx_timer;
+  timer_fd_t invite_retransmission_timer;
   sip_core_t sip_core;
   sip_msg_t request;
   bool is_invite;
+  ip_t last_peer_ip;
 };
 
 static inline void __SipCoreStrans_destroy(void *data) {

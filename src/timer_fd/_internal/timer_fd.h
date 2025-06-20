@@ -135,4 +135,8 @@ static inline void __TimerFd_deref(timer_fd_t timerp) {
   }
 }
 
+static inline void __TimerFd_rearm(timer_fd_t timerp) {
+  timerp->get->do_cleanup = false;
+}
+
 #endif // C_MINILIB_SIP_UA_INT_TIMER_FD_H
