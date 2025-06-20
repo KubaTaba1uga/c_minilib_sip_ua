@@ -50,4 +50,8 @@ static inline void csview_ptr_deref(csview_ptr_t csview_ptrp) {
   __csviewPtr_drop(&csview_ptrp);
 };
 
+static inline csview_ptr_t csview_ptr_from(struct csview buffer) {
+  return __csviewPtr_from(buffer);
+};
+
 #endif // C_MINILIB_SIP_UA_UTILS_CSVIEW_PTR_H

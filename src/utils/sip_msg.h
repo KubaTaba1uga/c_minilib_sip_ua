@@ -10,6 +10,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
+
+#include "stc/random.h"
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
@@ -111,6 +114,9 @@ static inline bool sip_msg_is_request(sip_msg_t msgp) {
   return cmsc_sipmsg_is_field_present(*msgp.get,
                                       cmsc_SupportedSipHeaders_REQUEST_LINE);
 }
+
+static inline cme_error_t
+__sip_msg_status_add_to_tag(csview to_uri, struct cmsc_SipMessage *sipmsg);
 
 static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
                                                       uint32_t status_code,
@@ -232,6 +238,28 @@ static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
     }
   }
 
+  { // Copy `To` header
+    struct cmsc_String request_to_uri =
+        cmsc_bs_msg_to_string(&(*request.get)->to.uri, *request.get);
+
+    if (!request_to_uri.len) {
+      err = cme_error(ENODATA, "No To field in the sip request");
+      goto error_response_cleanup;
+    }
+
+    struct cmsc_String request_to_tag =
+        cmsc_bs_msg_to_string(&(*request.get)->to.tag, *request.get);
+    if (!request_to_tag.len) {
+      err = __sip_msg_status_add_to_tag(
+          c_sv(request_to_uri.buf, request_to_uri.len), response);
+      if (err) {
+        goto error_response_cleanup;
+      }
+    }
+  }
+
+  *out = __SipMessagePtr_from(response);
+
   return 0;
 
 error_response_cleanup:
@@ -239,5 +267,42 @@ error_response_cleanup:
 error_out:
   return cme_return(err);
 }
+
+static inline cme_error_t
+__sip_msg_status_add_to_tag(csview to_uri, struct cmsc_SipMessage *sipmsg) {
+  const uint32_t seed = (uint32_t)time(NULL);
+  crand32 rng = crand32_from(seed);
+
+  char new_tag[10];
+  uint32_t chunk_size = 2;
+  for (uint32_t i = 0; i < 4; i++) {
+    char random = abs((char)crand32_uint_r(&rng, 1));
+    sprintf(new_tag + (i * chunk_size), "%.*d", chunk_size, random);
+  }
+
+  printf("Random=%.*s\n", 8, new_tag);
+
+  return cmsc_sipmsg_insert_to(to_uri.size, to_uri.buf, 8, new_tag, sipmsg);
+}
+
+static inline cme_error_t sip_msg_generate(sip_msg_t sip_msg,
+                                           csview_ptr_t *out) {
+  struct csview buffer;
+  cme_error_t err;
+
+  err = cmsc_generate_sip(*sip_msg.get, (uint32_t *)&buffer.size, &buffer.buf);
+  if (err) {
+    goto error_out;
+  }
+
+  printf("Buggy buffer size: %td\n\n", buffer.size);
+
+  *out = csview_ptr_from(buffer);
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+};
 
 #endif // C_MINILIB_SIP_UA_SIP_MSG_H

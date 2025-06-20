@@ -18,6 +18,7 @@
 #include "sip_core/sip_core.h"
 #include "stc/cstr.h"
 #include "timer_fd/timer_fd.h"
+#include "utils/csview_ptr.h"
 #include "utils/sip_msg.h"
 
 static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
@@ -119,9 +120,8 @@ static inline cme_error_t __SipCoreStrans_next_state(sip_msg_t sip_msg,
   return 0;
 }
 
-static inline cme_error_t __SipCoreStrans_reply(uint32_t status_code,
-                                                const char *status,
-                                                sip_strans_t strans);
+static inline cme_error_t
+__SipCoreStrans_reply(uint32_t status_code, cstr status, sip_strans_t strans);
 
 static inline cme_error_t
 __SipCoreStrans_timer_timeouth_invite_100_timer(timer_fd_t timer, void *data) {
@@ -131,32 +131,37 @@ __SipCoreStrans_timer_timeouth_invite_100_timer(timer_fd_t timer, void *data) {
 
   switch (strans->get->state) {
   case __SipCoreStransState_TRYING:
-    err = __SipCoreStrans_reply(100, "Trying", strans);
+    err = __SipCoreStrans_reply(100, cstr_from("Trying"), strans);
     if (err) {
       goto error_out;
     }
 
-  default:
-    return 0;
+  default:;
   }
 
+  return 0;
 error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t __SipCoreStrans_reply(uint32_t status_code,
-                                                const char *status,
-                                                sip_strans_t strans) {
+static inline cme_error_t
+__SipCoreStrans_reply(uint32_t status_code, cstr status, sip_strans_t strans) {
   puts("Hit __SipCoreStrans_reply");
+  csview_ptr_t bytes;
   sip_msg_t sipmsg;
   cme_error_t err;
 
-  err = sip_msg_status_from_request(status_code, cstr_from(status), &sipmsg);
+  err = sip_msg_status_from_request(strans->get->request, status_code, status,
+                                    &sipmsg);
   if (err) {
     goto error_out;
   }
 
-  // TO-DO: generate bytes based on sipmsg
+  err = sip_msg_generate(sipmsg, &bytes);
+  if (err) {
+    goto error_out;
+  }
+
   // TO-DO: send bytes via transport
 
   switch (strans->get->state) {
