@@ -28,14 +28,8 @@ struct __EventLoop {
   __FdHelpersMap fds_helpers;
 };
 
-static inline void __EventLoop_destroy(struct __EventLoop *evl) {
-  vec__PollFdsVec_drop(&evl->fds);
-  hmap__FdHelpersMap_drop(&evl->fds_helpers);
-};
-
-static inline struct __EventLoop __EventLoop_clone(struct __EventLoop evl) {
-  return evl;
-};
+void __EventLoop_destroy(struct __EventLoop *evl);
+struct __EventLoop __EventLoop_clone(struct __EventLoop evl);
 
 #define i_type __EventLoopPtr
 #define i_key struct __EventLoop

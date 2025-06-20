@@ -56,6 +56,19 @@ error_out:
   return err;
 };
 
+void __UdpSocket_destroy(struct __UdpSocket *udp_socket) {
+  // Remove fd from event loop
+  EventLoopPtr_remove_fd(udp_socket->evl, udp_socket->fd);
+  EventLoopPtr_drop(&udp_socket->evl);
+
+  // Close socket file descriptor
+  close(udp_socket->fd);
+};
+
+struct __UdpSocket __UdpSocket_clone(struct __UdpSocket udp_socket) {
+  return udp_socket;
+};
+
 cme_error_t UdpSocket_listen(struct UdpSocketPtr udp_socket,
                              udp_socket_recvh_t recvh, void *arg) {
   return __UdpSocket_listen(udp_socket, recvh, arg);

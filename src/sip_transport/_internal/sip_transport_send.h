@@ -1,15 +1,24 @@
-#include "event_loop/event_loop.h"
-#include "sip_transport/_internal/common.h"
-#include "sip_transport/sip_transport.h"
+/*
+ * Copyright (c) 2025 Jakub Buczynski <KubaTaba1uga>
+ * SPDX-License-Identifier: MIT
+ * See LICENSE file in the project root for full license information.
+ */
+
+#ifndef C_MINILIB_SIP_UA_INT_SIP_TRANSP_SEND_H
+#define C_MINILIB_SIP_UA_INT_SIP_TRANSP_SEND_H
 #include <stdio.h>
 
-cme_error_t __SipTransport_send(sip_transp_t sip_transpp, ip_t ip_addr,
-                                csview_ptr_t bytes) {
+#include "event_loop/event_loop.h"
+#include "sip_transport/sip_transport.h"
+#include "udp_socket/udp_socket.h"
+
+cme_error_t __SipTransport_send(struct SipTransportPtr *sip_transpp,
+                                ip_t ip_addr, csview_ptr_t bytes) {
   cme_error_t err;
 
   switch (sip_transpp->get->proto_type) {
-  case SupportedSipTranspProtos_UDP: {
-    err = udp_socket_send(sip_transpp->get->udp_socket, ip_addr, bytes);
+  case __SipTransportProtocolType_UDP: {
+    err = UdpSocketPtr_send(sip_transpp->get->udp_socket, ip_addr, bytes);
     if (err) {
       goto error_out;
     }
@@ -26,3 +35,5 @@ cme_error_t __SipTransport_send(sip_transp_t sip_transpp, ip_t ip_addr,
 error_out:
   return cme_return(err);
 }
+
+#endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_SEND_H

@@ -43,18 +43,8 @@ struct __UdpSocket {
   void *recvh_arg;
 };
 
-static inline void __UdpSocket_destroy(struct __UdpSocket *udp_socket) {
-  // Remove fd from event loop
-  EventLoopPtr_remove_fd(udp_socket->evl, udp_socket->fd);
-  EventLoopPtr_drop(&udp_socket->evl);
+void __UdpSocket_destroy(struct __UdpSocket *udp_socket);
 
-  // Close socket file descriptor
-  close(udp_socket->fd);
-};
-
-static inline struct __UdpSocket
-__UdpSocket_clone(struct __UdpSocket udp_socket) {
-  return udp_socket;
-};
+struct __UdpSocket __UdpSocket_clone(struct __UdpSocket udp_socket);
 
 #endif

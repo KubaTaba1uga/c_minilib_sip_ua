@@ -12,11 +12,11 @@
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
-#include "event_loop/event_loop.h"
-#include "sip_transport/_internal/common.h"
 #include "sip_transport/_internal/sip_transport.h"
-#include "sip_transport/sip_transport.h"
 #include "stc/cstr.h"
+
+#include "event_loop/event_loop.h"
+#include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/buffer.h"
 #include "utils/ip.h"
@@ -25,16 +25,16 @@
 static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer,
                                             void *data);
 
-static inline cme_error_t __SipTransport_listen(sip_transp_t sip_transp,
-                                                sip_transp_recvh_t recvh,
-                                                void *arg) {
+static inline cme_error_t
+__SipTransport_listen(struct SipTransportPtr *sip_transp,
+                      sip_transp_recvh_t recvh, void *arg) {
   cme_error_t err;
 
   // Each transport proto needs seperate handler
   switch (sip_transp->get->proto_type) {
-  case SupportedSipTranspProtos_UDP:
-    err = udp_socket_listen(sip_transp->get->udp_socket,
-                            __SipTransport_udp_recvh, sip_transp);
+  case __SipTransportProtocolType_UDP:
+    err = UdpSocketPtr_listen(sip_transp->get->udp_socket,
+                              __SipTransport_udp_recvh, sip_transp);
     if (err) {
       goto error_out;
     }
@@ -56,7 +56,7 @@ error_out:
 
 static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer_ip,
                                             void *data) {
-  sip_transp_t sip_transp = data;
+  struct SipTransportPtr *sip_transp = data;
   sip_msg_t sip_msg;
   cme_error_t err;
 

@@ -29,13 +29,13 @@
 #define i_keyclone __UdpSocket_clone
 #include "stc/arc.h"
 
-cme_error_t UdpSocket_create(struct EventLoopPtr evlp, ip_t ip_addr,
-                             struct UdpSocketPtr *out);
+cme_error_t UdpSocketPtr_create(struct EventLoopPtr evlp, ip_t ip_addr,
+                                struct UdpSocketPtr *out);
 
-cme_error_t UdpSocket_listen(struct UdpSocketPtr udp_socket,
-                             udp_socket_recvh_t recvh, void *arg);
+cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
+                                udp_socket_recvh_t recvh, void *arg);
 
-cme_error_t UdpSocket_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
-                           csview_ptr_t bytes);
+cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
+                              csview_ptr_t bytes);
 
 #endif // C_MINILIB_SIP_UA_UDP_SOCKET_H

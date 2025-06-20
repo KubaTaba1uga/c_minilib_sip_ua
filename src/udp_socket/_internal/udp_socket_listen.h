@@ -44,7 +44,7 @@ error_out:
 };
 
 inline static cme_error_t __UdpSocket_recv(void *data) {
-  struct __UdpSocketPtr *udp_socketp = data;
+  struct UdpSocketPtr *udp_socketp = data;
   struct sockaddr_storage sender_addr;
   socklen_t sender_addr_len;
   csview_ptr_t buf_ptr;

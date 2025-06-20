@@ -9,6 +9,13 @@ cme_error_t EventLoop_create(struct EventLoopPtr *out) {
   return 0;
 };
 
+void __EventLoop_destroy(struct __EventLoop *evl) {
+  vec__PollFdsVec_drop(&evl->fds);
+  hmap__FdHelpersMap_drop(&evl->fds_helpers);
+};
+
+struct __EventLoop __EventLoop_clone(struct __EventLoop evl) { return evl; };
+
 cme_error_t EventLoop_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,
                                       event_loop_recvh_t recvh, void *data) {
   cme_error_t err;
