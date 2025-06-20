@@ -11,6 +11,7 @@
 
 #include "c_minilib_error.h"
 #include "sip_core/sip_core.h"
+#include "timer_fd/timer_fd.h"
 #include "utils/sip_msg.h"
 
 struct __SipCoreListener {
@@ -24,7 +25,21 @@ struct __SipCoreListener {
 
 typedef struct queue__SipCoreListenersQueue __SipCoreListenersQueue;
 
+enum __SipCoreStransState {
+  __SipCoreStransState_TRYING,     // Initial state before anything is sent
+  __SipCoreStransState_PROCEEDING, // After sending 100 Trying or 1xx
+                                   // provisional
+  __SipCoreStransState_COMPLETED,  // After sending 3xx–6xx final response
+  __SipCoreStransState_CONFIRMED,  // After receiving ACK for 3xx–6xx response
+  __SipCoreStransState_TERMINATED, // After sending 2xx final response or
+                                   // completing ACK processing
+
+};
+
 struct __SipCoreStrans {
+  enum __SipCoreStransState state;
+  timer_fd_t invite_100_timer;
+  sip_core_t sip_core;
   sip_msg_t request;
   bool is_invite;
 };

@@ -32,6 +32,10 @@ cme_error_t event_loop_insert_socketfd(event_loop_t evlp, uint32_t fd,
                                        event_loop_sendh_t sendh,
                                        event_loop_recvh_t recvh, void *data);
 
+cme_error_t event_loop_insert_timerfd(event_loop_t evlp, uint32_t fd,
+                                      event_loop_timeouth_t timeouth,
+                                      void *data);
+
 void event_loop_remove_fd(event_loop_t evlp, int32_t fd);
 
 cme_error_t event_loop_set_pollin(event_loop_t evlp, int32_t fd);

@@ -15,6 +15,7 @@
 #include "sip_core/_internal/common.h"
 #include "sip_core/_internal/sip_core_strans_map.h"
 #include "sip_core/sip_core.h"
+#include "timer_fd/timer_fd.h"
 #include "utils/sip_msg.h"
 
 static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
@@ -60,8 +61,10 @@ static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
   }
 
   *sip_stransp = __SipCoreStransPtr_from((struct __SipCoreStrans){
+      .state = __SipCoreStransState_TRYING,
       .request = sip_msg_ref(sip_msg),
       .is_invite = is_invite,
+      .sip_core = sip_core,
   });
 
   err = __SipCoreStransMap_insert(branch, sip_stransp, &sip_core->get->stranses,
@@ -77,6 +80,56 @@ error_stransp_cleanup:
 error_out:
   *out = NULL;
   return cme_return(err);
+};
+
+static inline cme_error_t
+__SipCoreStrans_timer_timeouth_invite_100_timer(timer_fd_t timer, void *data);
+
+static inline cme_error_t __SipCoreStrans_next_state(sip_msg_t sip_msg,
+                                                     sip_strans_t strans) {
+  switch (strans->get->state) {
+  case __SipCoreStransState_TRYING: {
+    if (strans->get->is_invite) {
+      puts("Hit __SipCoreStrans_next_state::invite");
+
+      // send 100 if TU won't in 200ms
+      timer_fd_create(strans->get->sip_core->get->evl, 0,
+                      200000000, // 200ms
+                      __SipCoreStrans_timer_timeouth_invite_100_timer, strans,
+                      &strans->get->invite_100_timer);
+    } else {
+      // TO-DO process NON-INVITE server transaction
+    }
+
+  } break;
+
+  case __SipCoreStransState_PROCEEDING: {
+  } break;
+
+  case __SipCoreStransState_COMPLETED: {
+  } break;
+
+  case __SipCoreStransState_CONFIRMED: {
+  } break;
+
+  case __SipCoreStransState_TERMINATED: {
+  } break;
+  }
+
+  return 0;
+}
+
+static inline cme_error_t
+__SipCoreStrans_timer_timeouth_invite_100_timer(timer_fd_t timer, void *data) {
+  struct __SipCoreStrans *strans = data;
+
+  (void)strans;
+
+  /* __SipCoreStrans_reply(100, "Trying", strans->request, strans); */
+
+  puts("Hit __SipCoreStrans_invite_timer_timeouth");
+
+  return 0;
 };
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H

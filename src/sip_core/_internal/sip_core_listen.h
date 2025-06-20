@@ -65,6 +65,11 @@ This means we need sth to match client transactions and user callbacks.
       goto error_out;
     }
 
+    err = __SipCoreStrans_next_state(sip_msg, strans);
+    if (err) {
+      goto error_out;
+    }
+
     c_foreach(lstner, queue__SipCoreListenersQueue, sip_core->get->listeners) {
       err = lstner.ref->request_handler(sip_msg, peer_ip, strans, sip_core,
                                         lstner.ref->arg);

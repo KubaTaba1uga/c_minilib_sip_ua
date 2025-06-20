@@ -12,6 +12,12 @@ cme_error_t event_loop_insert_socketfd(event_loop_t evlp, uint32_t fd,
   return __EventLoop_insert_socketfd(evlp, fd, sendh, recvh, data);
 }
 
+cme_error_t event_loop_insert_timerfd(event_loop_t evlp, uint32_t fd,
+                                      event_loop_timeouth_t timeouth,
+                                      void *data) {
+  return __EventLoop_insert_timerfd(evlp, fd, timeouth, data);
+}
+
 void event_loop_remove_fd(event_loop_t evlp, int32_t fd) {
   __EventLoop_remove_fd(evlp, fd);
 }
