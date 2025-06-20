@@ -16,21 +16,17 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
-#include "sip_core/sip_core.h"
 #include "sip_transport/sip_transport.h"
 #include "utils/ip.h"
+
+#include "sip_core/_internal/sip_core.h"
 
 /******************************************************************************
  *                               Sip Core                                     *
  ******************************************************************************/
-
 cme_error_t SipCorePtr_create(struct EventLoopPtr evl, ip_t ip_addr,
                               enum SipTransportProtocolType proto_type,
                               struct SipCorePtr *out);
-
-struct SipCorePtr SipCorePtr_ref(struct SipCorePtr sip_corep);
-
-void SipCorePtr_deref(struct SipCorePtr sip_corep);
 
 cme_error_t SipCorePtr_listen(sip_core_request_handler_t requesth, void *data,
                               struct SipCorePtr sip_core);

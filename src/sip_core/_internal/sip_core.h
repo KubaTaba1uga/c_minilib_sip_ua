@@ -16,10 +16,4 @@
 
 #include "sip_core/_internal/common.h"
 
-#define i_type SipCorePtr
-#define i_key struct __SipCore
-#define i_keydrop __SipCore_destroy
-#define i_keyclone __SipCore_clone
-#include "stc/arc.h"
-
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_H

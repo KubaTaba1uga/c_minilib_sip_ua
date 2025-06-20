@@ -13,82 +13,10 @@
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
+
 #include "sip_core/_internal/common.h"
-#include "sip_core/_internal/sip_core_strans.h"
-#include "sip_core/sip_core.h"
 
-static inline cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
-                                           void *data, sip_core_t sip_core) {
-  queue__SipCoreListenersQueue_push(
-      &sip_core->get->listeners,
-      (struct __SipCoreListener){.request_handler = reqh, .arg = data});
-
-  return 0;
-};
-
-static inline cme_error_t __SipCore_sip_transp_recvh(sip_msg_t sip_msg,
-                                                     ip_t peer_ip,
-                                                     sip_transp_t sip_transp,
-                                                     void *data) {
-  /*
-    On every request we do:
-     1. If it is sip request (which is not ACK and is not matching to any
-current server tramsaction) we are creating new server transaction and running
-user callback with this new transaction.
-
-     2. If it is sip request which is matching to any current server tramsaction
-we are running user callback whith exsisting server transaction.
-
-     3. If it is sip request ACK we are looking for server transaction that it
-matches to to change it state to DONE. We are not running any user
-callbacks.
-
-     4. If it is sip status we are looking for client transaction that it
-matches to. We then run callback for client_transaction rather than listener.
-This means we need sth to match client transactions and user callbacks.
-   */
-  sip_strans_t strans = NULL;
-  sip_core_t sip_core = data;
-  cme_error_t err;
-
-  assert(sip_core != NULL);
-  assert(sip_msg.get != NULL);
-
-  // If there are no listeners there is no point in processing the message.
-  if (queue__SipCoreListenersQueue_is_empty(&sip_core->get->listeners)) {
-    return 0;
-  }
-
-  if (sip_msg_is_request(sip_msg)) {
-    err = __SipCoreStrans_create(sip_msg, sip_core, peer_ip, &strans);
-    if (err) {
-      goto error_out;
-    }
-
-    err = __SipCoreStrans_next_state(sip_msg, strans);
-    if (err) {
-      goto error_out;
-    }
-
-    c_foreach(lstner, queue__SipCoreListenersQueue, sip_core->get->listeners) {
-      err = lstner.ref->request_handler(sip_msg, peer_ip, strans, sip_core,
-                                        lstner.ref->arg);
-      if (err) {
-        goto error_strans_cleanup;
-      }
-    }
-  } else {
-    // TO-DO: handle client transaction
-  }
-
-  (void)data;
-
-  return 0;
-
-error_strans_cleanup:
-  __SipCoreStrans_deref(strans);
-error_out:
-  return cme_return(err);
-}
+cme_error_t __SipCore_listen(sip_core_request_handler_t reqh, void *data,
+                             struct SipCorePtr sip_core);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H

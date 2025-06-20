@@ -20,18 +20,16 @@
  *                               Sip Listener                                 *
  ******************************************************************************/
 struct SipCorePtr;
-typedef cme_error_t (*sip_core_request_handler_t)(sip_msg_t sip_msg,
-                                                  ip_t peer_ip,
-                                                  struct SipTransportPtr strans,
-                                                  struct SipCorePtr sip_core,
-                                                  void *data);
+typedef cme_error_t (*sip_core_request_handler_t)(
+    sip_msg_t sip_msg, ip_t peer_ip, struct SipTransportPtr *strans,
+    struct SipCorePtr *sip_core, void *data);
 
 struct __SipCoreListener {
   sip_core_request_handler_t request_handler;
   void *arg;
 };
 
-#define i_tag _SipCoreListenersQueue
+#define i_tag _SipCoreListeners
 #define i_key struct __SipCoreListener
 #include "stc/queue.h"
 
@@ -57,7 +55,7 @@ struct __SipServerTransaction {
   struct TimerFdPtr invite_retransmission_timer;
   struct __SipCore *sip_core; // We need only weak reference to SipCore
                               // Because Transaction memory is owned by
-                              // __SipCore->stranses wich guarantee that
+                              // __SipCore->stranses which guarantee that
                               // Transaction cannot live without core.
                               // Once core is destroyed same the transaction.
   sip_msg_t request;
@@ -75,7 +73,7 @@ __SipServerTransaction_clone(struct __SipServerTransaction sip_strans);
 #define i_keyclone __SipServerTransaction_clone
 #include "stc/arc.h"
 
-#define i_tag _SipServerTransactionsHMap
+#define i_tag _SipServerTransactions
 #define i_keypro cstr
 #define i_val struct SipServerTransactionPtr
 #define i_valdrop SipServerTransactionPtr_drop
@@ -91,8 +89,8 @@ struct __SipCore {
   struct SipTransportPtr sip_transp;
 
   // SIP core data
-  struct queue__SipCoreListenersQueue *listeners;
-  struct hmap__SipServerTransactionsHMap *stranses;
+  struct queue__SipCoreListeners listeners;
+  struct hmap__SipServerTransactions stranses;
 };
 
 void __SipCore_destroy(void *data);

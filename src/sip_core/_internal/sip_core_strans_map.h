@@ -16,13 +16,12 @@
 #include "utils/sip_msg.h"
 
 cme_error_t
-__SipServerTransactionsHMap_insert(csview key,
-                                   struct SipServerTransactionPtr strans,
-                                   struct __SipServerTransactionsHMap *stmap,
-                                   struct SipServerTransactionPtr *out);
+SipServerTransactions_insert(csview key,
+                             struct hmap__SipServerTransactions *stmap,
+                             struct SipServerTransactionPtr *out);
 
-struct SipServerTransactionPtr
-__SipServerTransactionsHMap_find(csview key,
-                                 struct __SipServerTransactionsHMap *stmap);
+struct SipServerTransactionPtr *
+SipServerTransactions_find(csview key,
+                           struct hmap__SipServerTransactions *stmap);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_MAP_H

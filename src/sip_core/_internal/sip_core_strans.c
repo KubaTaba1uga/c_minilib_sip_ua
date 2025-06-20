@@ -1,56 +1,37 @@
+#include "sip_core/_internal/sip_core_strans.h"
 #include "sip_core/_internal/common.h"
+#include "sip_core/_internal/sip_core_strans_map.h"
+#include "timer_fd/_internal/timer_fd.h"
 
-void __SipCoreStrans_destroy(void *data) {
-  struct __SipCoreStrans *sip_strans = data;
+/* How server transaction works for INVITE flow? */
 
-  sip_msg_deref(&sip_strans->request);
-};
+/*
+ Server transaction starts in TRYING state. Point of this state is to send 100
+ trying response to the calle. Once 100 is send transaction move to PROCEEDING
+ state.
 
-struct __SipCoreStrans
-__SipCoreStrans_clone(struct __SipCoreStrans sip_strans) {
-  return sip_strans;
-};
+ In PROCEEDING state we need to ensure all responses send by TU are passed to
+ transport layer. Once user send 2xx in PROCEEDING state transaction move to
+ TERMINATED state. Once user send from 300 to 699 in PROCEEDING state
+ transaction move to COMPLETED state, now timer G is set up for T1.
 
-  /* How server transaction works for INVITE flow? */
+ In TERMINATED state transaction get destructed and all timers are stopped.
 
-  /*
-   Server transaction starts in TRYING state. Point of this state is to send 100
-   trying response to the calle. Once 100 is send transaction move to PROCEEDING
-   state.
+ In COMPLETED state timer H is set for T1*64. This timer retransmit last
+ response until TERMINATED state is reached. If ACk is received in COMPLETED
+ state transaction move to CONFIRMED state.
 
-   In PROCEEDING state we need to ensure all responses send by TU are passed to
-   transport layer. Once user send 2xx in PROCEEDING state transaction move to
-   TERMINATED state. Once user send from 300 to 699 in PROCEEDING state
-   transaction move to COMPLETED state, now timer G is set up for T1.
-
-   In TERMINATED state transaction get destructed and all timers are stopped.
-
-   In COMPLETED state timer H is set for T1*64. This timer retransmit last
-   response until TERMINATED state is reached. If ACk is received in COMPLETED
-   state transaction move to CONFIRMED state.
-
-   In CONFIRMED state transaction absorbs any additional ACK without informing
-   User. When CONFIRMED state is entered timer I is set up for T4. Once timer I
-   fires up transaction move to TERMINATED state.
-   */
+ In CONFIRMED state transaction absorbs any additional ACK without informing
+ User. When CONFIRMED state is entered timer I is set up for T4. Once timer I
+ fires up transaction move to TERMINATED state.
+ */
 
 #define __SIP_CORE_STRANS_T1 500000000 // 500ms
 
-static inline cme_error_t
-__SipCoreStrans_reply(uint32_t status_code, cstr status, sip_strans_t strans);
-static inline cme_error_t
-__SipCoreStrans_timer_timeouth_invite_100_timer(timer_fd_t timer, void *data);
-static inline cme_error_t
-__SipCoreStrans_timer_timeouth_invite_3xx_6xx_timer(timer_fd_t timer,
-                                                    void *data);
-static inline cme_error_t
-__SipCoreStrans_timer_timeouth_invite_retransmission_timer(timer_fd_t timer,
-                                                           void *data);
-
-static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
-                                                 sip_core_t sip_core,
-                                                 ip_t last_peer_ip,
-                                                 sip_strans_t *out) {
+cme_error_t
+SipServerTransactionPtr_create(sip_msg_t sip_msg, struct SipCorePtr sip_core,
+                               ip_t last_peer_ip,
+                               struct SipServerTransactionPtr *out) {
   /*
     Server transaction is composed of one or more SIP request and multiple SIP
     statuses. This function is reposnible for creating new sip server
@@ -69,10 +50,11 @@ static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
     goto error_out;
   }
 
-  *out = __SipCoreStransMap_find(branch, &sip_core->get->stranses);
-  if (*out != NULL) {
-    (*out)->get->last_peer_ip = last_peer_ip; // We need to update last peer ip
-                                              // to know where to send reply.
+  result = SipServerTransactions_find(branch, &sip_core.get->stranses);
+  if (result) {
+    *out = *(struct SipServerTransactionPtr *)result;
+    out->get->last_peer_ip = last_peer_ip; // We need to update last peer ip
+                                           // to know where to send reply.
     return 0;
   }
 
@@ -86,22 +68,15 @@ static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
 
   is_invite = strncmp(method.buf, "INVITE", method.size) == 0;
 
-  sip_strans_t sip_stransp = malloc(sizeof(struct __SipCoreStransPtr));
-  if (!sip_stransp) {
-    err = cme_error(ENOMEM, "Cannot alocate memory for server transaction");
-    goto error_out;
-  }
-
-  *sip_stransp = __SipCoreStransPtr_from((struct __SipCoreStrans){
-      .state = __SipCoreStransState_TRYING,
+  *out = SipServerTransactionPtr_from((struct SipServerTransaction){
+      .state = __SipServerTransactionState_TRYING,
       .request = sip_msg_ref(sip_msg),
       .is_invite = is_invite,
       .sip_core = sip_core,
       .last_peer_ip = last_peer_ip,
   });
 
-  err = __SipCoreStransMap_insert(branch, sip_stransp, &sip_core->get->stranses,
-                                  out);
+  err = SipServerTransactions_insert(branch, &sip_core.get->stranses, out);
   if (err) {
     goto error_stransp_cleanup;
   }
@@ -109,25 +84,51 @@ static inline cme_error_t __SipCoreStrans_create(sip_msg_t sip_msg,
   return 0;
 
 error_stransp_cleanup:
-  __SipCoreStrans_deref(sip_stransp);
+  SipServerTransactionPtr_drop(out);
 error_out:
-  *out = NULL;
   return cme_return(err);
+}
+
+void __SipServerTransaction_destroy(void *data) {
+  struct SipServerTransactionPtr *sip_strans = data;
+
+  sip_msg_deref(&sip_strans->get->request);
 };
 
-static inline cme_error_t __SipCoreStrans_next_state(sip_msg_t sip_msg,
-                                                     sip_strans_t strans) {
+struct __SipServerTransaction
+__SipServerTransaction_clone(struct __SipServerTransaction sip_strans) {
+  return sip_strans;
+};
+
+static inline cme_error_t
+SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
+                              struct SipServerTransactionPtr strans);
+static inline cme_error_t
+SipServerTransactionPtr_timer_timeouth_invite_100_timer(struct TimerFdPtr timer,
+                                                        void *data);
+static inline cme_error_t
+SipServerTransactionPtr_timer_timeouth_invite_3xx_6xx_timer(
+    struct TimerFdPtr timer, void *data);
+static inline cme_error_t
+SipServerTransactionPtr_timer_timeouth_invite_retransmission_timer(
+    struct TimerFdPtr timer, void *data);
+
+static inline cme_error_t
+SipServerTransaction_next_state(sip_msg_t sip_msg,
+                                struct SipServerTransactionPtr strans) {
   cme_error_t err;
 
   switch (strans->get->state) {
-  case __SipCoreStransState_TRYING: {
+
+  case __SipServerTransactionState_TRYING: {
     if (strans->get->is_invite) {
       if (!strans->get->invite_100_timer) {
         // send 100 if TU won't in 200ms
-        err = timer_fd_create(strans->get->sip_core->get->evl, 0,
-                              200000000, // 200ms
-                              __SipCoreStrans_timer_timeouth_invite_100_timer,
-                              strans, &strans->get->invite_100_timer);
+        err = timer_fd_create(
+            strans->get->sip_core->get->evl, 0,
+            200000000, // 200ms
+            SipServerTransaction_timer_timeouth_invite_100_timer, strans,
+            &strans->get->invite_100_timer);
         if (err) {
           goto error_out;
         }
@@ -138,16 +139,16 @@ static inline cme_error_t __SipCoreStrans_next_state(sip_msg_t sip_msg,
 
   } break;
 
-  case __SipCoreStransState_PROCEEDING: {
+  case __SipServerTransactionState_PROCEEDING: {
   } break;
 
-  case __SipCoreStransState_COMPLETED: {
+  case __SipServerTransactionState_COMPLETED: {
   } break;
 
-  case __SipCoreStransState_CONFIRMED: {
+  case __SipServerTransactionState_CONFIRMED: {
   } break;
 
-  case __SipCoreStransState_TERMINATED: {
+  case __SipServerTransactionState_TERMINATED: {
   } break;
   }
 
@@ -158,14 +159,15 @@ error_out:
 }
 
 static inline cme_error_t
-__SipCoreStrans_timer_timeouth_invite_100_timer(timer_fd_t timer, void *data) {
+SipServerTransaction_timer_timeouth_invite_100_timer(timer_fd_t timer,
+                                                     void *data) {
   sip_strans_t strans = data;
   cme_error_t err;
-  puts("Hit __SipCoreStrans_invite_100_timeouth");
+  puts("Hit SipServerTransaction_invite_100_timeouth");
 
   switch (strans->get->state) {
-  case __SipCoreStransState_TRYING:
-    err = __SipCoreStrans_reply(100, cstr_from("Trying"), strans);
+  case __SipServerTransactionState_TRYING:
+    err = SipServerTransaction_reply(100, cstr_from("Trying"), strans);
     if (err) {
       goto error_out;
     }
@@ -180,9 +182,10 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t
-__SipCoreStrans_reply(uint32_t status_code, cstr status, sip_strans_t strans) {
-  puts("Hit __SipCoreStrans_reply");
+static inline cme_error_t SipServerTransaction_reply(uint32_t status_code,
+                                                     cstr status,
+                                                     sip_strans_t strans) {
+  puts("Hit SipServerTransaction_reply");
   csview_ptr_t bytes;
   sip_msg_t sipmsg;
   cme_error_t err;
@@ -206,39 +209,39 @@ __SipCoreStrans_reply(uint32_t status_code, cstr status, sip_strans_t strans) {
 
   switch (strans->get->state) {
     if (strans->get->is_invite) {
-    case __SipCoreStransState_TRYING:
+    case __SipServerTransactionState_TRYING:
       if (status_code >= 100 && status_code <= 199) {
-        strans->get->state = __SipCoreStransState_PROCEEDING;
+        strans->get->state = __SipServerTransactionState_PROCEEDING;
       }
       if (status_code >= 200 && status_code <= 299) {
-        strans->get->state = __SipCoreStransState_TERMINATED;
+        strans->get->state = __SipServerTransactionState_TERMINATED;
       }
-    case __SipCoreStransState_PROCEEDING:
+    case __SipServerTransactionState_PROCEEDING:
       if (status_code >= 200 && status_code <= 299) {
-        strans->get->state = __SipCoreStransState_TERMINATED;
+        strans->get->state = __SipServerTransactionState_TERMINATED;
       }
       if (status_code >= 300 && status_code <= 699) {
-        strans->get->state = __SipCoreStransState_COMPLETED;
+        strans->get->state = __SipServerTransactionState_COMPLETED;
 
         err = timer_fd_create(
             strans->get->sip_core->get->evl, 0, __SIP_CORE_STRANS_T1,
-            __SipCoreStrans_timer_timeouth_invite_3xx_6xx_timer, strans,
+            SipServerTransaction_timer_timeouth_invite_3xx_6xx_timer, strans,
             &strans->get->invite_3xx_6xx_timer);
         if (err) {
           goto error_sip_msg_cleanup;
         }
       }
-    case __SipCoreStransState_COMPLETED:
-      strans->get->state = __SipCoreStransState_COMPLETED;
+    case __SipServerTransactionState_COMPLETED:
+      strans->get->state = __SipServerTransactionState_COMPLETED;
 
       err = timer_fd_create(
           strans->get->sip_core->get->evl, 0, __SIP_CORE_STRANS_T1 * 64,
-          __SipCoreStrans_timer_timeouth_invite_retransmission_timer, strans,
-          &strans->get->invite_retransmission_timer);
+          SipServerTransaction_timer_timeouth_invite_retransmission_timer,
+          strans, &strans->get->invite_retransmission_timer);
       if (err) {
         goto error_sip_msg_cleanup;
       }
-    case __SipCoreStransState_TERMINATED:
+    case __SipServerTransactionState_TERMINATED:
       sip_strans_deref(strans);
     } else {
       // Add handling for non invite
