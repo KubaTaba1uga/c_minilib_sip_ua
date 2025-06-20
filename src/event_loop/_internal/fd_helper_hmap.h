@@ -12,7 +12,6 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "event_loop/_internal/fd_helper.h"
-#include "event_loop/event_loop.h"
 
 #define i_tag _FdHelpersMap
 #define i_key uint32_t

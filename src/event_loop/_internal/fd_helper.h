@@ -4,18 +4,20 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_INT_FD_HELPER_H
-#define C_MINILIB_SIP_UA_INT_FD_HELPER_H
+#ifndef C_MINILIB_SIP_UA_EVENT_LOOP_INT_FD_HELPER_H
+#define C_MINILIB_SIP_UA_EVENT_LOOP_INT_FD_HELPER_H
 
 #include <stdlib.h>
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
-#include "event_loop/event_loop.h"
 
 /******************************************************************************
  *                             Fd Helper                                      *
  ******************************************************************************/
+typedef cme_error_t (*event_loop_recvh_t)(void *data);
+typedef cme_error_t (*event_loop_timeouth_t)(void *data);
+
 enum __FdType {
   __FdType_SOCKET,
   __FdType_TIMER,
@@ -62,4 +64,4 @@ static inline cme_error_t __FdHelper_pollinh(__FdHelper *helper) {
   }
 }
 
-#endif
+#endif // C_MINILIB_SIP_UA_EVENT_LOOP_INT_FD_HELPER_H

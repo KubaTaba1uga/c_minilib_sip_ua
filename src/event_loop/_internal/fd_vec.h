@@ -10,7 +10,6 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/_internal/fd.h"
-#include "event_loop/event_loop.h"
 
 #define i_tag _PollFdsVec
 #define i_key __PollFd

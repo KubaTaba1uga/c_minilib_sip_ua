@@ -1,45 +1,121 @@
 #include "event_loop/event_loop.h"
-#include "event_loop/_internal/event_loop.h"
-#include "event_loop/_internal/fd_vec.h"
 
-cme_error_t event_loop_create(event_loop_t *out) {
-  return __EventLoop_create(out);
+static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp);
+
+cme_error_t EventLoop_create(struct EventLoopPtr *out) {
+  *out = EventLoopPtr_from((struct __EventLoop){
+      .fds = vec__PollFdsVec_init(), .fds_helpers = hmap__FdHelpersMap_init()});
+
+  return 0;
 };
 
-cme_error_t event_loop_insert_socketfd(event_loop_t evlp, uint32_t fd,
-                                       event_loop_sendh_t sendh,
-                                       event_loop_recvh_t recvh, void *data) {
-  return __EventLoop_insert_socketfd(evlp, fd, sendh, recvh, data);
+cme_error_t EventLoop_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,
+                                      event_loop_recvh_t recvh, void *data) {
+  cme_error_t err;
+  err = __PollFdsVec_push(&evlp.get->fds,
+                          (__PollFd){.fd = fd, .events = 0, .revents = 0});
+  if (err) {
+    goto error_out;
+  }
+
+  err = __FdHelpersMap_insert(fd,
+                              (__FdHelper){.fd_type = __FdType_SOCKET,
+                                           .timeouth = NULL,
+                                           .recvh = recvh,
+                                           .data = data},
+                              &evlp.get->fds_helpers);
+  if (err) {
+    goto error_fds_cleanup;
+  }
+
+  return 0;
+
+error_fds_cleanup:
+  __PollFdsVec_remove(fd, &evlp.get->fds);
+error_out:
+  return cme_return(err);
 }
 
-cme_error_t event_loop_insert_timerfd(event_loop_t evlp, uint32_t fd,
-                                      event_loop_timeouth_t timeouth,
-                                      void *data) {
-  return __EventLoop_insert_timerfd(evlp, fd, timeouth, data);
+cme_error_t EventLoop_insert_timerfd(struct EventLoopPtr evlp, uint32_t fd,
+                                     event_loop_timeouth_t timeouth,
+                                     void *data) {
+  cme_error_t err;
+
+  err = __PollFdsVec_push(&evlp.get->fds,
+                          (__PollFd){.fd = fd, .events = 0, .revents = 0});
+  if (err) {
+    goto error_out;
+  }
+
+  err = __FdHelpersMap_insert(fd,
+                              (__FdHelper){.fd_type = __FdType_TIMER,
+                                           .timeouth = timeouth,
+                                           .recvh = NULL,
+                                           .data = data},
+                              &evlp.get->fds_helpers);
+  if (err) {
+    goto error_fds_cleanup;
+  }
+
+  return 0;
+
+error_fds_cleanup:
+  __PollFdsVec_remove(fd, &evlp.get->fds);
+error_out:
+  return cme_return(err);
 }
 
-void event_loop_remove_fd(event_loop_t evlp, int32_t fd) {
-  __EventLoop_remove_fd(evlp, fd);
+void EventLoop_remove_fd(struct EventLoopPtr evlp, int32_t fd) {
+  __FdHelpersMap_remove(fd, &evlp.get->fds_helpers);
+  __PollFdsVec_remove(fd, &evlp.get->fds);
 }
 
-cme_error_t event_loop_set_pollin(event_loop_t evlp, int32_t fd) {
-  return __PollFdsVec_set_pollin(fd, &evlp->get->fds);
-};
-
-cme_error_t event_loop_set_pollout(event_loop_t evlp, int32_t fd) {
-  return __PollFdsVec_set_pollout(fd, &evlp->get->fds);
-};
-
-cme_error_t event_loop_unset_pollout(event_loop_t evlp, int32_t fd) {
-  return __PollFdsVec_unset_pollout(fd, &evlp->get->fds);
-};
-
-cme_error_t event_loop_start(event_loop_t evlp) {
-  return __EventLoop_start(evlp);
+cme_error_t EventLoopPtr_set_pollin(struct EventLoopPtr evlp, int32_t fd) {
+  return __PollFdsVec_set_pollin(fd, &evlp.get->fds);
 }
 
-event_loop_t event_loop_ref(event_loop_t evlp) {
-  return __EventLoop_ref(evlp);
+cme_error_t EventLoop_start(struct EventLoopPtr evlp) {
+  cme_error_t err;
+
+  // TO-DO delete this dummy mechanism
+  int i = 0;
+  while (true && i++ < 3) {
+    err = __PollFdsVec_poll(&evlp.get->fds);
+    if (err) {
+      goto error_out;
+    }
+
+    err = __EventLoop_process_events(evlp);
+    if (err) {
+      goto error_out;
+    }
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
 };
 
-void event_loop_deref(event_loop_t evlp) { __EventLoop_deref(evlp); };
+static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp) {
+  cme_error_t err;
+
+  c_foreach(fd, vec__PollFdsVec, evlp.get->fds) {
+    __FdHelper *fd_helper =
+        __FdHelpersMap_find(fd.ref->fd, &evlp.get->fds_helpers);
+
+    assert(fd_helper != NULL);
+
+    if (fd.ref->revents & POLLIN) {
+      err = __FdHelper_pollinh(fd_helper);
+      if (err) {
+        goto error_out;
+      }
+    }
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}

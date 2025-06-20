@@ -18,30 +18,29 @@
 
 #include "c_minilib_error.h"
 
+#include "event_loop/_internal/event_loop.h"
 /******************************************************************************
  *                             Event Loop                                     *
  ******************************************************************************/
-typedef struct __EventLoopPtr *event_loop_t;
-typedef cme_error_t (*event_loop_recvh_t)(void *data);
-typedef cme_error_t (*event_loop_timeouth_t)(void *data);
+#define i_type EventLoopPtr
+#define i_key struct __EventLoop
+#define i_keydrop __EventLoop_destroy
+#define i_keyclone __EventLoop_clone
+#include "stc/arc.h"
 
-cme_error_t event_loop_create(event_loop_t *out);
+cme_error_t EventLoopPtr_create(struct EventLoopPtr *out);
 
-cme_error_t event_loop_insert_socketfd(event_loop_t evlp, uint32_t fd,
-                                       event_loop_recvh_t recvh, void *data);
+cme_error_t EventLoopPtr_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,
+                                         event_loop_recvh_t recvh, void *data);
 
-cme_error_t event_loop_insert_timerfd(event_loop_t evlp, uint32_t fd,
-                                      event_loop_timeouth_t timeouth,
-                                      void *data);
+cme_error_t EventLoopPtr_insert_timerfd(struct EventLoopPtr evlp, uint32_t fd,
+                                        event_loop_timeouth_t timeouth,
+                                        void *data);
 
-void event_loop_remove_fd(event_loop_t evlp, int32_t fd);
+void EventLoopPtr_remove_fd(struct EventLoopPtr evlp, int32_t fd);
 
-cme_error_t event_loop_set_pollin(event_loop_t evlp, int32_t fd);
+cme_error_t EventLoopPtr_set_pollin(struct EventLoopPtr evlp, int32_t fd);
 
-cme_error_t event_loop_start(event_loop_t evlp);
-
-event_loop_t event_loop_ref(event_loop_t evlp);
-
-void event_loop_deref(event_loop_t evlp);
+cme_error_t EventLoopPtr_start(struct EventLoopPtr evlp);
 
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

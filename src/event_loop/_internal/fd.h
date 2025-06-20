@@ -4,10 +4,9 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_FD_H
-#define C_MINILIB_SIP_UA_FD_H
+#ifndef C_MINILIB_SIP_UA_EVENT_LOOP_INT_FD_H
+#define C_MINILIB_SIP_UA_EVENT_LOOP_INT_FD_H
 
-#include <event_loop/event_loop.h>
 #include <stdlib.h>
 #include <sys/poll.h>
 #include <unistd.h>
@@ -28,4 +27,4 @@ static inline int __PollFd_cmp(const __PollFd *a, const __PollFd *b) {
   return -1;
 }
 
-#endif
+#endif // C_MINILIB_SIP_UA_EVENT_LOOP_INT_FD_H
