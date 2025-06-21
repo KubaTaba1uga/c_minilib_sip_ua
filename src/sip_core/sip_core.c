@@ -11,21 +11,21 @@
 cme_error_t SipCorePtr_create(struct EventLoopPtr evl, ip_t ip_addr,
                               enum SipTransportProtocolType proto_type,
                               struct SipCorePtr *out) {
-  struct __SipCore sip_core = {0};
+  struct __SipCore *sip_core = my_calloc(1, sizeof(struct __SipCore));
   cme_error_t err;
 
-  err = SipTransportPtr_create(evl, ip_addr, proto_type, &sip_core.sip_transp);
+  err = SipTransportPtr_create(evl, ip_addr, proto_type, &sip_core->sip_transp);
   if (err) {
     goto error_out;
   }
 
-  sip_core.evl = EventLoopPtr_clone(evl);
-  sip_core.listeners = my_malloc(sizeof(struct queue__SipCoreListeners));
-  *sip_core.listeners = queue__SipCoreListeners_init();
-  sip_core.stranses = my_malloc(sizeof(struct hmap__SipServerTransactions));
-  *sip_core.stranses = hmap__SipServerTransactions_init();
+  sip_core->evl = EventLoopPtr_clone(evl);
+  sip_core->listeners = my_malloc(sizeof(struct queue__SipCoreListeners));
+  *sip_core->listeners = queue__SipCoreListeners_init();
+  sip_core->stranses = my_malloc(sizeof(struct hmap__SipServerTransactions));
+  *sip_core->stranses = hmap__SipServerTransactions_init();
 
-  *out = SipCorePtr_from(sip_core);
+  *out = SipCorePtr_from_ptr(sip_core);
 
   return 0;
 

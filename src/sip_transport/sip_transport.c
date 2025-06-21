@@ -2,16 +2,20 @@
 #include "sip_transport/_internal/sip_transport.h"
 #include "sip_transport/_internal/sip_transport_listen.h"
 #include "sip_transport/_internal/sip_transport_send.h"
+#include "utils/memory.h"
 
 cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
                                    enum SipTransportProtocolType proto_type,
                                    struct SipTransportPtr *out) {
   cme_error_t err;
 
-  *out = SipTransportPtr_from((struct __SipTransport){
+  ;
+
+  *out = SipTransportPtr_from_ptr(my_calloc(1, sizeof(struct __SipTransport)));
+  *out->get = (struct __SipTransport){
       .proto_type = proto_type,
       .evl = EventLoopPtr_clone(evl),
-  });
+  };
 
   switch (proto_type) {
   case SipTransportProtocolType_UDP:

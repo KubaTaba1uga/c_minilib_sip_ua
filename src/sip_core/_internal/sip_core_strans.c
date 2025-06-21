@@ -1,11 +1,13 @@
+#include <assert.h>
+#include <stdio.h>
+
 #include "sip_core/_internal/sip_core_strans.h"
 #include "sip_core/_internal/sip_core_strans_map.h"
 #include "sip_transport/sip_transport.h"
 #include "timer_fd/_internal/timer_fd.h"
 #include "timer_fd/timer_fd.h"
 #include "utils/generic_ptr.h"
-#include <assert.h>
-#include <stdio.h>
+#include "utils/memory.h"
 
 /* How server transaction works for INVITE flow? */
 
@@ -90,16 +92,20 @@ SipServerTransactionPtr_create(sip_msg_t sip_msg, struct SipCorePtr sip_core,
 
   is_invite = strncmp(method.buf, "INVITE", method.size) == 0;
 
-  err = SipServerTransactions_insert(
-      branch,
-      SipServerTransactionPtr_from((struct __SipServerTransaction){
-          .state = __SipServerTransactionState_TRYING,
-          .request = sip_msg_ref(sip_msg),
-          .is_invite = is_invite,
-          .sip_core = sip_core,
-          .last_peer_ip = last_peer_ip,
-      }),
-      sip_core.get->stranses, out);
+  struct __SipServerTransaction *strans =
+      my_calloc(1, sizeof(struct __SipServerTransaction));
+
+  *strans = (struct __SipServerTransaction){
+      .state = __SipServerTransactionState_TRYING,
+      .request = sip_msg_ref(sip_msg),
+      .is_invite = is_invite,
+      .sip_core = sip_core,
+      .last_peer_ip = last_peer_ip,
+  };
+
+  err = SipServerTransactions_insert(branch,
+                                     SipServerTransactionPtr_from_ptr(strans),
+                                     sip_core.get->stranses, out);
   if (err) {
     goto error_stransp_cleanup;
   }
