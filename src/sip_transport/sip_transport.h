@@ -41,7 +41,8 @@ cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
                                    struct SipTransportPtr *out);
 
 cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
-                                   sip_transp_recvh_t recvh, void *arg);
+                                   sip_transp_recvh_t recvh,
+                                   struct GenericPtr arg);
 
 cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
                                  ip_t ip_addr, csview_ptr_t bytes);

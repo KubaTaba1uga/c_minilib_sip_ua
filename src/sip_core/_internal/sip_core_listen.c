@@ -15,21 +15,25 @@
 #include "sip_core/_internal/sip_core_strans.h"
 #include "sip_core/sip_core.h"
 #include "sip_transport/sip_transport.h"
+#include "utils/generic_ptr.h"
 
 static cme_error_t
 __SipCore_sip_transp_recvh(sip_msg_t sip_msg, ip_t peer_ip,
-                           struct SipTransportPtr *sip_transp, void *data);
+                           struct SipTransportPtr *sip_transp,
+                           struct GenericPtr arg);
 
-cme_error_t __SipCore_listen(sip_core_request_handler_t reqh, void *data,
-                             struct SipCorePtr *sip_core) {
+cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
+                             struct GenericPtr data,
+                             struct SipCorePtr sip_core) {
   cme_error_t err;
 
   queue__SipCoreListeners_push(
-      sip_core->get->listeners,
+      sip_core.get->listeners,
       (struct __SipCoreListener){.request_handler = reqh, .arg = data});
 
-  err = SipTransportPtr_listen(&sip_core->get->sip_transp,
-                               __SipCore_sip_transp_recvh, sip_core);
+  err = SipTransportPtr_listen(
+      &sip_core.get->sip_transp, __SipCore_sip_transp_recvh,
+      GenericPtr_create(SipCorePtr_use_count(&sip_core), sip_core.get));
   if (err) {
     goto error_out;
   }
@@ -42,7 +46,8 @@ error_out:
 
 static inline cme_error_t
 __SipCore_sip_transp_recvh(sip_msg_t sip_msg, ip_t peer_ip,
-                           struct SipTransportPtr *sip_transp, void *data) {
+                           struct SipTransportPtr *sip_transp,
+                           struct GenericPtr data) {
   /*
     On every request we do:
      1. If it is sip request (which is not ACK and is not matching to any
@@ -60,46 +65,49 @@ callbacks.
 matches to. We then run callback for client_transaction rather than listener.
 This means we need sth to match client transactions and user callbacks.
    */
-  struct SipServerTransactionPtr *strans = NULL;
-  struct SipCorePtr *sip_core = data;
-  cme_error_t err;
+  puts(__func__);
+  /* struct SipServerTransactionPtr *strans = NULL; */
+  struct SipCorePtr sip_core = GenericPtr_extract(data, SipCorePtr);
+  /* cme_error_t err; */
 
-  assert(sip_core != NULL);
-  assert(sip_msg.get != NULL);
+  assert(sip_core.get != NULL);
 
   // If there are no listeners there is no point in processing the message.
-  if (queue__SipCoreListeners_is_empty(sip_core->get->listeners)) {
-    return 0;
-  }
+  /* if (queue__SipCoreListeners_is_empty(sip_core->get->listeners)) { */
+  /*   return 0; */
+  /* } */
 
-  if (sip_msg_is_request(sip_msg)) {
-    err = SipServerTransactionPtr_create(sip_msg, sip_core, peer_ip, &strans);
-    if (err) {
-      goto error_out;
-    }
+  /* if (sip_msg_is_request(sip_msg)) { */
+  /*   err = SipServerTransactionPtr_create(sip_msg, sip_core, peer_ip,
+   * &strans); */
+  /*   if (err) { */
+  /*     goto error_out; */
+  /*   } */
 
-    err = SipServerTransactionPtr_next_state(sip_msg, strans);
-    if (err) {
-      goto error_out;
-    }
+  /*   err = SipServerTransactionPtr_next_state(sip_msg, strans); */
+  /*   if (err) { */
+  /*     goto error_out; */
+  /*   } */
 
-    c_foreach(lstner, queue__SipCoreListeners, *sip_core->get->listeners) {
-      err = lstner.ref->request_handler(sip_msg, peer_ip, sip_core, strans,
-                                        lstner.ref->arg);
-      if (err) {
-        goto error_strans_cleanup;
-      }
-    }
-  } else {
-    // TO-DO: handle client transaction
-  }
+  /*   c_foreach(lstner, queue__SipCoreListeners, *sip_core->get->listeners) {
+   */
+  /*     err = lstner.ref->request_handler(sip_msg, peer_ip, sip_core, strans,
+   */
+  /*                                       lstner.ref->arg); */
+  /*     if (err) { */
+  /*       goto error_strans_cleanup; */
+  /*     } */
+  /*   } */
+  /* } else { */
+  /*   // TO-DO: handle client transaction */
+  /* } */
 
   (void)data;
 
   return 0;
 
-error_strans_cleanup:
-  SipServerTransactionPtr_drop(strans);
-error_out:
-  return cme_return(err);
+  /* error_strans_cleanup: */
+  /*   SipServerTransactionPtr_drop(strans); */
+  /* error_out: */
+  /*   return cme_return(err); */
 }

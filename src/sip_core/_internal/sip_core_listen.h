@@ -21,14 +21,15 @@
 
 struct __SipCoreListener {
   sip_core_request_handler_t request_handler;
-  void *arg;
+  struct GenericPtr arg;
 };
 
 #define i_tag _SipCoreListeners
 #define i_key struct __SipCoreListener
 #include "stc/queue.h"
 
-cme_error_t __SipCore_listen(sip_core_request_handler_t reqh, void *data,
-                             struct SipCorePtr *sip_core);
+cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
+                             struct GenericPtr data,
+                             struct SipCorePtr sip_core);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H

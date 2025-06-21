@@ -45,7 +45,8 @@ struct __SipTransport __SipTransport_clone(struct __SipTransport udp_socket) {
 };
 
 cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
-                                   sip_transp_recvh_t recvh, void *arg) {
+                                   sip_transp_recvh_t recvh,
+                                   struct GenericPtr arg) {
   return __SipTransport_listen(sip_transpp, recvh, arg);
 };
 

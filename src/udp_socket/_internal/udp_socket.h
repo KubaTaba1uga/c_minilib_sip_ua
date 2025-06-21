@@ -17,10 +17,12 @@
 #include <unistd.h>
 
 #include "c_minilib_error.h"
-#include "event_loop/event_loop.h"
 #include "stc/cstr.h"
+
+#include "event_loop/event_loop.h"
 #include "utils/buffer.h"
 #include "utils/csview_ptr.h"
+#include "utils/generic_ptr.h"
 #include "utils/ip.h"
 
 #ifndef __UDP_MSG_SIZE_MAX
@@ -28,7 +30,7 @@
 #endif
 
 typedef cme_error_t (*udp_socket_recvh_t)(csview_ptr_t buf, ip_t peer,
-                                          void *data);
+                                          struct GenericPtr data);
 
 struct __UdpSocket {
   // Event loop data
@@ -40,7 +42,7 @@ struct __UdpSocket {
 
   // User data & ops
   udp_socket_recvh_t recvh;
-  void *recvh_arg;
+  struct GenericPtr recvh_arg;
 };
 
 void __UdpSocket_destroy(struct __UdpSocket *udp_socket);

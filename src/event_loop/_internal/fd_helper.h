@@ -11,12 +11,13 @@
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
+#include "utils/generic_ptr.h"
 
 /******************************************************************************
  *                             Fd Helper                                      *
  ******************************************************************************/
-typedef cme_error_t (*event_loop_recvh_t)(void *data);
-typedef cme_error_t (*event_loop_timeouth_t)(void *data);
+typedef cme_error_t (*event_loop_recvh_t)(struct GenericPtr data);
+typedef cme_error_t (*event_loop_timeouth_t)(struct GenericPtr data);
 
 enum __FdType {
   __FdType_SOCKET,
@@ -27,14 +28,15 @@ struct __FdHelper {
   event_loop_timeouth_t timeouth; // This is used by timer
   event_loop_recvh_t recvh;       // This is used by socket
   enum __FdType fd_type;          // This is used by socket and timer
-  void *data;                     // This is used by socket and timer
+  struct GenericPtr data;         // This is used by socket and timer
 };
 
 typedef struct __FdHelper __FdHelper;
 
 static inline cme_error_t __FdHelper_init(enum __FdType fd_type,
                                           event_loop_timeouth_t timeouth,
-                                          event_loop_recvh_t recvh, void *data,
+                                          event_loop_recvh_t recvh,
+                                          struct GenericPtr data,
                                           __FdHelper *out) {
   out->timeouth = timeouth;
   out->fd_type = fd_type;

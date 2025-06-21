@@ -1,4 +1,5 @@
 #include "event_loop/event_loop.h"
+#include "utils/generic_ptr.h"
 
 static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp);
 
@@ -17,7 +18,8 @@ void __EventLoop_destroy(struct __EventLoop *evl) {
 struct __EventLoop __EventLoop_clone(struct __EventLoop evl) { return evl; };
 
 cme_error_t EventLoopPtr_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,
-                                         event_loop_recvh_t recvh, void *data) {
+                                         event_loop_recvh_t recvh,
+                                         struct GenericPtr data) {
   cme_error_t err;
   err = __PollFdsVec_push(&evlp.get->fds,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
@@ -45,7 +47,7 @@ error_out:
 
 cme_error_t EventLoopPtr_insert_timerfd(struct EventLoopPtr evlp, uint32_t fd,
                                         event_loop_timeouth_t timeouth,
-                                        void *data) {
+                                        struct GenericPtr data) {
   cme_error_t err;
 
   err = __PollFdsVec_push(&evlp.get->fds,

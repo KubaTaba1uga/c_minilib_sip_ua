@@ -33,7 +33,8 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evlp, ip_t ip_addr,
                                 struct UdpSocketPtr *out);
 
 cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
-                                udp_socket_recvh_t recvh, void *arg);
+                                udp_socket_recvh_t recvh,
+                                struct GenericPtr arg);
 
 cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
                               csview_ptr_t bytes);

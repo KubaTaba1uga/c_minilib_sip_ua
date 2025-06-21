@@ -23,11 +23,11 @@
 #include "utils/sip_msg.h"
 
 static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer,
-                                            void *data);
+                                            struct GenericPtr data);
 
 static inline cme_error_t
 __SipTransport_listen(struct SipTransportPtr *sip_transp,
-                      sip_transp_recvh_t recvh, void *arg) {
+                      sip_transp_recvh_t recvh, struct GenericPtr arg) {
   cme_error_t err;
 
   // Each transport proto needs seperate handler
@@ -55,8 +55,8 @@ error_out:
 }
 
 static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer_ip,
-                                            void *data) {
-  struct SipTransportPtr *sip_transp = data;
+                                            struct GenericPtr data) {
+  struct SipTransportPtr sip_transp = data;
   sip_msg_t sip_msg;
   cme_error_t err;
 
