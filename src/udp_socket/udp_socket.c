@@ -47,7 +47,7 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
   printf("SOCK PTR: %p\n", out->get);
 
   struct GenericPtr gp = GenericPtr_from(UdpSocketPtr, out);
-  struct __UdpSocket *tmpsock = (struct __UdpSocket *)(gp.get);
+  struct __UdpSocket *tmpsock = (struct __UdpSocket *)(*gp.get);
 
   printf("TMP SOCKFD: %d\n", tmpsock->fd);
   printf("SOCK PTR: %p\n", tmpsock);

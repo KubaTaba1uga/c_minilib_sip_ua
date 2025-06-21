@@ -184,7 +184,7 @@ SipServerTransactionPtr_timer_timeouth_invite_100_timer(
   assert(strans.get->last_peer_ip.ip != NULL);
   assert(strans.get->last_peer_ip.port != NULL);
   (void)SipServerTransactionPtr_reply;
-  /* switch (strans->get->state) { */
+  /* switch (strans.get->state) { */
   /* case __SipServerTransactionState_TRYING: */
   /*   err = SipServerTransactionPtr_reply(100, cstr_from("Trying"), strans); */
   /*   if (err) { */

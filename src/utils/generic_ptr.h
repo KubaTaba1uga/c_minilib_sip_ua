@@ -25,7 +25,7 @@ Each module create it's personalized types as pointers.
 static inline void __GenericPtr_destroy(void **udp_socket) { assert(false); };
 
 static inline void *__GenericPtr_clone(void *udp_socket) {
-  assert(false);
+  /* assert(false); */
   return udp_socket;
 };
 
@@ -37,18 +37,21 @@ static inline void *__GenericPtr_clone(void *udp_socket) {
 
 static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
                                                     void *data) {
-  printf("%p\n", data);
-  struct GenericPtr out = GenericPtr_from_ptr(data);
+  struct GenericPtr out =
+      GenericPtr_from_ptr(data); // from_ptr is better than from because it does
+                                 // not alloc memory for value (`get`).
   *out.use_count = usage_count;
   return out;
 }
 
 #undef GenericPtr_from
+#undef GenericPtr_from_ptr
+#undef GenericPtr_drop
 
 #define GenericPtr_from(TYPE, tptr)                                            \
   ({                                                                           \
     TYPE##_clone(*tptr);                                                       \
-    __GenericPtr_create(TYPE##_use_count(tptr), (tptr)->get);                  \
+    __GenericPtr_create(TYPE##_use_count(tptr), &(tptr)->get);                 \
   })
 
 /*  ─── GenericPtr → TYPEPtr ───
@@ -56,19 +59,11 @@ static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
   gptr : l-value of struct GenericPtr
 */
 #define GenericPtr_dump(TYPE, gptr)                                            \
-  ({                                                                           \
-    struct TYPE out__ = {.use_count = (gptr).use_count,                        \
-                         .get = (void *)(gptr.get)};                           \
-                                                                               \
-    /* poison source so its future drop is a no-op */                          \
-    (gptr).get = NULL;                                                         \
-    (gptr).use_count = NULL;                                                   \
-    out__;                                                                     \
-  })
+  (struct TYPE) { .use_count = gptr.use_count, .get = *gptr.get }
 
 /* #define GenericPtr_dump(TYPE, gptr) \ */
 /*   ({ \ */
-/*     struct TYPE *out__ = {.use_count = (gptr).use_count, .get = *(gptr.get)};
+/*     struct TYPE out__ = {.use_count = (gptr).use_count, .get = *(gptr.get)};
  * \ */
 /*                                                                                \
  */

@@ -33,9 +33,7 @@ error_out:
   return cme_return(err);
 };
 
-void __SipCore_destroy(void *data) {
-  struct __SipCore *sip_core = data;
-
+void __SipCore_destroy(struct __SipCore *sip_core) {
   hmap__SipServerTransactions_drop(sip_core->stranses);
   free(sip_core->stranses);
   queue__SipCoreListeners_drop(sip_core->listeners);

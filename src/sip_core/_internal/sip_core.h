@@ -27,7 +27,7 @@ struct __SipCore {
   struct hmap__SipServerTransactions *stranses;
 };
 
-void __SipCore_destroy(void *data);
+void __SipCore_destroy(struct __SipCore *data);
 struct __SipCore __SipCore_clone(struct __SipCore sip_core);
 
 #define i_type SipCorePtr

@@ -72,7 +72,7 @@ This means we need sth to match client transactions and user callbacks.
   assert(sip_core.get != NULL);
 
   // If there are no listeners there is no point in processing the message.
-  /* if (queue__SipCoreListeners_is_empty(sip_core->get->listeners)) { */
+  /* if (queue__SipCoreListeners_is_empty(sip_core.get->listeners)) { */
   /*   return 0; */
   /* } */
 
@@ -88,7 +88,7 @@ This means we need sth to match client transactions and user callbacks.
   /*     goto error_out; */
   /*   } */
 
-  /*   c_foreach(lstner, queue__SipCoreListeners, *sip_core->get->listeners) {
+  /*   c_foreach(lstner, queue__SipCoreListeners, *sip_core.get->listeners) {
    */
   /*     err = lstner.ref->request_handler(sip_msg, peer_ip, sip_core, strans,
    */
