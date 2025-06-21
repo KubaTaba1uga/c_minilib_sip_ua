@@ -51,7 +51,7 @@ static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
 #define GenericPtr_from(TYPE, tptr)                                            \
   ({                                                                           \
     TYPE##_clone(*tptr);                                                       \
-    __GenericPtr_create(TYPE##_use_count(tptr), &(tptr)->get);                 \
+    __GenericPtr_create(TYPE##_use_count(tptr), (tptr)->get);                  \
   })
 
 /*  ─── GenericPtr → TYPEPtr ───
@@ -59,7 +59,7 @@ static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
   gptr : l-value of struct GenericPtr
 */
 #define GenericPtr_dump(TYPE, gptr)                                            \
-  (struct TYPE) { .use_count = gptr.use_count, .get = *gptr.get }
+  ((struct TYPE){.use_count = gptr.use_count, .get = (void *)(gptr.get)})
 
 /* #define GenericPtr_dump(TYPE, gptr) \ */
 /*   ({ \ */
