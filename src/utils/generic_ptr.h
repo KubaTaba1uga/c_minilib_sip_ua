@@ -22,11 +22,11 @@ Each module create it's personalized types as pointers.
 // Generic ptrs should never be dropped nor cloned. They does not
 // contain customized drop which is required to aviod memory leaks
 // on most of structs.
-static inline void __GenericPtr_destroy(void **udp_socket) { assert(false); };
+static inline void __GenericPtr_destroy(void **data) { assert(false); };
 
-static inline void *__GenericPtr_clone(void *udp_socket) {
-  /* assert(false); */
-  return udp_socket;
+static inline void *__GenericPtr_clone(void *data) {
+  assert(false);
+  return data;
 };
 
 #define i_type GenericPtr
