@@ -43,8 +43,16 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
   *out = UdpSocketPtr_from((struct __UdpSocket){
       .evl = EventLoopPtr_clone(evl), .ip_addr = ip_addr, .fd = sockfd});
 
-  err = EventLoopPtr_insert_socketfd(evl, sockfd, __UdpSocket_recv,
-                                     GenericPtr_from(UdpSocketPtr, out));
+  printf("SOCKFD: %d\n", out->get->fd);
+  printf("SOCK PTR: %p\n", out->get);
+
+  struct GenericPtr gp = GenericPtr_from(UdpSocketPtr, out);
+  struct __UdpSocket *tmpsock = (struct __UdpSocket *)(gp.get);
+
+  printf("TMP SOCKFD: %d\n", tmpsock->fd);
+  printf("SOCK PTR: %p\n", tmpsock);
+
+  err = EventLoopPtr_insert_socketfd(evl, sockfd, __UdpSocket_recv, gp);
   if (err) {
     err = cme_errorf(errno,
                      "Cannot insert udp socket into event loop for IP=%s:%s",

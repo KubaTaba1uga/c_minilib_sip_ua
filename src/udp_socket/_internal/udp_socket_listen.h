@@ -56,7 +56,9 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
 
   assert(udp_socketp.get != NULL);
   assert(udp_socketp.use_count != NULL);
+  assert(udp_socketp.get->fd != 0);
 
+  printf("FD: %d\n", udp_socketp.get->fd);
   err = csview_ptr_create(__UDP_MSG_SIZE_MAX, &buf_ptr);
   if (err) {
     goto error_out;
@@ -68,9 +70,7 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   buf_len =
       recvfrom(udp_socketp.get->fd, (void *)buf_ptr.get->buf, buf_ptr.get->size,
                MSG_NOSIGNAL, (struct sockaddr *)&sender_addr, &sender_addr_len);
-
   if (buf_len < 0) {
-    perror("UDP");
     err = cme_error(errno, "Cannot recieve udp data");
     goto error_buf_cleanup;
   } else if (buf_len == 0) {
@@ -98,7 +98,7 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   }
 
   csview_ptr_deref(buf_ptr);
-  UdpSocketPtr_drop(&udp_socketp);
+  /* UdpSocketPtr_drop(&udp_socketp); */
 
   return 0;
 

@@ -82,7 +82,7 @@ static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer_ip,
   }
 
   sip_msg_deref(&sip_msg);
-  SipTransportPtr_drop(&sip_transp);
+  /* SipTransportPtr_drop(&sip_transp); */
 
   return 0;
 

@@ -1,5 +1,6 @@
 #include "event_loop/event_loop.h"
 #include "utils/generic_ptr.h"
+#include <stdio.h>
 
 static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp);
 
@@ -20,6 +21,7 @@ struct __EventLoop __EventLoop_clone(struct __EventLoop evl) { return evl; };
 cme_error_t EventLoopPtr_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,
                                          event_loop_recvh_t recvh,
                                          struct GenericPtr data) {
+  puts(__func__);
   cme_error_t err;
   err = __PollFdsVec_push(&evlp.get->fds,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
@@ -84,6 +86,7 @@ cme_error_t EventLoopPtr_set_pollin(struct EventLoopPtr evlp, int32_t fd) {
 }
 
 cme_error_t EventLoopPtr_start(struct EventLoopPtr evlp) {
+  puts(__func__);
   cme_error_t err;
 
   // TO-DO delete this dummy mechanism
@@ -107,6 +110,7 @@ error_out:
 };
 
 static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp) {
+  puts(__func__);
   cme_error_t err;
 
   c_foreach(fd, vec__PollFdsVec, evlp.get->fds) {

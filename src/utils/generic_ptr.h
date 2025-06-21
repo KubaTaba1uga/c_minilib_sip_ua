@@ -17,6 +17,7 @@ Each module create it's personalized types as pointers.
 #include <assert.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 
 // Generic ptrs should never be dropped nor cloned. They does not
 // contain customized drop which is required to aviod memory leaks
@@ -36,6 +37,7 @@ static inline void *__GenericPtr_clone(void *udp_socket) {
 
 static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
                                                     void *data) {
+  printf("%p\n", data);
   struct GenericPtr out = GenericPtr_from_ptr(data);
   *out.use_count = usage_count;
   return out;
@@ -50,16 +52,30 @@ static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
   })
 
 /*  ─── GenericPtr → TYPEPtr ───
-    gptr : l-value of struct GenericPtr
-    TYPE : target smart-pointer type, e.g. EventLoopPtr          */
+  TYPE : target smart-pointer type, e.g. EventLoopPtr
+  gptr : l-value of struct GenericPtr
+*/
 #define GenericPtr_dump(TYPE, gptr)                                            \
   ({                                                                           \
-    struct TYPE out__ = {.use_count = (gptr).use_count, .get = *(gptr.get)};   \
+    struct TYPE out__ = {.use_count = (gptr).use_count,                        \
+                         .get = (void *)(gptr.get)};                           \
                                                                                \
     /* poison source so its future drop is a no-op */                          \
     (gptr).get = NULL;                                                         \
     (gptr).use_count = NULL;                                                   \
     out__;                                                                     \
   })
+
+/* #define GenericPtr_dump(TYPE, gptr) \ */
+/*   ({ \ */
+/*     struct TYPE *out__ = {.use_count = (gptr).use_count, .get = *(gptr.get)};
+ * \ */
+/*                                                                                \
+ */
+/*     /\* poison source so its future drop is a no-op *\/ \ */
+/*     (gptr).get = NULL; \ */
+/*     (gptr).use_count = NULL; \ */
+/*     out__; \ */
+/*   }) */
 
 #endif // C_MINILIB_SIP_UA_UTILS_GENERIC_PTR_H
