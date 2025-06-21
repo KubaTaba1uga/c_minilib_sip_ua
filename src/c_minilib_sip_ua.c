@@ -4,11 +4,13 @@
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
 #include "sip_core/sip_core.h"
+#include "sip_transport/_internal/sip_transport.h"
 #include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
 
 cme_error_t __sip_core_request_handler(sip_msg_t sip_msg, ip_t peer_ip,
-                                       sip_strans_t strans, sip_core_t sip_core,
+                                       struct SipCorePtr *sip_core,
+                                       struct SipServerTransactionPtr *strans,
                                        void *data) {
   puts("Received sip msg!!! :)");
   return 0;
@@ -22,39 +24,39 @@ int main(void) {
     goto error_out;
   }
 
-  event_loop_t evl;
-  err = event_loop_create(&evl);
+  struct EventLoopPtr evl;
+  err = EventLoopPtr_create(&evl);
   if (err) {
     goto error_out;
   }
 
-  sip_core_t sip_core;
-  err = sip_core_create(evl, (ip_t){.ip = "0.0.0.0", .port = "7337"},
-                        SupportedSipTranspProtos_UDP, &sip_core);
+  struct SipCorePtr sip_core;
+  err = SipCorePtr_create(evl, (ip_t){.ip = "0.0.0.0", .port = "7337"},
+                          SipTransportProtocolType_UDP, &sip_core);
   if (err) {
     goto error_evl_cleanup;
   }
 
-  err = sip_core_listen(__sip_core_request_handler, NULL, sip_core);
+  err = SipCorePtr_listen(__sip_core_request_handler, NULL, &sip_core);
   if (err) {
     goto error_core_cleanup;
   }
 
   puts("Starting event loop...\n");
-  err = event_loop_start(evl);
+  err = EventLoopPtr_start(evl);
   if (err) {
     goto error_core_cleanup;
   }
 
-  sip_core_deref(sip_core);
-  event_loop_deref(evl);
+  SipCorePtr_drop(&sip_core);
+  EventLoopPtr_drop(&evl);
   cme_destroy();
 
   return 0;
 error_core_cleanup:
-  sip_core_deref(sip_core);
+  SipCorePtr_drop(&sip_core);
 error_evl_cleanup:
-  event_loop_deref(evl);
+  EventLoopPtr_drop(&evl);
 error_out:
   printf("Error: %s\n", err->msg);
   cme_error_dump_to_file(err, "error.txt");

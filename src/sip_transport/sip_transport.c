@@ -6,12 +6,18 @@
 cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
                                    enum SipTransportProtocolType proto_type,
                                    struct SipTransportPtr *out) {
-  struct __SipTransport sip_transp = {0};
   cme_error_t err;
+
+  *out = SipTransportPtr_from(
+      (struct __SipTransport){.proto_type = proto_type,
+                              .evl = EventLoopPtr_clone(evl),
+                              .recvh = false,
+                              .recvh_arg = NULL,
+                              .udp_socket = {0}});
 
   switch (proto_type) {
   case SipTransportProtocolType_UDP:
-    err = UdpSocketPtr_create(evl, ip_addr, &sip_transp.udp_socket);
+    err = UdpSocketPtr_create(evl, ip_addr, &out->get->udp_socket);
     if (err) {
       goto error_out;
     }
@@ -21,14 +27,10 @@ cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
     goto error_out;
   }
 
-  sip_transp.proto_type = proto_type;
-  sip_transp.evl = EventLoopPtr_clone(evl);
-
-  *out = SipTransportPtr_from(sip_transp);
-
   return 0;
 
 error_out:
+  SipTransportPtr_drop(out);
   return cme_return(err);
 };
 

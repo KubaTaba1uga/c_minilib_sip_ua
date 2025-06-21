@@ -1,13 +1,12 @@
 #include "sip_core/_internal/sip_core_strans_map.h"
 
 cme_error_t
-SipServerTransactions_insert(csview key, struct SipServerTransactionPtr strans,
-                             struct hmap__SipServerTransactions *stmap,
-                             struct SipServerTransactionPtr *out) {
-
-  *out = hmap__SipServerTransactions_insert_or_assign(stmap, cstr_from_sv(key),
-                                                      strans)
-             .ref->second;
+SipServerTransactions_insert(csview key, struct SipServerTransactionPtr value,
+                             struct hmap__SipServerTransactions *hmap,
+                             struct SipServerTransactionPtr **out) {
+  *out = &hmap__SipServerTransactions_insert_or_assign(hmap, cstr_from_sv(key),
+                                                       value)
+              .ref->second;
 
   return 0;
 }

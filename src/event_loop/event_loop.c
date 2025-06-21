@@ -2,7 +2,7 @@
 
 static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp);
 
-cme_error_t EventLoop_create(struct EventLoopPtr *out) {
+cme_error_t EventLoopPtr_create(struct EventLoopPtr *out) {
   *out = EventLoopPtr_from((struct __EventLoop){
       .fds = vec__PollFdsVec_init(), .fds_helpers = hmap__FdHelpersMap_init()});
 
@@ -16,8 +16,8 @@ void __EventLoop_destroy(struct __EventLoop *evl) {
 
 struct __EventLoop __EventLoop_clone(struct __EventLoop evl) { return evl; };
 
-cme_error_t EventLoop_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,
-                                      event_loop_recvh_t recvh, void *data) {
+cme_error_t EventLoopPtr_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,
+                                         event_loop_recvh_t recvh, void *data) {
   cme_error_t err;
   err = __PollFdsVec_push(&evlp.get->fds,
                           (__PollFd){.fd = fd, .events = 0, .revents = 0});
@@ -43,9 +43,9 @@ error_out:
   return cme_return(err);
 }
 
-cme_error_t EventLoop_insert_timerfd(struct EventLoopPtr evlp, uint32_t fd,
-                                     event_loop_timeouth_t timeouth,
-                                     void *data) {
+cme_error_t EventLoopPtr_insert_timerfd(struct EventLoopPtr evlp, uint32_t fd,
+                                        event_loop_timeouth_t timeouth,
+                                        void *data) {
   cme_error_t err;
 
   err = __PollFdsVec_push(&evlp.get->fds,
@@ -72,7 +72,7 @@ error_out:
   return cme_return(err);
 }
 
-void EventLoop_remove_fd(struct EventLoopPtr evlp, int32_t fd) {
+void EventLoopPtr_remove_fd(struct EventLoopPtr evlp, int32_t fd) {
   __FdHelpersMap_remove(fd, &evlp.get->fds_helpers);
   __PollFdsVec_remove(fd, &evlp.get->fds);
 }
@@ -81,7 +81,7 @@ cme_error_t EventLoopPtr_set_pollin(struct EventLoopPtr evlp, int32_t fd) {
   return __PollFdsVec_set_pollin(fd, &evlp.get->fds);
 }
 
-cme_error_t EventLoop_start(struct EventLoopPtr evlp) {
+cme_error_t EventLoopPtr_start(struct EventLoopPtr evlp) {
   cme_error_t err;
 
   // TO-DO delete this dummy mechanism

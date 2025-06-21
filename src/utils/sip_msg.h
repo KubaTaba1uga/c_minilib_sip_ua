@@ -20,6 +20,7 @@
 #include "utils/csview_ptr.h"
 
 static inline void __SipMessage_destroy(struct cmsc_SipMessage **data) {
+  puts(__func__);
   cmsc_sipmsg_destroy(data);
 };
 static inline struct cmsc_SipMessage *
@@ -36,6 +37,7 @@ __SipMessage_clone(struct cmsc_SipMessage *sip_msg) {
 typedef struct __SipMessagePtr sip_msg_t;
 
 static inline cme_error_t sip_msg_parse(csview_ptr_t buf, sip_msg_t *out) {
+  puts(__func__);
   cme_error_t err;
 
   struct cmsc_SipMessage *msg;
@@ -52,6 +54,7 @@ static inline cme_error_t sip_msg_parse(csview_ptr_t buf, sip_msg_t *out) {
 
   assert(msg != NULL);
 
+  csview_ptr_ref(buf); // Now message holds buf memory
   *out = __SipMessagePtr_from(msg);
 
   assert(out->get != NULL);

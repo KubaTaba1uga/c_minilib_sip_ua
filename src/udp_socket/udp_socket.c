@@ -3,8 +3,8 @@
 #include "udp_socket/_internal/udp_socket_listen.h"
 #include "udp_socket/_internal/udp_socket_send.h"
 
-cme_error_t UdpSocket_create(struct EventLoopPtr evl, ip_t ip_addr,
-                             struct UdpSocketPtr *out) {
+cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
+                                struct UdpSocketPtr *out) {
   cme_error_t err;
 
   errno = 0;
@@ -69,12 +69,12 @@ struct __UdpSocket __UdpSocket_clone(struct __UdpSocket udp_socket) {
   return udp_socket;
 };
 
-cme_error_t UdpSocket_listen(struct UdpSocketPtr udp_socket,
-                             udp_socket_recvh_t recvh, void *arg) {
+cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
+                                udp_socket_recvh_t recvh, void *arg) {
   return __UdpSocket_listen(udp_socket, recvh, arg);
 };
 
-cme_error_t UdpSocket_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
-                           csview_ptr_t bytes) {
+cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
+                              csview_ptr_t bytes) {
   return __UdpSocket_send(udp_socket, ip_addr, bytes);
 }

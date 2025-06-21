@@ -44,6 +44,7 @@ error_out:
 };
 
 inline static cme_error_t __UdpSocket_recv(void *data) {
+  puts(__func__);
   struct UdpSocketPtr *udp_socketp = data;
   struct sockaddr_storage sender_addr;
   socklen_t sender_addr_len;
@@ -51,9 +52,8 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
   int32_t buf_len;
   cme_error_t err;
 
-  assert(data != NULL);
-
-  puts("Received data over UDP");
+  assert(udp_socketp != NULL);
+  assert(udp_socketp->get != NULL);
 
   err = csview_ptr_create(__UDP_MSG_SIZE_MAX, &buf_ptr);
   if (err) {
@@ -79,8 +79,9 @@ inline static cme_error_t __UdpSocket_recv(void *data) {
   buf_ptr.get->size = buf_len;
 
   if (udp_socketp->get->recvh) {
-    char ip_str[INET6_ADDRSTRLEN];
-    char port_str[6];
+    // This is part of ip address and shouldn't be allocated on stack
+    char *ip_str = malloc(INET6_ADDRSTRLEN);
+    char *port_str = malloc(8);
 
     struct sockaddr_in *s = (struct sockaddr_in *)&sender_addr;
     inet_ntop(AF_INET, &s->sin_addr, ip_str, sizeof(ip_str));

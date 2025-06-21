@@ -14,6 +14,26 @@
 #include "udp_socket/udp_socket.h"
 #include "utils/ip.h"
 
-#include "sip_core/_internal/common.h"
+/******************************************************************************
+ *                               Sip Core                                     *
+ ******************************************************************************/
+struct __SipCore {
+  // Transp Protocol data
+  struct EventLoopPtr evl;
+  struct SipTransportPtr sip_transp;
+
+  // SIP core data
+  struct queue__SipCoreListeners *listeners;
+  struct hmap__SipServerTransactions *stranses;
+};
+
+void __SipCore_destroy(void *data);
+struct __SipCore __SipCore_clone(struct __SipCore sip_core);
+
+#define i_type SipCorePtr
+#define i_key struct __SipCore
+#define i_keydrop __SipCore_destroy
+#define i_keyclone __SipCore_clone
+#include "stc/arc.h"
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_H

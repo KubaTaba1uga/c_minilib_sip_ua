@@ -4,8 +4,6 @@
  * See LICENSE file in the project root for full license information.
  */
 
-#ifndef C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
-#define C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
 #include <assert.h>
 #include <errno.h>
 #include <stdio.h>
@@ -13,7 +11,7 @@
 
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
-#include "sip_core/_internal/common.h"
+#include "sip_core/_internal/sip_core_listen.h"
 #include "sip_core/_internal/sip_core_strans.h"
 #include "sip_core/sip_core.h"
 #include "sip_transport/sip_transport.h"
@@ -25,8 +23,9 @@ __SipCore_sip_transp_recvh(sip_msg_t sip_msg, ip_t peer_ip,
 cme_error_t __SipCore_listen(sip_core_request_handler_t reqh, void *data,
                              struct SipCorePtr *sip_core) {
   cme_error_t err;
-  queue__SipCoreListenersQueue_push(
-      &sip_core->get->listeners,
+
+  queue__SipCoreListeners_push(
+      sip_core->get->listeners,
       (struct __SipCoreListener){.request_handler = reqh, .arg = data});
 
   err = SipTransportPtr_listen(&sip_core->get->sip_transp,
@@ -69,7 +68,7 @@ This means we need sth to match client transactions and user callbacks.
   assert(sip_msg.get != NULL);
 
   // If there are no listeners there is no point in processing the message.
-  if (queue__SipCoreListenersQueue_is_empty(&sip_core->get->listeners)) {
+  if (queue__SipCoreListeners_is_empty(sip_core->get->listeners)) {
     return 0;
   }
 
@@ -84,8 +83,8 @@ This means we need sth to match client transactions and user callbacks.
       goto error_out;
     }
 
-    c_foreach(lstner, queue__SipCoreListenersQueue, sip_core->get->listeners) {
-      err = lstner.ref->request_handler(sip_msg, peer_ip, strans, sip_core,
+    c_foreach(lstner, queue__SipCoreListeners, *sip_core->get->listeners) {
+      err = lstner.ref->request_handler(sip_msg, peer_ip, sip_core, strans,
                                         lstner.ref->arg);
       if (err) {
         goto error_strans_cleanup;
@@ -100,9 +99,7 @@ This means we need sth to match client transactions and user callbacks.
   return 0;
 
 error_strans_cleanup:
-  __SipCoreStrans_deref(strans);
+  SipServerTransactionPtr_drop(strans);
 error_out:
   return cme_return(err);
 }
-
-#endif // C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H
