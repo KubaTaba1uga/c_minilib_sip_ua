@@ -31,7 +31,8 @@
 
 cme_error_t TimerFdPtr_create(struct EventLoopPtr evl, time_t seconds,
                               long nseconds, timer_fd_timeouth_t timeouth,
-                              void *timeouth_arg, struct TimerFdPtr *out);
+                              struct GenericPtr timeouth_arg,
+                              struct TimerFdPtr *out);
 
 void TimerFdPtr_rearm(struct TimerFdPtr timerp);
 

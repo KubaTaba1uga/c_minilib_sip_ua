@@ -29,6 +29,7 @@ typedef cme_error_t (*udp_socket_recvh_t)(csview_ptr_t buf, ip_t peer,
 static inline cme_error_t __UdpSocket_listen(struct UdpSocketPtr udp_socketp,
                                              udp_socket_recvh_t recvh,
                                              struct GenericPtr arg) {
+  puts(__func__);
   cme_error_t err =
       EventLoopPtr_set_pollin(udp_socketp.get->evl, udp_socketp.get->fd);
   if (err) {
@@ -46,7 +47,7 @@ error_out:
 
 inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   puts(__func__);
-  struct UdpSocketPtr udp_socketp = GenericPtr_dump(data, UdpSocketPtr);
+  struct UdpSocketPtr udp_socketp = GenericPtr_dump(UdpSocketPtr, data);
   struct sockaddr_storage sender_addr;
   socklen_t sender_addr_len;
   csview_ptr_t buf_ptr;
@@ -97,12 +98,14 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   }
 
   csview_ptr_deref(buf_ptr);
+  UdpSocketPtr_drop(&udp_socketp);
 
   return 0;
 
 error_buf_cleanup:
   csview_ptr_deref(buf_ptr);
 error_out:
+  UdpSocketPtr_drop(&udp_socketp);
   return cme_return(err);
 }
 

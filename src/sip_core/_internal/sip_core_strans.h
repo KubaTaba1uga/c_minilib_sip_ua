@@ -52,13 +52,13 @@ __SipServerTransaction_clone(struct __SipServerTransaction sip_strans);
 #define i_keyclone __SipServerTransaction_clone
 #include "stc/arc.h"
 
-cme_error_t
-SipServerTransactionPtr_create(sip_msg_t sip_msg, struct SipCorePtr *sip_core,
-                               ip_t last_peer_ip,
-                               struct SipServerTransactionPtr **out);
+cme_error_t SipServerTransactionPtr_create(sip_msg_t sip_msg,
+                                           struct SipCorePtr sip_core,
+                                           ip_t last_peer_ip,
+                                           struct SipServerTransactionPtr *out);
 
 cme_error_t
 SipServerTransactionPtr_next_state(sip_msg_t sip_msg,
-                                   struct SipServerTransactionPtr *strans);
+                                   struct SipServerTransactionPtr strans);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H

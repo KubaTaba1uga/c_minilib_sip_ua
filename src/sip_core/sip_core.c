@@ -49,7 +49,8 @@ struct __SipCore __SipCore_clone(struct __SipCore sip_core) {
   return sip_core;
 };
 
-cme_error_t SipCorePtr_listen(sip_core_request_handler_t requesth, void *data,
-                              struct SipCorePtr *sip_core) {
+cme_error_t SipCorePtr_listen(sip_core_request_handler_t requesth,
+                              struct GenericPtr data,
+                              struct SipCorePtr sip_core) {
   return __SipCore_listen(requesth, data, sip_core);
 };

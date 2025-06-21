@@ -26,7 +26,7 @@
 cme_error_t
 SipServerTransactions_insert(csview key, struct SipServerTransactionPtr value,
                              struct hmap__SipServerTransactions *hmap,
-                             struct SipServerTransactionPtr **out);
+                             struct SipServerTransactionPtr *out);
 
 struct SipServerTransactionPtr *
 SipServerTransactions_find(csview key,

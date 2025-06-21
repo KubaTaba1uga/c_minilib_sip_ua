@@ -19,6 +19,7 @@
 #include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/buffer.h"
+#include "utils/generic_ptr.h"
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
 
@@ -34,7 +35,8 @@ __SipTransport_listen(struct SipTransportPtr *sip_transp,
   switch (sip_transp->get->proto_type) {
   case SipTransportProtocolType_UDP:
     err = UdpSocketPtr_listen(sip_transp->get->udp_socket,
-                              __SipTransport_udp_recvh, sip_transp);
+                              __SipTransport_udp_recvh,
+                              GenericPtr_from(SipTransportPtr, sip_transp));
     if (err) {
       goto error_out;
     }
@@ -56,7 +58,7 @@ error_out:
 
 static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer_ip,
                                             struct GenericPtr data) {
-  struct SipTransportPtr sip_transp = data;
+  struct SipTransportPtr sip_transp = GenericPtr_dump(SipTransportPtr, data);
   sip_msg_t sip_msg;
   cme_error_t err;
 
@@ -73,19 +75,21 @@ static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer_ip,
 
   puts("Received data over SIP");
 
-  err = sip_transp->get->recvh(sip_msg, peer_ip, sip_transp,
-                               sip_transp->get->recvh_arg);
+  err = sip_transp.get->recvh(sip_msg, peer_ip, sip_transp,
+                              sip_transp.get->recvh_arg);
   if (err) {
     goto error_sip_msg_cleanup;
   }
 
   sip_msg_deref(&sip_msg);
+  SipTransportPtr_drop(&sip_transp);
 
   return 0;
 
 error_sip_msg_cleanup:
   sip_msg_deref(&sip_msg);
 error_out:
+  SipTransportPtr_drop(&sip_transp);
   return cme_return(err);
 };
 

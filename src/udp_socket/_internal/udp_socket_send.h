@@ -26,6 +26,7 @@
 
 static inline cme_error_t __UdpSocket_send(struct UdpSocketPtr udp_socket,
                                            ip_t ip_addr, csview_ptr_t bytes) {
+  puts(__func__);
   struct addrinfo *receiver_addr = NULL;
   cme_error_t err;
 

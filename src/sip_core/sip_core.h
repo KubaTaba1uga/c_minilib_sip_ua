@@ -17,6 +17,7 @@
 #include "c_minilib_sip_codec.h"
 #include "event_loop/event_loop.h"
 #include "sip_transport/sip_transport.h"
+#include "utils/generic_ptr.h"
 #include "utils/ip.h"
 
 #include "sip_core/_internal/sip_core.h"
@@ -27,14 +28,15 @@
 struct SipServerTransactionPtr;
 typedef cme_error_t (*sip_core_request_handler_t)(
     sip_msg_t sip_msg, ip_t peer_ip, struct SipCorePtr *sip_core,
-    struct SipServerTransactionPtr *sip_strans, void *data);
+    struct SipServerTransactionPtr *sip_strans, struct GenericPtr data);
 
 cme_error_t SipCorePtr_create(struct EventLoopPtr evl, ip_t ip_addr,
                               enum SipTransportProtocolType proto_type,
                               struct SipCorePtr *out);
 
-cme_error_t SipCorePtr_listen(sip_core_request_handler_t requesth, void *data,
-                              struct SipCorePtr *sip_core);
+cme_error_t SipCorePtr_listen(sip_core_request_handler_t requesth,
+                              struct GenericPtr data,
+                              struct SipCorePtr sip_core);
 
 /* cme_error_t sip_send(sip_core_response_handler_t resph, sip_msg_t sipmsg, */
 /*                      void *data, struct SipCorePtr sip_core); */

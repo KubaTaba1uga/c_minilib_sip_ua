@@ -12,10 +12,11 @@
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
 #include "sys/timerfd.h"
+#include "utils/generic_ptr.h"
 
 struct TimerFdPtr;
-typedef cme_error_t (*timer_fd_timeouth_t)(struct TimerFdPtr *timer,
-                                           void *data);
+typedef cme_error_t (*timer_fd_timeouth_t)(struct TimerFdPtr timer,
+                                           struct GenericPtr data);
 
 struct __TimerFd {
   // Event loop data
@@ -27,7 +28,7 @@ struct __TimerFd {
 
   // User data & ops
   timer_fd_timeouth_t timeouth;
-  void *timeouth_arg;
+  struct GenericPtr timeouth_arg;
 };
 
 void __TimerFd_destroy(struct __TimerFd *timerp);

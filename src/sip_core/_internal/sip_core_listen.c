@@ -17,10 +17,9 @@
 #include "sip_transport/sip_transport.h"
 #include "utils/generic_ptr.h"
 
-static cme_error_t
-__SipCore_sip_transp_recvh(sip_msg_t sip_msg, ip_t peer_ip,
-                           struct SipTransportPtr *sip_transp,
-                           struct GenericPtr arg);
+static cme_error_t __SipCore_sip_transp_recvh(sip_msg_t sip_msg, ip_t peer_ip,
+                                              struct SipTransportPtr sip_transp,
+                                              struct GenericPtr arg);
 
 cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
                              struct GenericPtr data,
@@ -31,9 +30,9 @@ cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
       sip_core.get->listeners,
       (struct __SipCoreListener){.request_handler = reqh, .arg = data});
 
-  err = SipTransportPtr_listen(
-      &sip_core.get->sip_transp, __SipCore_sip_transp_recvh,
-      GenericPtr_create(SipCorePtr_use_count(&sip_core), sip_core.get));
+  err = SipTransportPtr_listen(&sip_core.get->sip_transp,
+                               __SipCore_sip_transp_recvh,
+                               GenericPtr_from(SipCorePtr, &sip_core));
   if (err) {
     goto error_out;
   }
@@ -46,7 +45,7 @@ error_out:
 
 static inline cme_error_t
 __SipCore_sip_transp_recvh(sip_msg_t sip_msg, ip_t peer_ip,
-                           struct SipTransportPtr *sip_transp,
+                           struct SipTransportPtr sip_transp,
                            struct GenericPtr data) {
   /*
     On every request we do:
@@ -67,7 +66,7 @@ This means we need sth to match client transactions and user callbacks.
    */
   puts(__func__);
   /* struct SipServerTransactionPtr *strans = NULL; */
-  struct SipCorePtr sip_core = GenericPtr_extract(data, SipCorePtr);
+  struct SipCorePtr sip_core = GenericPtr_dump(SipCorePtr, data);
   /* cme_error_t err; */
 
   assert(sip_core.get != NULL);
@@ -102,6 +101,7 @@ This means we need sth to match client transactions and user callbacks.
   /*   // TO-DO: handle client transaction */
   /* } */
 
+  SipCorePtr_drop(&sip_core);
   (void)data;
 
   return 0;

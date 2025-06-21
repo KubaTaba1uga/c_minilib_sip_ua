@@ -44,12 +44,15 @@ static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
 #undef GenericPtr_from
 
 #define GenericPtr_from(TYPE, tptr)                                            \
-  __GenericPtr_create(TYPE##_use_count(tptr), (tptr)->get)
+  ({                                                                           \
+    TYPE##_clone(*tptr);                                                       \
+    __GenericPtr_create(TYPE##_use_count(tptr), (tptr)->get);                  \
+  })
 
 /*  ─── GenericPtr → TYPEPtr ───
     gptr : l-value of struct GenericPtr
     TYPE : target smart-pointer type, e.g. EventLoopPtr          */
-#define GenericPtr_dump(gptr, TYPE)                                            \
+#define GenericPtr_dump(TYPE, gptr)                                            \
   ({                                                                           \
     struct TYPE out__ = {.use_count = (gptr).use_count, .get = *(gptr.get)};   \
                                                                                \

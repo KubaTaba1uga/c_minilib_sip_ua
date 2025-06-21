@@ -8,12 +8,10 @@ cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
                                    struct SipTransportPtr *out) {
   cme_error_t err;
 
-  *out = SipTransportPtr_from(
-      (struct __SipTransport){.proto_type = proto_type,
-                              .evl = EventLoopPtr_clone(evl),
-                              .recvh = false,
-                              .recvh_arg = NULL,
-                              .udp_socket = {0}});
+  *out = SipTransportPtr_from((struct __SipTransport){
+      .proto_type = proto_type,
+      .evl = EventLoopPtr_clone(evl),
+  });
 
   switch (proto_type) {
   case SipTransportProtocolType_UDP:

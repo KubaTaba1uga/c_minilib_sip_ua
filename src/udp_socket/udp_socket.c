@@ -6,6 +6,7 @@
 
 cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
                                 struct UdpSocketPtr *out) {
+  puts(__func__);
   cme_error_t err;
 
   errno = 0;
@@ -59,6 +60,7 @@ error_out:
 };
 
 void __UdpSocket_destroy(struct __UdpSocket *udp_socket) {
+  puts(__func__);
   // Remove fd from event loop
   EventLoopPtr_remove_fd(udp_socket->evl, udp_socket->fd);
   EventLoopPtr_drop(&udp_socket->evl);
@@ -68,16 +70,19 @@ void __UdpSocket_destroy(struct __UdpSocket *udp_socket) {
 };
 
 struct __UdpSocket __UdpSocket_clone(struct __UdpSocket udp_socket) {
+  puts(__func__);
   return udp_socket;
 };
 
 cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
                                 udp_socket_recvh_t recvh,
                                 struct GenericPtr arg) {
+  puts(__func__);
   return __UdpSocket_listen(udp_socket, recvh, arg);
 };
 
 cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
                               csview_ptr_t bytes) {
+  puts(__func__);
   return __UdpSocket_send(udp_socket, ip_addr, bytes);
 }
