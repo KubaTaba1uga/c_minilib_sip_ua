@@ -19,7 +19,8 @@ enum SipTransportProtocolType {
 };
 
 struct SipTransportPtr;
-typedef cme_error_t (*sip_transp_recvh_t)(sip_msg_t sip_msg, ip_t peer_ip,
+typedef cme_error_t (*sip_transp_recvh_t)(struct SipMessagePtr sip_msg,
+                                          struct IpAddrPtr peer_ip,
                                           struct SipTransportPtr sip_transpp,
                                           struct GenericPtr data);
 

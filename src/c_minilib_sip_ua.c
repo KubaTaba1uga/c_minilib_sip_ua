@@ -8,8 +8,10 @@
 #include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/generic_ptr.h"
+#include "utils/ip.h"
 
-cme_error_t __sip_core_request_handler(sip_msg_t sip_msg, ip_t peer_ip,
+cme_error_t __sip_core_request_handler(struct SipMessagePtr sip_msg,
+                                       struct IpAddrPtr peer_ip,
                                        struct SipCorePtr *sip_core,
                                        struct SipServerTransactionPtr *strans,
                                        struct GenericPtr data) {
@@ -32,8 +34,9 @@ int main(void) {
   }
 
   struct SipCorePtr sip_core;
-  err = SipCorePtr_create(evl, (ip_t){.ip = "0.0.0.0", .port = "7337"},
-                          SipTransportProtocolType_UDP, &sip_core);
+  err = SipCorePtr_create(
+      evl, IpAddrPtr_create(cstr_lit("0.0.0.0"), cstr_lit("7337")),
+      SipTransportProtocolType_UDP, &sip_core);
   if (err) {
     goto error_evl_cleanup;
   }

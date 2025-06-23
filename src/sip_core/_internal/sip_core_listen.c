@@ -17,7 +17,8 @@
 #include "sip_transport/sip_transport.h"
 #include "utils/generic_ptr.h"
 
-static cme_error_t __SipCore_sip_transp_recvh(sip_msg_t sip_msg, ip_t peer_ip,
+static cme_error_t __SipCore_sip_transp_recvh(struct SipMessagePtr sip_msg,
+                                              struct IpAddrPtr peer_ip,
                                               struct SipTransportPtr sip_transp,
                                               struct GenericPtr arg);
 
@@ -43,10 +44,9 @@ error_out:
   return cme_return(err);
 };
 
-static inline cme_error_t
-__SipCore_sip_transp_recvh(sip_msg_t sip_msg, ip_t peer_ip,
-                           struct SipTransportPtr sip_transp,
-                           struct GenericPtr data) {
+static inline cme_error_t __SipCore_sip_transp_recvh(
+    struct SipMessagePtr sip_msg, struct IpAddrPtr peer_ip,
+    struct SipTransportPtr sip_transp, struct GenericPtr data) {
   /*
     On every request we do:
      1. If it is sip request (which is not ACK and is not matching to any
@@ -101,7 +101,7 @@ This means we need sth to match client transactions and user callbacks.
   /*   // TO-DO: handle client transaction */
   /* } */
 
-  SipCorePtr_drop(&sip_core);
+  /* SipCorePtr_drop(&sip_core); */
   (void)data;
 
   return 0;

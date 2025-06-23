@@ -1,10 +1,12 @@
 #include "udp_socket/udp_socket.h"
+#include "stc/cstr.h"
 #include "udp_socket/_internal/udp_socket.h"
 #include "udp_socket/_internal/udp_socket_listen.h"
 #include "udp_socket/_internal/udp_socket_send.h"
 #include "utils/generic_ptr.h"
 
-cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
+cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl,
+                                struct IpAddrPtr ip_addr,
                                 struct UdpSocketPtr *out) {
   puts(__func__);
   cme_error_t err;
@@ -12,8 +14,8 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
   errno = 0;
   int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
   if (sockfd == -1) {
-    err = cme_errorf(errno, "Cannot create udp socket for IP=%s:%s", ip_addr.ip,
-                     ip_addr.port);
+    err = cme_errorf(errno, "Cannot create udp socket for IP=%s:%s",
+                     ip_addr.get->ip, ip_addr.get->port);
     goto error_out;
   }
 
@@ -21,27 +23,32 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
   if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval)) ==
       -1) {
     err = cme_errorf(errno, "Cannot configure udp socket for IP=%s:%s",
-                     ip_addr.ip, ip_addr.port);
+                     ip_addr.get->ip, ip_addr.get->port);
     goto error_out;
   }
 
   struct sockaddr_in my_addr;
   my_addr.sin_family = AF_INET;
-  my_addr.sin_port = htons(atoi(ip_addr.port));
-  int result = inet_pton(AF_INET, ip_addr.ip, &my_addr.sin_addr);
+  my_addr.sin_port = htons(atoi(cstr_data(&ip_addr.get->port)));
+  int result =
+      inet_pton(AF_INET, cstr_data(&ip_addr.get->ip), &my_addr.sin_addr);
   if (result != 1) {
-    err = cme_errorf(errno, "Cannot parse IP=%s:%s", ip_addr.ip, ip_addr.port);
+    err = cme_errorf(errno, "Cannot parse IP=%s:%s", ip_addr.get->ip,
+                     ip_addr.get->port);
     goto error_out;
   }
 
   if (bind(sockfd, (struct sockaddr *)&my_addr, sizeof(my_addr)) == -1) {
-    err = cme_errorf(errno, "Cannot bind udp socket to IP=%s:%s", ip_addr.ip,
-                     ip_addr.port);
+    err = cme_errorf(errno, "Cannot bind udp socket to IP=%s:%s",
+                     ip_addr.get->ip, ip_addr.get->port);
     goto error_out;
   }
 
   *out = UdpSocketPtr_from((struct __UdpSocket){
-      .evl = EventLoopPtr_clone(evl), .ip_addr = ip_addr, .fd = sockfd});
+      .ip_addr = IpAddrPtr_clone(ip_addr),
+      .evl = EventLoopPtr_clone(evl),
+      .fd = sockfd,
+  });
 
   printf("SOCKFD: %d\n", out->get->fd);
   printf("SOCK PTR: %p\n", out->get);
@@ -56,7 +63,7 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
   if (err) {
     err = cme_errorf(errno,
                      "Cannot insert udp socket into event loop for IP=%s:%s",
-                     ip_addr.ip, ip_addr.port);
+                     ip_addr.get->ip, ip_addr.get->port);
     goto error_out;
   }
 
@@ -89,7 +96,8 @@ cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
   return __UdpSocket_listen(udp_socket, recvh, arg);
 };
 
-cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
+cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket,
+                              struct IpAddrPtr ip_addr,
                               struct BufferPtr bytes) {
   puts(__func__);
   return __UdpSocket_send(udp_socket, ip_addr, bytes);

@@ -8,7 +8,7 @@
 #include "sip_transport/sip_transport.h"
 #include "utils/memory.h"
 
-cme_error_t SipCorePtr_create(struct EventLoopPtr evl, ip_t ip_addr,
+cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
                               enum SipTransportProtocolType proto_type,
                               struct SipCorePtr *out) {
   struct __SipCore *sip_core = my_calloc(1, sizeof(struct __SipCore));

@@ -1,7 +1,7 @@
 sources += files(
    'ip.h',
-   'socket.h',
+   'memory.h',
    'sip_msg.h',
-   'generic_ptr.h',
-   'buffer_ptr.h',   
+   'buffer_ptr.h',
+   'generic_ptr.h',   
 )

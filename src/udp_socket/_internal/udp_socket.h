@@ -29,7 +29,8 @@
 #define __UDP_MSG_SIZE_MAX 2048
 #endif
 
-typedef cme_error_t (*udp_socket_recvh_t)(struct BufferPtr buf, ip_t peer,
+typedef cme_error_t (*udp_socket_recvh_t)(struct BufferPtr buf,
+                                          struct IpAddrPtr peer,
                                           struct GenericPtr data);
 
 struct __UdpSocket {
@@ -38,7 +39,7 @@ struct __UdpSocket {
   int32_t fd;
 
   // Udp local data
-  ip_t ip_addr;
+  struct IpAddrPtr ip_addr;
 
   // User data & ops
   udp_socket_recvh_t recvh;

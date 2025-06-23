@@ -4,7 +4,8 @@
 #include "sip_transport/_internal/sip_transport_send.h"
 #include "utils/memory.h"
 
-cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
+cme_error_t SipTransportPtr_create(struct EventLoopPtr evl,
+                                   struct IpAddrPtr ip_addr,
                                    enum SipTransportProtocolType proto_type,
                                    struct SipTransportPtr *out) {
   cme_error_t err;
@@ -53,7 +54,8 @@ cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
 };
 
 cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
-                                 ip_t ip_addr, struct BufferPtr bytes) {
+                                 struct IpAddrPtr ip_addr,
+                                 struct BufferPtr bytes) {
   return __SipTransport_send(sip_transpp, ip_addr, bytes);
 };
 

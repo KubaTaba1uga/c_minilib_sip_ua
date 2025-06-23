@@ -48,8 +48,9 @@ SipServerTransactionPtr_timer_timeouth_invite_retransmission_timer(
     struct TimerFdPtr timer, struct GenericPtr data);
 
 cme_error_t
-SipServerTransactionPtr_create(sip_msg_t sip_msg, struct SipCorePtr sip_core,
-                               ip_t last_peer_ip,
+SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
+                               struct SipCorePtr sip_core,
+                               struct IpAddrPtr last_peer_ip,
                                // We need to take ptr to ptr becuase memory to
                                // struct SipServerTransactionPtr that we want to
                                // pass to TimerFdPtr_create (in next_state) is
@@ -67,7 +68,7 @@ SipServerTransactionPtr_create(sip_msg_t sip_msg, struct SipCorePtr sip_core,
   csview method = {0};
   cme_error_t err;
 
-  void *result = sip_msg_get_branch(sip_msg, &branch);
+  void *result = SipMessagePtr_get_branch(sip_msg, &branch);
   if (!result) {
     err =
         cme_error(ENODATA, "Missing via->branch in server transaction request");
@@ -77,12 +78,13 @@ SipServerTransactionPtr_create(sip_msg_t sip_msg, struct SipCorePtr sip_core,
   result = SipServerTransactions_find(branch, sip_core.get->stranses);
   if (result) {
     out = result;
-    out->get->last_peer_ip = last_peer_ip; // We need to update last peer ip
-                                           // to know where to send reply.
+    IpAddrPtr_assign(&out->get->last_peer_ip,
+                     &last_peer_ip); // We need to update last peer ip
+                                     // to know where to send reply.
     return 0;
   }
 
-  result = sip_msg_get_method(sip_msg, &method);
+  result = SipMessagePtr_get_method(sip_msg, &method);
   if (!result) {
     err = cme_error(
         ENODATA,
@@ -97,7 +99,7 @@ SipServerTransactionPtr_create(sip_msg_t sip_msg, struct SipCorePtr sip_core,
 
   *strans = (struct __SipServerTransaction){
       .state = __SipServerTransactionState_TRYING,
-      .request = sip_msg_ref(sip_msg),
+      .request = SipMessagePtr_clone(sip_msg),
       .is_invite = is_invite,
       .sip_core = sip_core,
       .last_peer_ip = last_peer_ip,
@@ -122,7 +124,7 @@ void __SipServerTransaction_destroy(void *data) {
   puts(__func__);
   struct SipServerTransactionPtr *sip_strans = data;
 
-  sip_msg_deref(&sip_strans->get->request);
+  SipMessagePtr_drop(&sip_strans->get->request);
 };
 
 struct __SipServerTransaction
@@ -131,7 +133,7 @@ __SipServerTransaction_clone(struct __SipServerTransaction sip_strans) {
 };
 
 cme_error_t
-SipServerTransactionPtr_next_state(sip_msg_t sip_msg,
+SipServerTransactionPtr_next_state(struct SipMessagePtr sip_msg,
                                    struct SipServerTransactionPtr strans) {
   cme_error_t err;
 
@@ -184,12 +186,10 @@ SipServerTransactionPtr_timer_timeouth_invite_100_timer(
   struct SipServerTransactionPtr strans =
       GenericPtr_dump(SipServerTransactionPtr, data);
 
-  /* cme_error_t err; */
-
   assert(strans.get != NULL);
-  assert(strans.get->last_peer_ip.ip != NULL);
-  assert(strans.get->last_peer_ip.port != NULL);
+
   (void)SipServerTransactionPtr_reply;
+  /* cme_error_t err; */
   /* switch (strans.get->state) { */
   /* case __SipServerTransactionState_TRYING: */
   /*   err = SipServerTransactionPtr_reply(100, cstr_from("Trying"), strans); */
@@ -213,16 +213,16 @@ SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
                               struct SipServerTransactionPtr *strans) {
   puts(__func__);
   struct BufferPtr bytes;
-  sip_msg_t sipmsg;
+  struct SipMessagePtr sipmsg;
   cme_error_t err;
 
-  err = sip_msg_status_from_request(strans->get->request, status_code, status,
-                                    &sipmsg);
+  err = SipMessagePtr_status_from_request(strans->get->request, status_code,
+                                          status, &sipmsg);
   if (err) {
     goto error_out;
   }
 
-  err = sip_msg_generate(sipmsg, &bytes);
+  err = SipMessagePtr_generate(sipmsg, &bytes);
   if (err) {
     goto error_sip_msg_cleanup;
   }
@@ -279,12 +279,12 @@ SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
   default:;
   }
 
-  sip_msg_deref(&sipmsg);
+  SipMessagePtr_drop(&sipmsg);
 
   return 0;
 
 error_sip_msg_cleanup:
-  sip_msg_deref(&sipmsg);
+  SipMessagePtr_drop(&sipmsg);
 error_out:
   return cme_return(err);
 };

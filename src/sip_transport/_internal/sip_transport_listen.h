@@ -23,7 +23,8 @@
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
 
-static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf, ip_t peer,
+static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf,
+                                            struct IpAddrPtr peer,
                                             struct GenericPtr data);
 
 static inline cme_error_t
@@ -56,13 +57,14 @@ error_out:
   return cme_return(err);
 }
 
-static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf, ip_t peer_ip,
+static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf,
+                                            struct IpAddrPtr peer_ip,
                                             struct GenericPtr data) {
   struct SipTransportPtr sip_transp = GenericPtr_dump(SipTransportPtr, data);
-  sip_msg_t sip_msg;
+  struct SipMessagePtr sip_msg;
   cme_error_t err;
 
-  err = sip_msg_parse(buf, &sip_msg);
+  err = SipMessagePtr_parse(buf, &sip_msg);
   if (err) {
     // TO-DO: log that sip msg is malformed, more info in err->msg.
     if (err->code == EINVAL) {
@@ -81,13 +83,13 @@ static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf, ip_t peer_ip,
     goto error_sip_msg_cleanup;
   }
 
-  sip_msg_deref(&sip_msg);
+  /* SipMessagePtr_drop(&sip_msg); */
   /* SipTransportPtr_drop(&sip_transp); */
 
   return 0;
 
 error_sip_msg_cleanup:
-  sip_msg_deref(&sip_msg);
+  SipMessagePtr_drop(&sip_msg);
 error_out:
   SipTransportPtr_drop(&sip_transp);
   return cme_return(err);

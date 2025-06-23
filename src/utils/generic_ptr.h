@@ -37,9 +37,12 @@ static inline void *__GenericPtr_clone(void *data) {
 
 static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
                                                     void *data) {
-  struct GenericPtr out =
-      GenericPtr_from_ptr(data); // from_ptr is better than from because it does
-                                 // not alloc memory for value (`get`).
+  /*
+   from_ptr is better than from because it does not alloc one chunk of memory
+    for value and ptr, but rather use seperate chunks. This way we can dump
+    back from generic ptr to customized ptr easilly.
+  */
+  struct GenericPtr out = GenericPtr_from_ptr(data);
   *out.use_count = usage_count;
   return out;
 }
@@ -50,24 +53,16 @@ static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
     __GenericPtr_create(TYPE##_use_count(tptr), (tptr)->get);                  \
   })
 
-/*  ─── GenericPtr → TYPEPtr ───
-  TYPE : target smart-pointer type, e.g. EventLoopPtr
-  gptr : l-value of struct GenericPtr
-*/
 #define GenericPtr_dump(TYPE, gptr)                                            \
-  ((struct TYPE){.use_count = gptr.use_count, .get = (void *)(gptr.get)})
-
-/* #define GenericPtr_dump(TYPE, gptr) \ */
-/*   ({ \ */
-/*     struct TYPE out__ = {.use_count = (gptr).use_count, .get = *(gptr.get)};
- * \ */
-/*                                                                                \
- */
-/*     /\* poison source so its future drop is a no-op *\/ \ */
-/*     (gptr).get = NULL; \ */
-/*     (gptr).use_count = NULL; \ */
-/*     out__; \ */
-/*   }) */
+  ({                                                                           \
+    struct TYPE out__ = {.use_count = gptr.use_count,                          \
+                         .get = (void *)(gptr.get)};                           \
+                                                                               \
+    /* poison source so its future drop is a no-op */                          \
+    (gptr).get = NULL;                                                         \
+    (gptr).use_count = NULL;                                                   \
+    out__;                                                                     \
+  })
 
 #undef GenericPtr_from
 #undef GenericPtr_from_ptr

@@ -36,7 +36,8 @@
 #define i_keyclone __SipTransport_clone
 #include "stc/arc.h"
 
-cme_error_t SipTransportPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
+cme_error_t SipTransportPtr_create(struct EventLoopPtr evl,
+                                   struct IpAddrPtr ip_addr,
                                    enum SipTransportProtocolType proto_type,
                                    struct SipTransportPtr *out);
 
@@ -45,7 +46,8 @@ cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
                                    struct GenericPtr arg);
 
 cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
-                                 ip_t ip_addr, struct BufferPtr bytes);
+                                 struct IpAddrPtr ip_addr,
+                                 struct BufferPtr bytes);
 
 bool SipTransportPtr_is_reliable(struct SipTransportPtr sip_transpp);
 

@@ -18,29 +18,39 @@
 #include "c_minilib_sip_codec.h"
 #include "stc/cstr.h"
 #include "utils/buffer_ptr.h"
+#include "utils/memory.h"
 
-static inline void __SipMessage_destroy(struct cmsc_SipMessage **data) {
-  puts(__func__);
-  cmsc_sipmsg_destroy(data);
+struct __SipMessage {
+  struct cmsc_SipMessage *sip_msg;
+  struct BufferPtr bufp;
 };
-static inline struct cmsc_SipMessage *
-__SipMessage_clone(struct cmsc_SipMessage *sip_msg) {
+
+static inline void __SipMessage_destroy(struct __SipMessage *data) {
+  puts(__func__);
+  cmsc_sipmsg_destroy(&data->sip_msg);
+  BufferPtr_drop(&data->bufp);
+};
+
+static inline struct __SipMessage
+__SipMessage_clone(struct __SipMessage sip_msg) {
+  puts(__func__);
   return sip_msg;
 };
 
-#define i_type __SipMessagePtr
-#define i_key struct cmsc_SipMessage *
+#define i_type SipMessagePtr
+#define i_key struct __SipMessage
 #define i_keydrop __SipMessage_destroy
 #define i_keyclone __SipMessage_clone
 #include "stc/arc.h"
 
-typedef struct __SipMessagePtr sip_msg_t;
+#undef SipMessagePtr_from
 
-static inline cme_error_t sip_msg_parse(struct BufferPtr buf, sip_msg_t *out) {
+static inline cme_error_t SipMessagePtr_parse(struct BufferPtr buf,
+                                              struct SipMessagePtr *out) {
   puts(__func__);
-  cme_error_t err;
 
   struct cmsc_SipMessage *msg;
+  cme_error_t err;
   err = cmsc_parse_sip(buf.get->size, buf.get->buf, &msg);
   if (err) {
     // TO-DO log that malformed sip msg send.
@@ -54,8 +64,13 @@ static inline cme_error_t sip_msg_parse(struct BufferPtr buf, sip_msg_t *out) {
 
   assert(msg != NULL);
 
-  BufferPtr_clone(buf);
-  *out = __SipMessagePtr_from(msg);
+  struct __SipMessage *ptr_payload = my_malloc(sizeof(struct __SipMessage));
+  *ptr_payload = (struct __SipMessage){
+      .sip_msg = msg,
+      .bufp = BufferPtr_clone(buf),
+  };
+
+  *out = SipMessagePtr_from_ptr(ptr_payload);
 
   assert(out->get != NULL);
 
@@ -65,20 +80,12 @@ error_out:
   return cme_return(err);
 }
 
-static inline sip_msg_t sip_msg_ref(sip_msg_t msgp) {
-  __SipMessagePtr_clone(msgp);
-  return msgp;
-}
-
-static inline void sip_msg_deref(sip_msg_t *msgp) {
-  __SipMessagePtr_drop(msgp);
-}
-
-static inline csview *sip_msg_get_branch(sip_msg_t msgp, csview *out) {
-  struct cmsc_SipHeaderVia *via = STAILQ_FIRST(&(*msgp.get)->vias);
+static inline csview *SipMessagePtr_get_branch(struct SipMessagePtr msgp,
+                                               csview *out) {
+  struct cmsc_SipHeaderVia *via = STAILQ_FIRST(&(msgp.get)->sip_msg->vias);
   struct cmsc_String branch = {0};
   if (via) {
-    branch = cmsc_bs_msg_to_string(&via->branch, *msgp.get);
+    branch = cmsc_bs_msg_to_string(&via->branch, msgp.get->sip_msg);
   }
 
   if (!branch.len) {
@@ -94,11 +101,12 @@ error_out:
   return NULL;
 }
 
-static inline csview *sip_msg_get_method(sip_msg_t msgp, csview *out) {
+static inline csview *SipMessagePtr_get_method(struct SipMessagePtr msgp,
+                                               csview *out) {
   struct cmsc_String method = {0};
 
-  method =
-      cmsc_bs_msg_to_string(&(*msgp.get)->request_line.sip_method, *msgp.get);
+  method = cmsc_bs_msg_to_string(&(msgp.get->sip_msg)->request_line.sip_method,
+                                 msgp.get->sip_msg);
 
   if (!method.len) {
     goto error_out;
@@ -113,18 +121,19 @@ error_out:
   return NULL;
 }
 
-static inline bool sip_msg_is_request(sip_msg_t msgp) {
-  return cmsc_sipmsg_is_field_present(*msgp.get,
+static inline bool SipMessagePtr_is_request(struct SipMessagePtr msgp) {
+  return cmsc_sipmsg_is_field_present(msgp.get->sip_msg,
                                       cmsc_SupportedSipHeaders_REQUEST_LINE);
 }
 
 static inline cme_error_t
-__sip_msg_status_add_to_tag(csview to_uri, struct cmsc_SipMessage *sipmsg);
+__SipMessagePtr_status_add_to_tag(csview to_uri,
+                                  struct cmsc_SipMessage *sipmsg);
 
-static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
-                                                      uint32_t status_code,
-                                                      cstr status,
-                                                      sip_msg_t *out) {
+static inline cme_error_t
+SipMessagePtr_status_from_request(struct SipMessagePtr request,
+                                  uint32_t status_code, cstr status,
+                                  struct SipMessagePtr *out) {
   /*
     According RFC 3261 8.2.6.2 Headers And Tags:
      1. The From field of the response MUST equal the From header field of
@@ -167,16 +176,16 @@ static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
   }
 
   { // Copy `From` header
-    struct cmsc_String request_from_uri =
-        cmsc_bs_msg_to_string(&(*request.get)->from.uri, *request.get);
+    struct cmsc_String request_from_uri = cmsc_bs_msg_to_string(
+        &(request.get->sip_msg)->from.uri, request.get->sip_msg);
 
     if (!request_from_uri.len) {
       err = cme_error(ENODATA, "No FROM field in the sip request");
       goto error_response_cleanup;
     }
 
-    struct cmsc_String request_from_tag =
-        cmsc_bs_msg_to_string(&(*request.get)->from.tag, *request.get);
+    struct cmsc_String request_from_tag = cmsc_bs_msg_to_string(
+        &(request.get->sip_msg)->from.tag, request.get->sip_msg);
 
     err = cmsc_sipmsg_insert_from(request_from_uri.len, request_from_uri.buf,
                                   request_from_tag.len, request_from_tag.buf,
@@ -187,8 +196,8 @@ static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
   }
 
   { // Copy `Call-ID` header
-    struct cmsc_String request_call_id =
-        cmsc_bs_msg_to_string(&(*request.get)->call_id, *request.get);
+    struct cmsc_String request_call_id = cmsc_bs_msg_to_string(
+        &(request.get->sip_msg)->call_id, request.get->sip_msg);
 
     if (!request_call_id.len) {
       err = cme_error(ENODATA, "No Call-ID field in the sip request");
@@ -203,8 +212,8 @@ static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
   }
 
   { // Copy `Cseq` header
-    struct cmsc_String request_cseq =
-        cmsc_bs_msg_to_string(&(*request.get)->cseq.method, *request.get);
+    struct cmsc_String request_cseq = cmsc_bs_msg_to_string(
+        &(request.get->sip_msg)->cseq.method, request.get->sip_msg);
 
     if (!request_cseq.len) {
       err = cme_error(ENODATA, "No CSeq field in the sip request");
@@ -212,7 +221,8 @@ static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
     }
 
     err = cmsc_sipmsg_insert_cseq(request_cseq.len, request_cseq.buf,
-                                  (*request.get)->cseq.seq_number, response);
+                                  (request.get->sip_msg)->cseq.seq_number,
+                                  response);
     if (err) {
       goto error_response_cleanup;
     }
@@ -220,16 +230,17 @@ static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
 
   { // Copy `Via` headers
     struct cmsc_SipHeaderVia *via;
-    STAILQ_FOREACH(via, &(*request.get)->vias, _next) {
+    STAILQ_FOREACH(via, &(request.get->sip_msg)->vias, _next) {
       struct cmsc_String proto =
-          cmsc_bs_msg_to_string(&via->proto, *request.get);
+          cmsc_bs_msg_to_string(&via->proto, request.get->sip_msg);
       struct cmsc_String sent_by =
-          cmsc_bs_msg_to_string(&via->sent_by, *request.get);
-      struct cmsc_String addr = cmsc_bs_msg_to_string(&via->addr, *request.get);
+          cmsc_bs_msg_to_string(&via->sent_by, request.get->sip_msg);
+      struct cmsc_String addr =
+          cmsc_bs_msg_to_string(&via->addr, request.get->sip_msg);
       struct cmsc_String branch =
-          cmsc_bs_msg_to_string(&via->branch, *request.get);
+          cmsc_bs_msg_to_string(&via->branch, request.get->sip_msg);
       struct cmsc_String received =
-          cmsc_bs_msg_to_string(&via->received, *request.get);
+          cmsc_bs_msg_to_string(&via->received, request.get->sip_msg);
 
       err = cmsc_sipmsg_insert_via(proto.len, proto.buf, sent_by.len,
                                    sent_by.buf, addr.len, addr.buf, branch.len,
@@ -242,18 +253,18 @@ static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
   }
 
   { // Copy `To` header
-    struct cmsc_String request_to_uri =
-        cmsc_bs_msg_to_string(&(*request.get)->to.uri, *request.get);
+    struct cmsc_String request_to_uri = cmsc_bs_msg_to_string(
+        &(request.get->sip_msg)->to.uri, request.get->sip_msg);
 
     if (!request_to_uri.len) {
       err = cme_error(ENODATA, "No To field in the sip request");
       goto error_response_cleanup;
     }
 
-    struct cmsc_String request_to_tag =
-        cmsc_bs_msg_to_string(&(*request.get)->to.tag, *request.get);
+    struct cmsc_String request_to_tag = cmsc_bs_msg_to_string(
+        &(request.get->sip_msg)->to.tag, request.get->sip_msg);
     if (!request_to_tag.len) {
-      err = __sip_msg_status_add_to_tag(
+      err = __SipMessagePtr_status_add_to_tag(
           c_sv(request_to_uri.buf, request_to_uri.len), response);
       if (err) {
         goto error_response_cleanup;
@@ -261,7 +272,16 @@ static inline cme_error_t sip_msg_status_from_request(sip_msg_t request,
     }
   }
 
-  *out = __SipMessagePtr_from(response);
+  struct __SipMessage *ptr_payload = my_malloc(sizeof(struct __SipMessage));
+  *ptr_payload = (struct __SipMessage){
+      .sip_msg = response,
+  };
+
+  BufferPtr_create_filled(
+      (struct csview){.buf = response->_buf.buf, .size = response->_buf.len},
+      &ptr_payload->bufp);
+
+  *out = SipMessagePtr_from_ptr(ptr_payload);
 
   return 0;
 
@@ -272,7 +292,8 @@ error_out:
 }
 
 static inline cme_error_t
-__sip_msg_status_add_to_tag(csview to_uri, struct cmsc_SipMessage *sipmsg) {
+__SipMessagePtr_status_add_to_tag(csview to_uri,
+                                  struct cmsc_SipMessage *sipmsg) {
   const uint32_t seed = (uint32_t)time(NULL);
   crand32 rng = crand32_from(seed);
 
@@ -288,12 +309,13 @@ __sip_msg_status_add_to_tag(csview to_uri, struct cmsc_SipMessage *sipmsg) {
   return cmsc_sipmsg_insert_to(to_uri.size, to_uri.buf, 8, new_tag, sipmsg);
 }
 
-static inline cme_error_t sip_msg_generate(sip_msg_t sip_msg,
-                                           struct BufferPtr *out) {
+static inline cme_error_t SipMessagePtr_generate(struct SipMessagePtr sip_msg,
+                                                 struct BufferPtr *out) {
   struct csview buffer;
   cme_error_t err;
 
-  err = cmsc_generate_sip(*sip_msg.get, (uint32_t *)&buffer.size, &buffer.buf);
+  err = cmsc_generate_sip(sip_msg.get->sip_msg, (uint32_t *)&buffer.size,
+                          &buffer.buf);
   if (err) {
     goto error_out;
   }

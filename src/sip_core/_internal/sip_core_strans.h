@@ -37,8 +37,8 @@ struct __SipServerTransaction {
   struct TimerFdPtr invite_3xx_6xx_timer;
   struct TimerFdPtr invite_100_timer;
   struct SipCorePtr sip_core;
-  ip_t last_peer_ip;
-  sip_msg_t request;
+  struct IpAddrPtr last_peer_ip;
+  struct SipMessagePtr request;
   bool is_invite;
 };
 
@@ -52,13 +52,13 @@ __SipServerTransaction_clone(struct __SipServerTransaction sip_strans);
 #define i_keyclone __SipServerTransaction_clone
 #include "stc/arc.h"
 
-cme_error_t SipServerTransactionPtr_create(sip_msg_t sip_msg,
+cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
                                            struct SipCorePtr sip_core,
-                                           ip_t last_peer_ip,
+                                           struct IpAddrPtr last_peer_ip,
                                            struct SipServerTransactionPtr *out);
 
 cme_error_t
-SipServerTransactionPtr_next_state(sip_msg_t sip_msg,
+SipServerTransactionPtr_next_state(struct SipMessagePtr sip_msg,
                                    struct SipServerTransactionPtr strans);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H

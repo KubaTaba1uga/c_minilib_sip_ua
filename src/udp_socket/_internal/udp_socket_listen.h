@@ -18,12 +18,15 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
+#include "stc/cstr.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/buffer_ptr.h"
 #include "utils/generic_ptr.h"
 #include "utils/ip.h"
+#include "utils/memory.h"
 
-typedef cme_error_t (*udp_socket_recvh_t)(struct BufferPtr buf, ip_t peer,
+typedef cme_error_t (*udp_socket_recvh_t)(struct BufferPtr buf,
+                                          struct IpAddrPtr peer,
                                           struct GenericPtr data);
 
 static inline cme_error_t __UdpSocket_listen(struct UdpSocketPtr udp_socketp,
@@ -58,8 +61,7 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   assert(udp_socketp.use_count != NULL);
   assert(udp_socketp.get->fd != 0);
 
-  printf("FD: %d\n", udp_socketp.get->fd);
-  err = BufferPtr_create(__UDP_MSG_SIZE_MAX, &buf_ptr);
+  err = BufferPtr_create_empty(__UDP_MSG_SIZE_MAX, &buf_ptr);
   if (err) {
     goto error_out;
   }
@@ -81,17 +83,16 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   buf_ptr.get->size = buf_len;
 
   if (udp_socketp.get->recvh) {
-    // This is part of ip address and shouldn't be allocated on stack
-    char *ip_str = malloc(INET6_ADDRSTRLEN);
-    char *port_str = malloc(8);
+    char *ip_str = my_calloc(INET6_ADDRSTRLEN + 1, sizeof(char));
+    char *port_str = my_calloc(8 + 1, sizeof(char));
 
     struct sockaddr_in *s = (struct sockaddr_in *)&sender_addr;
-    inet_ntop(AF_INET, &s->sin_addr, ip_str, sizeof(ip_str));
-    snprintf(port_str, sizeof(port_str), "%u", ntohs(s->sin_port));
+    inet_ntop(AF_INET, &s->sin_addr, ip_str, INET6_ADDRSTRLEN);
+    snprintf(port_str, 8, "%u", ntohs(s->sin_port));
 
-    err =
-        udp_socketp.get->recvh(buf_ptr, (ip_t){.ip = ip_str, .port = port_str},
-                               udp_socketp.get->recvh_arg);
+    err = udp_socketp.get->recvh(
+        buf_ptr, IpAddrPtr_create(cstr_from(ip_str), cstr_from(port_str)),
+        udp_socketp.get->recvh_arg);
     if (err) {
       goto error_buf_cleanup;
     }

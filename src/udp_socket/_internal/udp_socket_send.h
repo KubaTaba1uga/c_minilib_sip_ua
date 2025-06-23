@@ -20,12 +20,13 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
+#include "stc/cstr.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/buffer_ptr.h"
 #include "utils/ip.h"
 
 static inline cme_error_t __UdpSocket_send(struct UdpSocketPtr udp_socket,
-                                           ip_t ip_addr,
+                                           struct IpAddrPtr ip_addr,
                                            struct BufferPtr bytes) {
   puts(__func__);
   struct addrinfo *receiver_addr = NULL;
@@ -38,10 +39,11 @@ static inline cme_error_t __UdpSocket_send(struct UdpSocketPtr udp_socket,
     hints.ai_family = AF_INET;
     hints.ai_socktype = SOCK_DGRAM;
 
-    _err = getaddrinfo(ip_addr.ip, ip_addr.port, &hints, &receiver_addr);
+    _err = getaddrinfo(cstr_str(&ip_addr.get->ip), cstr_str(&ip_addr.get->port),
+                       &hints, &receiver_addr);
     if (_err) {
-      err = cme_errorf(_err, "Cannot get ip addres for %s:%s", ip_addr.ip,
-                       ip_addr.port);
+      err = cme_errorf(_err, "Cannot get ip addres for %s:%s", ip_addr.get->ip,
+                       ip_addr.get->port);
       goto error_out;
     }
   }

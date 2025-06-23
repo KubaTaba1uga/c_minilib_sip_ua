@@ -14,32 +14,46 @@
 #include "c_minilib_error.h"
 #include "stc/cstr.h"
 #include "stc/csview.h"
+#include "utils/memory.h"
 
-static inline void __csview_destroy(csview *view) { free((void *)view->buf); };
+static inline void __csview_destroy(csview *view) {
+  free((void *)view->buf);
+  free(view);
+};
 static inline csview __csview_clone(csview view) { return view; };
 
-// TO-DO: use csview_drop and csview_clone
 #define i_type BufferPtr
 #define i_key struct csview
+/* #define i_keydrop __csview_destroy */
+/* #define i_keyclone __csview_clone */
 #define i_keydrop __csview_destroy
 #define i_keyclone __csview_clone
 #include "stc/arc.h"
 
-static inline cme_error_t BufferPtr_create(uint32_t size,
-                                           struct BufferPtr *out) {
-  void *buf = calloc(size, sizeof(char));
-  cme_error_t err;
-  if (!buf) {
-    err = cme_error(ENOMEM, "Cannot allocate memory for BufferPtr buffer");
-    goto error_out;
-  }
+static inline cme_error_t BufferPtr_create_empty(uint32_t size,
+                                                 struct BufferPtr *out) {
+  void *buf = my_calloc(size, sizeof(char));
+  struct csview *view = my_malloc(sizeof(struct csview));
 
-  *out = BufferPtr_from((csview){.buf = buf, .size = size});
+  *view = (struct csview){.buf = buf, .size = size};
+
+  *out = BufferPtr_from_ptr(view);
 
   return 0;
-
-error_out:
-  return cme_return(err);
 }
+
+static inline cme_error_t BufferPtr_create_filled(struct csview view,
+                                                  struct BufferPtr *out) {
+  struct csview *new_view = my_malloc(sizeof(struct csview));
+
+  *new_view = (struct csview){.buf = view.buf, .size = view.size};
+
+  *out = BufferPtr_from_ptr(new_view);
+
+  return 0;
+}
+
+#undef BufferPtr_from
+#undef BufferPtr_from_ptr
 
 #endif // C_MINILIB_SIP_UA_UTILS_BUFFERPTR_H
