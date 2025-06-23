@@ -42,7 +42,6 @@ static inline void *__GenericPtr_clone(void *data) {
 */
 #define GenericPtr_from_arc(TYPE, tptr)                                        \
   ({                                                                           \
-    TYPE##_clone(*(tptr));                                                     \
     struct GenericPtr out__ = {                                                \
         .use_count = (tptr)->use_count,                                        \
         .get = (void *)((tptr)->get),                                          \
@@ -56,6 +55,16 @@ static inline void *__GenericPtr_clone(void *data) {
         (struct TYPE){.use_count = gptr.use_count, .get = (void *)(gptr.get)}; \
     out__;                                                                     \
   })
+
+;
+/*
+  Generic ptrs functions do not increase or decrease use_count automatically.
+    It is done so on purpose, pls do not tinker with this decision. Imagine
+    scenarion where you want to pass arg as callback to event loop. Once
+    callback is there you want to delete it once you meet error in callback or
+    once callback is deleted from external src. Bumping refcount automatically
+    makes this simple scenario quite difficult.
+*/
 
 #undef GenericPtr_from
 #undef GenericPtr_from_ptr

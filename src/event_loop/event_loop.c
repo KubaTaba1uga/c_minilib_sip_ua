@@ -1,5 +1,7 @@
 #include "event_loop/event_loop.h"
 #include "event_loop/_internal/event_loop.h"
+#include "event_loop/_internal/fd_helper.h"
+#include "event_loop/_internal/fd_helper_hmap.h"
 #include "utils/generic_ptr.h"
 #include "utils/memory.h"
 
@@ -79,6 +81,19 @@ error_fds_cleanup:
   __PollFdsVec_remove(fd, &evlp.get->fds);
 error_out:
   return cme_return(err);
+}
+
+struct GenericPtr *EventLoopPtr_get_fd_arg(struct EventLoopPtr evlp,
+                                           uint32_t fd,
+                                           struct GenericPtr *out) {
+  struct __FdHelper *helper = __FdHelpersMap_find(fd, &evlp.get->fds_helpers);
+  if (!helper) {
+    return NULL;
+  }
+
+  *out = helper->data;
+
+  return out;
 }
 
 void EventLoopPtr_remove_fd(struct EventLoopPtr evlp, int32_t fd) {

@@ -39,4 +39,7 @@ cme_error_t EventLoopPtr_set_pollin(struct EventLoopPtr evlp, int32_t fd);
 
 cme_error_t EventLoopPtr_start(struct EventLoopPtr evlp);
 
+struct GenericPtr *EventLoopPtr_get_fd_arg(struct EventLoopPtr evlp,
+                                           uint32_t fd, struct GenericPtr *out);
+
 #endif // C_MINILIB_SIP_UA_EVENT_LOOP_H

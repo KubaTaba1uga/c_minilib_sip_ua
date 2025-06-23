@@ -34,6 +34,8 @@ error_out:
 };
 
 void __SipCore_destroy(struct __SipCore *sip_core) {
+  puts(__func__);
+
   hmap__SipServerTransactions_drop(sip_core->stranses);
   free(sip_core->stranses);
   queue__SipCoreListeners_drop(sip_core->listeners);

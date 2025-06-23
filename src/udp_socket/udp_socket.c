@@ -30,8 +30,7 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl,
       .fd = sockfd,
   };
 
-  // Now out->use_count is 1
-  *out = UdpSocketPtr_from_ptr(udp_socket);
+  *out = UdpSocketPtr_from_ptr(udp_socket); // Now out->use_count is 1
 
   err = EventLoopPtr_insert_socketfd(evl, sockfd, __UdpSocket_recv,
                                      GenericPtr_from_arc(UdpSocketPtr, out));
