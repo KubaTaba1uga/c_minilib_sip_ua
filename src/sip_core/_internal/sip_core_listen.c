@@ -101,7 +101,6 @@ This means we need sth to match client transactions and user callbacks.
   /*   // TO-DO: handle client transaction */
   /* } */
 
-  /* SipCorePtr_drop(&sip_core); */
   (void)data;
 
   return 0;

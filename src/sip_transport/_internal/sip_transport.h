@@ -37,8 +37,11 @@ struct __SipTransport {
   struct GenericPtr recvh_arg;
 };
 
-void __SipTransport_destroy(void *data);
+void __SipTransport_destroy(struct __SipTransport *sip_transp);
 
-struct __SipTransport __SipTransport_clone(struct __SipTransport udp_socket);
+static inline struct __SipTransport
+__SipTransport_clone(struct __SipTransport udp_socket) {
+  return udp_socket;
+};
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_TRANSP_H

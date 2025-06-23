@@ -29,7 +29,9 @@ struct __EventLoop {
 };
 
 void __EventLoop_destroy(struct __EventLoop *evl);
-struct __EventLoop __EventLoop_clone(struct __EventLoop evl);
+static inline struct __EventLoop __EventLoop_clone(struct __EventLoop evl) {
+  return evl;
+};
 
 #define i_type EventLoopPtr
 #define i_key struct __EventLoop

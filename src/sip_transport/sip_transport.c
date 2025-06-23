@@ -8,18 +8,20 @@ cme_error_t SipTransportPtr_create(struct EventLoopPtr evl,
                                    struct IpAddrPtr ip_addr,
                                    enum SipTransportProtocolType proto_type,
                                    struct SipTransportPtr *out) {
-  cme_error_t err;
+  struct __SipTransport *sip_transp = my_malloc(sizeof(struct __SipTransport));
 
-  ;
-
-  *out = SipTransportPtr_from_ptr(my_calloc(1, sizeof(struct __SipTransport)));
-  *out->get = (struct __SipTransport){
+  *sip_transp = (struct __SipTransport){
       .proto_type = proto_type,
+      // Init Event Loop
       .evl = EventLoopPtr_clone(evl),
   };
 
+  *out = SipTransportPtr_from_ptr(sip_transp);
+
+  cme_error_t err;
   switch (proto_type) {
   case SipTransportProtocolType_UDP:
+    // Init Udp Socket
     err = UdpSocketPtr_create(evl, ip_addr, &out->get->udp_socket);
     if (err) {
       goto error_out;
@@ -37,14 +39,12 @@ error_out:
   return cme_return(err);
 };
 
-void __SipTransport_destroy(void *data) {
-  struct __SipTransport *sip_transp = data;
+void __SipTransport_destroy(struct __SipTransport *sip_transp) {
+  // Cleanup Udp socket
   UdpSocketPtr_drop(&sip_transp->udp_socket);
-  EventLoopPtr_drop(&sip_transp->evl);
-};
 
-struct __SipTransport __SipTransport_clone(struct __SipTransport udp_socket) {
-  return udp_socket;
+  // Cleanup Event loop
+  EventLoopPtr_drop(&sip_transp->evl);
 };
 
 cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
@@ -60,5 +60,5 @@ cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
 };
 
 bool SipTransportPtr_is_reliable(struct SipTransportPtr sip_transpp) {
-  return sip_transpp.get->proto_type == SipTransportProtocolType_UDP;
+  return sip_transpp.get->proto_type != SipTransportProtocolType_UDP;
 };

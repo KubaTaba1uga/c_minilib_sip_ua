@@ -60,6 +60,7 @@ error_out:
 static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf,
                                             struct IpAddrPtr peer_ip,
                                             struct GenericPtr data) {
+  puts(__func__);
   struct SipTransportPtr sip_transp = GenericPtr_dump(SipTransportPtr, data);
   struct SipMessagePtr sip_msg;
   cme_error_t err;
@@ -83,15 +84,13 @@ static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf,
     goto error_sip_msg_cleanup;
   }
 
-  /* SipMessagePtr_drop(&sip_msg); */
-  /* SipTransportPtr_drop(&sip_transp); */
+  SipMessagePtr_drop(&sip_msg);
 
   return 0;
 
 error_sip_msg_cleanup:
   SipMessagePtr_drop(&sip_msg);
 error_out:
-  SipTransportPtr_drop(&sip_transp);
   return cme_return(err);
 };
 

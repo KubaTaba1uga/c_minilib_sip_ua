@@ -48,16 +48,15 @@ int main(void) {
   }
 
   puts("Starting event loop...\n");
-  err = EventLoopPtr_start(evl);
-  if (err) {
-    goto error_core_cleanup;
-  }
+  EventLoopPtr_start(evl);
+  puts("Event loop done\n");
 
   SipCorePtr_drop(&sip_core);
   EventLoopPtr_drop(&evl);
   cme_destroy();
 
   return 0;
+
 error_core_cleanup:
   SipCorePtr_drop(&sip_core);
 error_evl_cleanup:

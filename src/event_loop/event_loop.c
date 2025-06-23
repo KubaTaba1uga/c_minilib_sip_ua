@@ -1,12 +1,20 @@
 #include "event_loop/event_loop.h"
+#include "event_loop/_internal/event_loop.h"
 #include "utils/generic_ptr.h"
+#include "utils/memory.h"
+
 #include <stdio.h>
+#include <string.h>
 
 static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp);
 
 cme_error_t EventLoopPtr_create(struct EventLoopPtr *out) {
-  *out = EventLoopPtr_from((struct __EventLoop){
-      .fds = vec__PollFdsVec_init(), .fds_helpers = hmap__FdHelpersMap_init()});
+  struct __EventLoop *evl = my_malloc(sizeof(struct __EventLoop));
+
+  *evl = (struct __EventLoop){.fds = vec__PollFdsVec_init(),
+                              .fds_helpers = hmap__FdHelpersMap_init()};
+
+  *out = EventLoopPtr_from_ptr(evl);
 
   return 0;
 };
@@ -16,15 +24,12 @@ void __EventLoop_destroy(struct __EventLoop *evl) {
   hmap__FdHelpersMap_drop(&evl->fds_helpers);
 };
 
-struct __EventLoop __EventLoop_clone(struct __EventLoop evl) { return evl; };
-
 cme_error_t EventLoopPtr_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,
                                          event_loop_recvh_t recvh,
                                          struct GenericPtr data) {
   puts(__func__);
   cme_error_t err;
-  err = __PollFdsVec_push(&evlp.get->fds,
-                          (__PollFd){.fd = fd, .events = 0, .revents = 0});
+  err = __PollFdsVec_push(&evlp.get->fds, (__PollFd){.fd = fd});
   if (err) {
     goto error_out;
   }
@@ -89,24 +94,33 @@ cme_error_t EventLoopPtr_start(struct EventLoopPtr evlp) {
   puts(__func__);
   cme_error_t err;
 
-  // TO-DO delete this dummy mechanism
+  // TO-DO delete this dummy destroy mechanism
+  // TO-DO design mechanism to stop event loop
+  //       and safely cleanup all it's resources.
+  //       Something like QUIT command for evl.
   int i = 0;
   while (true && i++ < 3) {
     err = __PollFdsVec_poll(&evlp.get->fds);
     if (err) {
-      goto error_out;
+      goto error_skip;
     }
 
     err = __EventLoop_process_events(evlp);
     if (err) {
-      goto error_out;
+      goto error_skip;
     }
+
+    continue;
+  error_skip:
+    printf("Error occured in events processing: %d:%s:%s\n", err->code,
+           strerror(err->code), err->msg);
+    cme_error_dump_to_file(err, "event_loop_error.txt");
   }
 
   return 0;
 
-error_out:
-  return cme_return(err);
+  /* error_out: */
+  /*   return cme_return(err); */
 };
 
 static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp) {

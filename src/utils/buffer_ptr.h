@@ -16,16 +16,11 @@
 #include "stc/csview.h"
 #include "utils/memory.h"
 
-static inline void __csview_destroy(csview *view) {
-  free((void *)view->buf);
-  free(view);
-};
+static inline void __csview_destroy(csview *view) { free((void *)view->buf); };
 static inline csview __csview_clone(csview view) { return view; };
 
 #define i_type BufferPtr
 #define i_key struct csview
-/* #define i_keydrop __csview_destroy */
-/* #define i_keyclone __csview_clone */
 #define i_keydrop __csview_destroy
 #define i_keyclone __csview_clone
 #include "stc/arc.h"

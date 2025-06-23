@@ -50,10 +50,13 @@ error_out:
 
 inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   puts(__func__);
+
+  // Ref Udp Socket
   struct UdpSocketPtr udp_socketp = GenericPtr_dump(UdpSocketPtr, data);
   struct sockaddr_storage sender_addr;
   socklen_t sender_addr_len;
   struct BufferPtr buf_ptr;
+  struct IpAddrPtr ip;
   int32_t buf_len;
   cme_error_t err;
 
@@ -61,6 +64,7 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   assert(udp_socketp.use_count != NULL);
   assert(udp_socketp.get->fd != 0);
 
+  // Ref Buffer
   err = BufferPtr_create_empty(__UDP_MSG_SIZE_MAX, &buf_ptr);
   if (err) {
     goto error_out;
@@ -93,25 +97,29 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
     inet_ntop(AF_INET, &s->sin_addr, (char *)ip_str, INET6_ADDRSTRLEN);
     snprintf((char *)port_str, 8, "%u", ntohs(s->sin_port));
 
-    err = udp_socketp.get->recvh(
-        buf_ptr,
-        IpAddrPtr_create(cstr_from((const char *)ip_str),
-                         cstr_from((const char *)port_str)),
-        udp_socketp.get->recvh_arg);
+    // Ref Ip
+    ip = IpAddrPtr_create(cstr_from((const char *)ip_str),
+                          cstr_from((const char *)port_str));
+
+    err = udp_socketp.get->recvh(buf_ptr, ip, udp_socketp.get->recvh_arg);
     if (err) {
-      goto error_buf_cleanup;
+      goto error_ip_cleanup;
     }
+
+    // Deref Ip
+    IpAddrPtr_drop(&ip);
   }
 
+  // Deref Buffer
   BufferPtr_drop(&buf_ptr);
-  UdpSocketPtr_drop(&udp_socketp);
 
   return 0;
 
+error_ip_cleanup:
+  IpAddrPtr_drop(&ip);
 error_buf_cleanup:
   BufferPtr_drop(&buf_ptr);
 error_out:
-  UdpSocketPtr_drop(&udp_socketp);
   return cme_return(err);
 }
 

@@ -35,23 +35,14 @@ static inline void *__GenericPtr_clone(void *data) {
 #define i_keyclone __GenericPtr_clone
 #include "stc/arc.h"
 
-  /* static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
-   */
-  /*                                                     void *data) { */
-  /*   /\* */
-  /*    from_ptr is better than from because it does not alloc one chunk of
-   * memory */
-  /*     for value and ptr, but rather use seperate chunks. This way we can dump
-   */
-  /*     back from generic ptr to customized ptr easilly. */
-  /*   *\/ */
-  /*   struct GenericPtr out = GenericPtr_from_ptr(data); */
-  /*   *out.use_count = usage_count; */
-  /*   return (struct GenericPtr) { .use_count; } */
-
+/*
+   To cast ARC ptr to generic ptr it has to be created with arc_X_from_ptr func.
+    Otherise ptr and data are in one chunk of memory wich leads to issues with
+    freeing in STC.
+*/
 #define GenericPtr_from_arc(TYPE, tptr)                                        \
   ({                                                                           \
-    TYPE##_clone(*tptr);                                                       \
+    TYPE##_clone(*(tptr));                                                     \
     struct GenericPtr out__ = {                                                \
         .use_count = (tptr)->use_count,                                        \
         .get = (void *)((tptr)->get),                                          \
@@ -61,12 +52,8 @@ static inline void *__GenericPtr_clone(void *data) {
 
 #define GenericPtr_dump(TYPE, gptr)                                            \
   ({                                                                           \
-    struct TYPE out__ = {.use_count = gptr.use_count,                          \
-                         .get = (void *)(gptr.get)};                           \
-                                                                               \
-    /* poison source so its future drop is a no-op */                          \
-    (gptr).get = NULL;                                                         \
-    (gptr).use_count = NULL;                                                   \
+    struct TYPE out__ =                                                        \
+        (struct TYPE){.use_count = gptr.use_count, .get = (void *)(gptr.get)}; \
     out__;                                                                     \
   })
 
