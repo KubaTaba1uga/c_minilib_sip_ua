@@ -146,7 +146,7 @@ SipServerTransactionPtr_next_state(sip_msg_t sip_msg,
             strans.get->sip_core.get->evl, 0,
             200000000, // 200ms
             SipServerTransactionPtr_timer_timeouth_invite_100_timer,
-            GenericPtr_from(SipServerTransactionPtr, &strans),
+            GenericPtr_from_arc(SipServerTransactionPtr, &strans),
             &strans.get->invite_100_timer);
         if (err) {
           goto error_out;
@@ -212,7 +212,7 @@ static inline cme_error_t
 SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
                               struct SipServerTransactionPtr *strans) {
   puts(__func__);
-  csview_ptr_t bytes;
+  struct BufferPtr bytes;
   sip_msg_t sipmsg;
   cme_error_t err;
 
@@ -252,7 +252,7 @@ SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
         err = TimerFdPtr_create(
             strans->get->sip_core.get->evl, 0, __SIP_CORE_STRANS_T1,
             SipServerTransactionPtr_timer_timeouth_invite_3xx_6xx_timer,
-            GenericPtr_from(SipServerTransactionPtr, strans),
+            GenericPtr_from_arc(SipServerTransactionPtr, strans),
             &strans->get->invite_3xx_6xx_timer);
         if (err) {
           goto error_sip_msg_cleanup;
@@ -264,7 +264,7 @@ SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
       err = TimerFdPtr_create(
           strans->get->sip_core.get->evl, 0, __SIP_CORE_STRANS_T1 * 64,
           SipServerTransactionPtr_timer_timeouth_invite_retransmission_timer,
-          GenericPtr_from(SipServerTransactionPtr, strans),
+          GenericPtr_from_arc(SipServerTransactionPtr, strans),
           &strans->get->invite_retransmission_timer);
       if (err) {
         goto error_sip_msg_cleanup;

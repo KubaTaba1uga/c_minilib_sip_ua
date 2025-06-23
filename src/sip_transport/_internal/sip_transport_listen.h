@@ -23,7 +23,7 @@
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
 
-static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer,
+static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf, ip_t peer,
                                             struct GenericPtr data);
 
 static inline cme_error_t
@@ -36,7 +36,7 @@ __SipTransport_listen(struct SipTransportPtr *sip_transp,
   case SipTransportProtocolType_UDP:
     err = UdpSocketPtr_listen(sip_transp->get->udp_socket,
                               __SipTransport_udp_recvh,
-                              GenericPtr_from(SipTransportPtr, sip_transp));
+                              GenericPtr_from_arc(SipTransportPtr, sip_transp));
     if (err) {
       goto error_out;
     }
@@ -56,7 +56,7 @@ error_out:
   return cme_return(err);
 }
 
-static cme_error_t __SipTransport_udp_recvh(csview_ptr_t buf, ip_t peer_ip,
+static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf, ip_t peer_ip,
                                             struct GenericPtr data) {
   struct SipTransportPtr sip_transp = GenericPtr_dump(SipTransportPtr, data);
   sip_msg_t sip_msg;

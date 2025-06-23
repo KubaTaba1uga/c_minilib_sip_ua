@@ -53,7 +53,7 @@ cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
 };
 
 cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
-                                 ip_t ip_addr, csview_ptr_t bytes) {
+                                 ip_t ip_addr, struct BufferPtr bytes) {
   return __SipTransport_send(sip_transpp, ip_addr, bytes);
 };
 

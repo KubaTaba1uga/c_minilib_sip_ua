@@ -32,7 +32,7 @@ cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
 
   err = SipTransportPtr_listen(&sip_core.get->sip_transp,
                                __SipCore_sip_transp_recvh,
-                               GenericPtr_from(SipCorePtr, &sip_core));
+                               GenericPtr_from_arc(SipCorePtr, &sip_core));
   if (err) {
     goto error_out;
   }

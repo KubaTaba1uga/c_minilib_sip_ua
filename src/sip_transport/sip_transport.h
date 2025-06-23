@@ -17,7 +17,7 @@
 #include "c_minilib_sip_codec.h"
 
 #include "event_loop/event_loop.h"
-#include "utils/csview_ptr.h"
+#include "utils/buffer_ptr.h"
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
 
@@ -45,7 +45,7 @@ cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
                                    struct GenericPtr arg);
 
 cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
-                                 ip_t ip_addr, csview_ptr_t bytes);
+                                 ip_t ip_addr, struct BufferPtr bytes);
 
 bool SipTransportPtr_is_reliable(struct SipTransportPtr sip_transpp);
 

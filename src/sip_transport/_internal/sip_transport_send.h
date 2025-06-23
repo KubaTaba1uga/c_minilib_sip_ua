@@ -13,7 +13,7 @@
 #include "udp_socket/udp_socket.h"
 
 cme_error_t __SipTransport_send(struct SipTransportPtr *sip_transpp,
-                                ip_t ip_addr, csview_ptr_t bytes) {
+                                ip_t ip_addr, struct BufferPtr bytes) {
   cme_error_t err;
 
   switch (sip_transpp->get->proto_type) {

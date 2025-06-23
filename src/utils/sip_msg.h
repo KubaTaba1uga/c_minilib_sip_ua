@@ -17,7 +17,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "stc/cstr.h"
-#include "utils/csview_ptr.h"
+#include "utils/buffer_ptr.h"
 
 static inline void __SipMessage_destroy(struct cmsc_SipMessage **data) {
   puts(__func__);
@@ -36,7 +36,7 @@ __SipMessage_clone(struct cmsc_SipMessage *sip_msg) {
 
 typedef struct __SipMessagePtr sip_msg_t;
 
-static inline cme_error_t sip_msg_parse(csview_ptr_t buf, sip_msg_t *out) {
+static inline cme_error_t sip_msg_parse(struct BufferPtr buf, sip_msg_t *out) {
   puts(__func__);
   cme_error_t err;
 
@@ -54,7 +54,7 @@ static inline cme_error_t sip_msg_parse(csview_ptr_t buf, sip_msg_t *out) {
 
   assert(msg != NULL);
 
-  csview_ptr_ref(buf); // Now message holds buf memory
+  BufferPtr_clone(buf);
   *out = __SipMessagePtr_from(msg);
 
   assert(out->get != NULL);
@@ -289,7 +289,7 @@ __sip_msg_status_add_to_tag(csview to_uri, struct cmsc_SipMessage *sipmsg) {
 }
 
 static inline cme_error_t sip_msg_generate(sip_msg_t sip_msg,
-                                           csview_ptr_t *out) {
+                                           struct BufferPtr *out) {
   struct csview buffer;
   cme_error_t err;
 
@@ -300,7 +300,7 @@ static inline cme_error_t sip_msg_generate(sip_msg_t sip_msg,
 
   printf("Buggy buffer size: %td\n\n", buffer.size);
 
-  *out = csview_ptr_from(buffer);
+  *out = BufferPtr_from(buffer);
 
   return 0;
 

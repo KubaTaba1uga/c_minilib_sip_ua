@@ -14,8 +14,7 @@
 #include "stc/cstr.h"
 
 #include "event_loop/event_loop.h"
-#include "utils/buffer.h"
-#include "utils/csview_ptr.h"
+#include "utils/buffer_ptr.h"
 #include "utils/ip.h"
 
 #include "udp_socket/_internal/udp_socket.h"
@@ -37,6 +36,6 @@ cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
                                 struct GenericPtr arg);
 
 cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
-                              csview_ptr_t bytes);
+                              struct BufferPtr bytes);
 
 #endif // C_MINILIB_SIP_UA_UDP_SOCKET_H

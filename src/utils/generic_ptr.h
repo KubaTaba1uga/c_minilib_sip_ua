@@ -44,11 +44,7 @@ static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
   return out;
 }
 
-#undef GenericPtr_from
-#undef GenericPtr_from_ptr
-#undef GenericPtr_drop
-
-#define GenericPtr_from(TYPE, tptr)                                            \
+#define GenericPtr_from_arc(TYPE, tptr)                                        \
   ({                                                                           \
     TYPE##_clone(*tptr);                                                       \
     __GenericPtr_create(TYPE##_use_count(tptr), (tptr)->get);                  \
@@ -72,5 +68,9 @@ static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
 /*     (gptr).use_count = NULL; \ */
 /*     out__; \ */
 /*   }) */
+
+#undef GenericPtr_from
+#undef GenericPtr_from_ptr
+#undef GenericPtr_drop
 
 #endif // C_MINILIB_SIP_UA_UTILS_GENERIC_PTR_H

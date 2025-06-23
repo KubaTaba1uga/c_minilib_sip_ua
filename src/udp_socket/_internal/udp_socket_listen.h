@@ -19,11 +19,11 @@
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
 #include "udp_socket/udp_socket.h"
-#include "utils/csview_ptr.h"
+#include "utils/buffer_ptr.h"
 #include "utils/generic_ptr.h"
 #include "utils/ip.h"
 
-typedef cme_error_t (*udp_socket_recvh_t)(csview_ptr_t buf, ip_t peer,
+typedef cme_error_t (*udp_socket_recvh_t)(struct BufferPtr buf, ip_t peer,
                                           struct GenericPtr data);
 
 static inline cme_error_t __UdpSocket_listen(struct UdpSocketPtr udp_socketp,
@@ -50,7 +50,7 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   struct UdpSocketPtr udp_socketp = GenericPtr_dump(UdpSocketPtr, data);
   struct sockaddr_storage sender_addr;
   socklen_t sender_addr_len;
-  csview_ptr_t buf_ptr;
+  struct BufferPtr buf_ptr;
   int32_t buf_len;
   cme_error_t err;
 
@@ -59,7 +59,7 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   assert(udp_socketp.get->fd != 0);
 
   printf("FD: %d\n", udp_socketp.get->fd);
-  err = csview_ptr_create(__UDP_MSG_SIZE_MAX, &buf_ptr);
+  err = BufferPtr_create(__UDP_MSG_SIZE_MAX, &buf_ptr);
   if (err) {
     goto error_out;
   }
@@ -97,13 +97,13 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
     }
   }
 
-  csview_ptr_deref(buf_ptr);
+  BufferPtr_drop(&buf_ptr);
   /* UdpSocketPtr_drop(&udp_socketp); */
 
   return 0;
 
 error_buf_cleanup:
-  csview_ptr_deref(buf_ptr);
+  BufferPtr_drop(&buf_ptr);
 error_out:
   UdpSocketPtr_drop(&udp_socketp);
   return cme_return(err);

@@ -21,11 +21,12 @@
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
 #include "udp_socket/udp_socket.h"
-#include "utils/csview_ptr.h"
+#include "utils/buffer_ptr.h"
 #include "utils/ip.h"
 
 static inline cme_error_t __UdpSocket_send(struct UdpSocketPtr udp_socket,
-                                           ip_t ip_addr, csview_ptr_t bytes) {
+                                           ip_t ip_addr,
+                                           struct BufferPtr bytes) {
   puts(__func__);
   struct addrinfo *receiver_addr = NULL;
   cme_error_t err;

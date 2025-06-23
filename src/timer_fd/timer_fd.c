@@ -43,7 +43,7 @@ cme_error_t TimerFdPtr_create(struct EventLoopPtr evl, time_t seconds,
   });
 
   err = EventLoopPtr_insert_timerfd(evl, timerfd, __Timer_timeouth,
-                                    GenericPtr_from(TimerFdPtr, out));
+                                    GenericPtr_from_arc(TimerFdPtr, out));
   if (err) {
     TimerFdPtr_drop(out);
     err = cme_errorf(errno, "Cannot insert timer into event loop");

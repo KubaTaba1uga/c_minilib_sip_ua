@@ -39,7 +39,7 @@ int main(void) {
   }
 
   err = SipCorePtr_listen(__sip_core_request_handler,
-                          GenericPtr_from(SipCorePtr, &sip_core), sip_core);
+                          GenericPtr_from_arc(SipCorePtr, &sip_core), sip_core);
   if (err) {
     goto error_core_cleanup;
   }

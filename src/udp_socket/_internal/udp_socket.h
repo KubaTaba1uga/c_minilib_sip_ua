@@ -21,7 +21,7 @@
 
 #include "event_loop/event_loop.h"
 #include "utils/buffer.h"
-#include "utils/csview_ptr.h"
+#include "utils/buffer_ptr.h"
 #include "utils/generic_ptr.h"
 #include "utils/ip.h"
 
@@ -29,7 +29,7 @@
 #define __UDP_MSG_SIZE_MAX 2048
 #endif
 
-typedef cme_error_t (*udp_socket_recvh_t)(csview_ptr_t buf, ip_t peer,
+typedef cme_error_t (*udp_socket_recvh_t)(struct BufferPtr buf, ip_t peer,
                                           struct GenericPtr data);
 
 struct __UdpSocket {

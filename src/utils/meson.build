@@ -3,4 +3,5 @@ sources += files(
    'socket.h',
    'sip_msg.h',
    'generic_ptr.h',
+   'buffer_ptr.h',   
 )

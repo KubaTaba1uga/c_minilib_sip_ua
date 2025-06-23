@@ -46,7 +46,7 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl, ip_t ip_addr,
   printf("SOCKFD: %d\n", out->get->fd);
   printf("SOCK PTR: %p\n", out->get);
 
-  struct GenericPtr gp = GenericPtr_from(UdpSocketPtr, out);
+  struct GenericPtr gp = GenericPtr_from_arc(UdpSocketPtr, out);
   struct __UdpSocket *tmpsock = (void *)(gp.get);
 
   printf("TMP SOCKFD: %d\n", tmpsock->fd);
@@ -90,7 +90,7 @@ cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
 };
 
 cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket, ip_t ip_addr,
-                              csview_ptr_t bytes) {
+                              struct BufferPtr bytes) {
   puts(__func__);
   return __UdpSocket_send(udp_socket, ip_addr, bytes);
 }
