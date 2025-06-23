@@ -35,22 +35,28 @@ static inline void *__GenericPtr_clone(void *data) {
 #define i_keyclone __GenericPtr_clone
 #include "stc/arc.h"
 
-static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
-                                                    void *data) {
-  /*
-   from_ptr is better than from because it does not alloc one chunk of memory
-    for value and ptr, but rather use seperate chunks. This way we can dump
-    back from generic ptr to customized ptr easilly.
-  */
-  struct GenericPtr out = GenericPtr_from_ptr(data);
-  *out.use_count = usage_count;
-  return out;
-}
+  /* static inline struct GenericPtr __GenericPtr_create(uint32_t usage_count,
+   */
+  /*                                                     void *data) { */
+  /*   /\* */
+  /*    from_ptr is better than from because it does not alloc one chunk of
+   * memory */
+  /*     for value and ptr, but rather use seperate chunks. This way we can dump
+   */
+  /*     back from generic ptr to customized ptr easilly. */
+  /*   *\/ */
+  /*   struct GenericPtr out = GenericPtr_from_ptr(data); */
+  /*   *out.use_count = usage_count; */
+  /*   return (struct GenericPtr) { .use_count; } */
 
 #define GenericPtr_from_arc(TYPE, tptr)                                        \
   ({                                                                           \
     TYPE##_clone(*tptr);                                                       \
-    __GenericPtr_create(TYPE##_use_count(tptr), (tptr)->get);                  \
+    struct GenericPtr out__ = {                                                \
+        .use_count = (tptr)->use_count,                                        \
+        .get = (void *)((tptr)->get),                                          \
+    };                                                                         \
+    out__;                                                                     \
   })
 
 #define GenericPtr_dump(TYPE, gptr)                                            \

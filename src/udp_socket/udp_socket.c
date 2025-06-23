@@ -4,6 +4,7 @@
 #include "udp_socket/_internal/udp_socket_listen.h"
 #include "udp_socket/_internal/udp_socket_send.h"
 #include "utils/generic_ptr.h"
+#include "utils/memory.h"
 
 cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl,
                                 struct IpAddrPtr ip_addr,
@@ -44,20 +45,30 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl,
     goto error_out;
   }
 
-  *out = UdpSocketPtr_from((struct __UdpSocket){
+  struct __UdpSocket *udp_socket = my_malloc(sizeof(struct __UdpSocket));
+  *udp_socket = (struct __UdpSocket){
       .ip_addr = IpAddrPtr_clone(ip_addr),
       .evl = EventLoopPtr_clone(evl),
       .fd = sockfd,
-  });
+  };
 
-  printf("SOCKFD: %d\n", out->get->fd);
-  printf("SOCK PTR: %p\n", out->get);
-
+  *out = UdpSocketPtr_from_ptr(udp_socket);
+  printf("Counter: %ld\n", *out->use_count);
   struct GenericPtr gp = GenericPtr_from_arc(UdpSocketPtr, out);
-  struct __UdpSocket *tmpsock = (void *)(gp.get);
+  printf("Counter: %ld\n", *out->use_count);
+  printf("Counter: %ld\n", *gp.use_count);
+  GenericPtr_from_arc(UdpSocketPtr, out);
+  printf("Counter: %ld\n", *out->use_count);
+  printf("Counter: %ld\n", *gp.use_count);
 
-  printf("TMP SOCKFD: %d\n", tmpsock->fd);
-  printf("SOCK PTR: %p\n", tmpsock);
+  /* printf("SOCKFD: %d\n", out->get->fd); */
+  /* printf("SOCK PTR: %p\n", out->get); */
+
+  /* struct GenericPtr gp = GenericPtr_from_arc(UdpSocketPtr, out); */
+  /* struct __UdpSocket *tmpsock = (void *)(gp.get); */
+
+  /* printf("TMP SOCKFD: %d\n", tmpsock->fd); */
+  /* printf("SOCK PTR: %p\n", tmpsock); */
 
   err = EventLoopPtr_insert_socketfd(evl, sockfd, __UdpSocket_recv, gp);
   if (err) {

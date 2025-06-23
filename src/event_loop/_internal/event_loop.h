@@ -31,7 +31,7 @@ struct __EventLoop {
 void __EventLoop_destroy(struct __EventLoop *evl);
 struct __EventLoop __EventLoop_clone(struct __EventLoop evl);
 
-#define i_type __EventLoopPtr
+#define i_type EventLoopPtr
 #define i_key struct __EventLoop
 #define i_keydrop __EventLoop_destroy
 #define i_keyclone __EventLoop_clone

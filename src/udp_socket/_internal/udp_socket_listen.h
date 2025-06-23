@@ -83,15 +83,20 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   buf_ptr.get->size = buf_len;
 
   if (udp_socketp.get->recvh) {
-    char *ip_str = my_calloc(INET6_ADDRSTRLEN + 1, sizeof(char));
-    char *port_str = my_calloc(8 + 1, sizeof(char));
+    char *ip_str[INET6_ADDRSTRLEN + 1];
+    char *port_str[8 + 1];
+
+    memset(ip_str, 0, INET6_ADDRSTRLEN + 1);
+    memset(port_str, 0, 8 + 1);
 
     struct sockaddr_in *s = (struct sockaddr_in *)&sender_addr;
-    inet_ntop(AF_INET, &s->sin_addr, ip_str, INET6_ADDRSTRLEN);
-    snprintf(port_str, 8, "%u", ntohs(s->sin_port));
+    inet_ntop(AF_INET, &s->sin_addr, (char *)ip_str, INET6_ADDRSTRLEN);
+    snprintf((char *)port_str, 8, "%u", ntohs(s->sin_port));
 
     err = udp_socketp.get->recvh(
-        buf_ptr, IpAddrPtr_create(cstr_from(ip_str), cstr_from(port_str)),
+        buf_ptr,
+        IpAddrPtr_create(cstr_from((const char *)ip_str),
+                         cstr_from((const char *)port_str)),
         udp_socketp.get->recvh_arg);
     if (err) {
       goto error_buf_cleanup;
@@ -99,7 +104,7 @@ inline static cme_error_t __UdpSocket_recv(struct GenericPtr data) {
   }
 
   BufferPtr_drop(&buf_ptr);
-  /* UdpSocketPtr_drop(&udp_socketp); */
+  UdpSocketPtr_drop(&udp_socketp);
 
   return 0;
 

@@ -23,12 +23,6 @@
 /******************************************************************************
  *                             Event Loop                                     *
  ******************************************************************************/
-#define i_type EventLoopPtr
-#define i_key struct __EventLoop
-#define i_keydrop __EventLoop_destroy
-#define i_keyclone __EventLoop_clone
-#include "stc/arc.h"
-
 cme_error_t EventLoopPtr_create(struct EventLoopPtr *out);
 
 cme_error_t EventLoopPtr_insert_socketfd(struct EventLoopPtr evlp, uint32_t fd,

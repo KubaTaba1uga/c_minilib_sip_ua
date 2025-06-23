@@ -39,4 +39,6 @@ cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
 cme_error_t UdpSocketPtr_send(struct UdpSocketPtr udp_socket,
                               struct IpAddrPtr ip_addr, struct BufferPtr bytes);
 
+#undef UdpSocketPtr_from
+
 #endif // C_MINILIB_SIP_UA_UDP_SOCKET_H
