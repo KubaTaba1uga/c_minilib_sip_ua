@@ -10,6 +10,7 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/_internal/fd.h"
+#include "utils/stc_wrapper.h"
 
 #define i_tag _PollFdsVec
 #define i_key __PollFd
@@ -43,7 +44,7 @@ static inline cme_error_t __PollFdsVec_poll(vec__PollFdsVec *fds) {
 }
 
 static inline __PollFd *__PollFdsVec_find(int32_t fd, vec__PollFdsVec *fds) {
-  c_foreach(vec_fd, vec__PollFdsVec, *fds) {
+  vec_foreach(vec_fd, vec__PollFdsVec, *fds) {
     if (vec_fd.ref->fd == fd) {
       return (__PollFd *)vec_fd.ref;
     }
@@ -53,13 +54,21 @@ static inline __PollFd *__PollFdsVec_find(int32_t fd, vec__PollFdsVec *fds) {
 }
 
 static inline void __PollFdsVec_remove(int32_t fd, vec__PollFdsVec *fds) {
-  c_foreach(vec_fd, vec__PollFdsVec, *fds) {
+  vec_foreach(vec_fd, vec__PollFdsVec, *fds) {
     if (vec_fd.ref->fd == fd) {
       vec__PollFdsVec_erase_at(fds, vec_fd);
-      break;
     }
   }
 }
+
+/* static inline void __PollFdsVec_remove(int32_t fd, vec__PollFdsVec *fds) { */
+/*   c_foreach(vec_fd, vec__PollFdsVec, *fds) { */
+/*     if (vec_fd.ref->fd == fd) { */
+/*       vec__PollFdsVec_erase_at(fds, vec_fd); */
+/*       break; */
+/*     } */
+/*   } */
+/* } */
 
 static inline cme_error_t __PollFdsVec_set_pollout(int32_t fd,
                                                    vec__PollFdsVec *fds) {

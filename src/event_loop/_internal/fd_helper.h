@@ -47,6 +47,7 @@ static inline cme_error_t __FdHelper_init(enum __FdType fd_type,
 }
 
 static inline void __FdHelper_destroy(__FdHelper **out) {
+  puts(__func__);
   if (!out || !*out) {
     return;
   }
