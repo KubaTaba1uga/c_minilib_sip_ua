@@ -17,3 +17,9 @@
     puts(err->msg);                                                            \
   }                                                                            \
   TEST_ASSERT_NULL(err)
+
+#define MYTEST_ASSERT_ERR_NOT_NULL(err)                                        \
+  if (err) {                                                                   \
+    puts(err->msg);                                                            \
+  }                                                                            \
+  TEST_ASSERT_NOT_NULL(err)
