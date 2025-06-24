@@ -109,6 +109,6 @@ void test_SipTransportPtr_create_unsupported_proto(void) {
       evlp, ip, (enum SipTransportProtocolType)0xdeadbeef, &stptr);
 
   // Assert: unsupported protocol error
-  TEST_ASSERT_NOT_NULL(err);
+  MYTEST_ASSERT_ERR_NOT_NULL(err);
   TEST_ASSERT_NULL(stptr.get);
 }
