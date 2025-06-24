@@ -13,8 +13,6 @@
 #include "unity.h"
 #include "unity_wrapper.h"
 
-#include "event_loop/_internal/fd_helper.h"
-#include "event_loop/_internal/fd_helper_hmap.h"
 #include "event_loop/event_loop.h"
 #include "my_struct.h"
 #include "utils/generic_ptr.h"

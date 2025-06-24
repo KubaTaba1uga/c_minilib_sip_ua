@@ -53,12 +53,6 @@ static inline cme_error_t SipMessagePtr_parse(struct BufferPtr buf,
   cme_error_t err;
   err = cmsc_parse_sip(buf.get->size, buf.get->buf, &msg);
   if (err) {
-    // TO-DO log that malformed sip msg send.
-    if (err->code == EINVAL) {
-      puts(err->msg);
-      puts("malformed msg");
-      return 0;
-    }
     goto error_out;
   }
 

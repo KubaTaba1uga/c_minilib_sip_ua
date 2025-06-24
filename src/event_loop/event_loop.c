@@ -117,25 +117,19 @@ cme_error_t EventLoopPtr_start(struct EventLoopPtr evlp) {
   while (true && i++ < 3) {
     err = __PollFdsVec_poll(&evlp.get->fds);
     if (err) {
-      goto error_skip;
+      goto error_out;
     }
 
     err = __EventLoop_process_events(evlp);
     if (err) {
-      goto error_skip;
+      goto error_out;
     }
-
-    continue;
-  error_skip:
-    printf("Error occured in events processing: %d:%s:%s\n", err->code,
-           strerror(err->code), err->msg);
-    cme_error_dump_to_file(err, "event_loop_error.txt");
   }
 
   return 0;
 
-  /* error_out: */
-  /*   return cme_return(err); */
+error_out:
+  return cme_return(err);
 };
 
 static inline cme_error_t __EventLoop_process_events(struct EventLoopPtr evlp) {
