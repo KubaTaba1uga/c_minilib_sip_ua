@@ -46,6 +46,7 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl,
 error_udp_socket_cleanup:
   UdpSocketPtr_drop(out);
 error_out:
+  *out = (struct UdpSocketPtr){0};
   return cme_return(err);
 };
 

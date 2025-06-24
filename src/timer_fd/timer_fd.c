@@ -59,6 +59,7 @@ error_evl_cleanup:
 error_timerfd_cleanup:
   close(timerfd);
 error_out:
+  *out = (struct TimerFdPtr){0};
   return cme_return(err);
 };
 

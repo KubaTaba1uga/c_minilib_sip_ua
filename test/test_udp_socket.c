@@ -1,4 +1,4 @@
-// test/test_udp_socket_ptr_create_error.c
+// test/test_udp_socket.c
 
 #include <arpa/inet.h>
 #include <netinet/in.h>

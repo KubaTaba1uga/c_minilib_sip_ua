@@ -36,6 +36,7 @@ cme_error_t SipTransportPtr_create(struct EventLoopPtr evl,
 
 error_out:
   SipTransportPtr_drop(out);
+  *out = (struct SipTransportPtr){0};
   return cme_return(err);
 };
 

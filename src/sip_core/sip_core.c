@@ -30,6 +30,7 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
   return 0;
 
 error_out:
+  *out = (struct SipCorePtr){0};
   return cme_return(err);
 };
 
