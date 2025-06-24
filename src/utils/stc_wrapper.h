@@ -8,6 +8,8 @@
 #define C_MINILIB_SIP_UA_UTILS_STC_WRAPPER_H
 #include "stc/common.h"
 
+// c_foreach does not respect size, leading to non obvious bugs.
+// PLS do not use it!!!
 #define vec_foreach(it, TYPE, container)                                       \
   c_foreach_n(it, TYPE, (container), (container).size)
 

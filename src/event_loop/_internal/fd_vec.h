@@ -57,6 +57,7 @@ static inline void __PollFdsVec_remove(int32_t fd, vec__PollFdsVec *fds) {
   vec_foreach(vec_fd, vec__PollFdsVec, *fds) {
     if (vec_fd.ref->fd == fd) {
       vec__PollFdsVec_erase_at(fds, vec_fd);
+      break;
     }
   }
 }
