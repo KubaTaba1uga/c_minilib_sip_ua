@@ -50,8 +50,7 @@ struct __SipCore __SipCore_clone(struct __SipCore sip_core) {
   return sip_core;
 };
 
-cme_error_t SipCorePtr_listen(sip_core_request_handler_t requesth,
-                              struct GenericPtr data,
+cme_error_t SipCorePtr_listen(sip_core_connh_t connh, struct GenericPtr arg,
                               struct SipCorePtr sip_core) {
-  return __SipCore_listen(requesth, data, sip_core);
+  return __SipCore_listen(connh, arg, sip_core);
 };

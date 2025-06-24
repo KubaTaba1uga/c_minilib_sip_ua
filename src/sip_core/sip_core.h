@@ -31,6 +31,10 @@ typedef cme_error_t (*sip_core_connh_t)(
     struct SipCorePtr *sip_core, struct SipServerTransactionPtr *sip_strans,
     struct GenericPtr data);
 
+typedef cme_error_t (*sip_core_reqh_t)(
+    struct SipMessagePtr sip_msg, struct SipCorePtr *sip_core,
+    struct SipServerTransactionPtr *sip_strans, struct GenericPtr arg);
+
 cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
                               enum SipTransportProtocolType proto_type,
                               struct SipCorePtr *out);
@@ -67,8 +71,7 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
  for implementing different TU operations quickly and easilly. Sip Core
  handles matching requests to responses via transactions.
 */
-
-cme_error_t SipCorePtr_listen(sip_core_connh_t requesth, struct GenericPtr data,
+cme_error_t SipCorePtr_listen(sip_core_connh_t connh, struct GenericPtr arg,
                               struct SipCorePtr sip_core);
 
 /* cme_error_t sip_send(sip_core_response_handler_t resph, struct SipMessagePtr

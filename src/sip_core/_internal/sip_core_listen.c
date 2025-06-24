@@ -22,14 +22,13 @@ static cme_error_t __SipCore_sip_transp_recvh(struct SipMessagePtr sip_msg,
                                               struct SipTransportPtr sip_transp,
                                               struct GenericPtr arg);
 
-cme_error_t __SipCore_listen(sip_core_request_handler_t reqh,
-                             struct GenericPtr data,
+cme_error_t __SipCore_listen(sip_core_connh_t connh, struct GenericPtr arg,
                              struct SipCorePtr sip_core) {
   cme_error_t err;
 
   queue__SipCoreListeners_push(
       sip_core.get->listeners,
-      (struct __SipCoreListener){.request_handler = reqh, .arg = data});
+      (struct __SipCoreListener){.request_handler = connh, .arg = arg});
 
   err = SipTransportPtr_listen(&sip_core.get->sip_transp,
                                __SipCore_sip_transp_recvh,
@@ -46,7 +45,7 @@ error_out:
 
 static inline cme_error_t __SipCore_sip_transp_recvh(
     struct SipMessagePtr sip_msg, struct IpAddrPtr peer_ip,
-    struct SipTransportPtr sip_transp, struct GenericPtr data) {
+    struct SipTransportPtr sip_transp, struct GenericPtr arg) {
   /*
     On every request we do:
      1. If it is sip request (which is not ACK and is not matching to any
@@ -66,7 +65,7 @@ This means we need sth to match client transactions and user callbacks.
    */
   puts(__func__);
   /* struct SipServerTransactionPtr *strans = NULL; */
-  struct SipCorePtr sip_core = GenericPtr_dump(SipCorePtr, data);
+  struct SipCorePtr sip_core = GenericPtr_dump(SipCorePtr, arg);
   /* cme_error_t err; */
 
   assert(sip_core.get != NULL);
@@ -101,7 +100,7 @@ This means we need sth to match client transactions and user callbacks.
   /*   // TO-DO: handle client transaction */
   /* } */
 
-  (void)data;
+  (void)arg;
 
   return 0;
 

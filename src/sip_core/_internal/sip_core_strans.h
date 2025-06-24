@@ -19,27 +19,36 @@
 #include "sip_core/_internal/sip_core.h"
 #include "timer_fd/timer_fd.h"
 
+enum __SipServerTransactionType {
+  __SipServerTransactionType_INVITE,
+  __SipServerTransactionType_NON_INVITE,
+};
+
 enum __SipServerTransactionState {
-  __SipServerTransactionState_TRYING, // Initial state before anything is sent
-  __SipServerTransactionState_PROCEEDING, // After sending 100 Trying or 1xx
-                                          // provisional
-  __SipServerTransactionState_COMPLETED, // After sending 3xx–6xx final response
-  __SipServerTransactionState_CONFIRMED, // After receiving ACK for 3xx–6xx
-                                         // response
-  __SipServerTransactionState_TERMINATED, // After sending 2xx final response or
-                                          // completing ACK processing
+  __SipServerTransactionState_NONE, // Initial state before anything is sent
+
+  // Invite Server Transaction states
+  __SipServerTransactionState_INVITE_PROCEEDING, // After sending 100 Trying or
+                                                 // 1xx provisional
+  __SipServerTransactionState_INVITE_COMPLETED, // After sending 3xx–6xx final
+                                                // response
+  __SipServerTransactionState_INVITE_CONFIRMED, // After receiving ACK for
+                                                // 3xx–6xx response
+  __SipServerTransactionState_INVITE_TERMINATED, // After sending 2xx final
+                                                 // response or completing ACK
+                                                 // processing
 
 };
 
 struct __SipServerTransaction {
+  enum __SipServerTransactionType type;
   enum __SipServerTransactionState state;
   struct TimerFdPtr invite_retransmission_timer;
   struct TimerFdPtr invite_3xx_6xx_timer;
   struct TimerFdPtr invite_100_timer;
-  struct SipCorePtr sip_core;
   struct IpAddrPtr last_peer_ip;
   struct SipMessagePtr request;
-  bool is_invite;
+  struct SipCorePtr sip_core;
 };
 
 void __SipServerTransaction_destroy(void *data);
