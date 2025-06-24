@@ -45,12 +45,15 @@ void setUp(void) {
 }
 
 void tearDown(void) {
-  if (stptr.get)
+  if (stptr.get) {
     SipTransportPtr_drop(&stptr);
-  if (ip.get)
+  }
+  if (ip.get) {
     IpAddrPtr_drop(&ip);
-  if (evlp.get)
+  }
+  if (evlp.get) {
     EventLoopPtr_drop(&evlp);
+  }
   cme_destroy();
 }
 
