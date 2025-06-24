@@ -24,8 +24,8 @@ enum __SipServerTransactionState {
   __SipServerTransactionState_PROCEEDING, // After sending 100 Trying or 1xx
                                           // provisional
   __SipServerTransactionState_COMPLETED, // After sending 3xx–6xx final response
-  __SipServerTransactionState_CONFIRMED,  // After receiving ACK for 3xx–6xx
-                                          // response
+  __SipServerTransactionState_CONFIRMED, // After receiving ACK for 3xx–6xx
+                                         // response
   __SipServerTransactionState_TERMINATED, // After sending 2xx final response or
                                           // completing ACK processing
 
