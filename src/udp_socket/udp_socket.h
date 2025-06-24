@@ -32,6 +32,22 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evlp,
                                 struct IpAddrPtr ip_addr,
                                 struct UdpSocketPtr *out);
 
+/*
+ UdpSocket_listen set up recvh on event loop POLLIN signal .So every time Linux
+ Kernel receives some data it will fire UdpSocket_recvh, which next fire up
+ `udp_socket_recvh_t recvh` passed by user. Chain looks sth like:
+     EventLoop
+        |
+        | POLLIN signal
+        |
+        V
+     UdpSocket
+        |
+        | bytes
+        |
+        V
+     `udp_socket_recvh_t recvh`
+*/
 cme_error_t UdpSocketPtr_listen(struct UdpSocketPtr udp_socket,
                                 udp_socket_recvh_t recvh,
                                 struct GenericPtr arg);
