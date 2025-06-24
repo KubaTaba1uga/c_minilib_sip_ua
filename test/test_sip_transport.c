@@ -205,6 +205,8 @@ void test___SipTransport_udp_recvh_malformed_message_ignored(void) {
       (struct csview){.size = (long)strlen(bad), .buf = strdup(bad)}, &bufp);
   MYTEST_ASSERT_ERR_NULL(err);
 
+  // On malformed msg we do not raise err and we do not call lower layer
+  // handler. Malformed msg is just silently skipped.
   err = __SipTransport_udp_recvh(bufp, ip,
                                  GenericPtr_from_arc(SipTransportPtr, &stptr));
   MYTEST_ASSERT_ERR_NULL(err);
@@ -215,7 +217,7 @@ void test___SipTransport_udp_recvh_malformed_message_ignored(void) {
 }
 
 void test___SipTransport_udp_recvh_handler_error_propagates(void) {
-  // Arrange: same transport
+
   __UdpSocket_create_fd_mock_err = false;
   ip = IpAddrPtr_create(cstr_lit("127.0.0.1"), cstr_lit("5060"));
   cme_error_t err =
@@ -225,7 +227,6 @@ void test___SipTransport_udp_recvh_handler_error_propagates(void) {
   stptr.get->recvh = test_sip_reqh_err;
   stptr.get->recvh_arg = GenericPtr_from_arc(SipTransportPtr, &stptr);
 
-  // Build valid SIP buffer
   struct BufferPtr bufp;
   err = BufferPtr_create_filled(
       (struct csview){.size = (long)strlen(kValidInvite),
@@ -233,11 +234,9 @@ void test___SipTransport_udp_recvh_handler_error_propagates(void) {
       &bufp);
   MYTEST_ASSERT_ERR_NULL(err);
 
-  // Act
   err = __SipTransport_udp_recvh(bufp, ip,
                                  GenericPtr_from_arc(SipTransportPtr, &stptr));
 
-  // Assert: our handler’s EIO gets propagated
   TEST_ASSERT_NOT_NULL(err);
   TEST_ASSERT_EQUAL_INT(EIO, err->code);
 

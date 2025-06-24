@@ -46,6 +46,7 @@ cme_error_t SipTransportPtr_create(struct EventLoopPtr evl,
  Kernel it will fire up SipTransport recvh which as consequence fire up
  `sip_transp_recvh_t recvh` with sip_msg instead of bytes. Chain looks sth
  like:
+
      EventLoop
         |
         | POLLIN signal
@@ -62,6 +63,7 @@ cme_error_t SipTransportPtr_create(struct EventLoopPtr evl,
         |
         V
      `sip_transp_recvh_t recvh`
+
 */
 cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
                                    sip_transp_recvh_t recvh,
