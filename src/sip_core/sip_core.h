@@ -8,8 +8,8 @@
 #define C_MINILIB_SIP_UA_SIP_CORE_H
 /*
   This is interface to sip_core module, if you need anything from sip_core
-  module, put interface declaration here and interface implementation in .c but
-  always write real implementation as static inline in _internal.
+  module, put interface declaration here and implementation in .c. For more
+  complex code use _internal directory to not make this module dirty.
  */
 #include <stdint.h>
 
@@ -62,14 +62,15 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
         V
      SipCore
         |
-        | SipMsg, SipServerTransaction
+        | SipMessage, SipServerTransaction
         |
         V
      `sip_core_connh_t requesth`
 
  TU interacts directly with Sip Core. Main goal of Sip Core is to allow
  for implementing different TU operations quickly and easilly. Sip Core
- handles matching requests to responses via transactions.
+ handles matching requests to responses via transactions and handles
+ retransmissions for unreliable transport protocols.
 */
 cme_error_t SipCorePtr_listen(sip_core_connh_t connh, struct GenericPtr arg,
                               struct SipCorePtr sip_core);

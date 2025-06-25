@@ -7,5 +7,6 @@ Checks: >
   -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
   -readability-enum-initial-value,
   -readability-function-cognitive-complexity,
-  -bugprone-easily-swappable-parameters
+  -bugprone-easily-swappable-parameters,
+  -bugprone-reserved-identifier,-warnings-as-errors
 WarningsAsErrors: '*'

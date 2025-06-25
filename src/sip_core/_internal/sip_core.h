@@ -28,7 +28,9 @@ struct __SipCore {
 };
 
 void __SipCore_destroy(struct __SipCore *sip_core);
-struct __SipCore __SipCore_clone(struct __SipCore sip_core);
+static inline struct __SipCore __SipCore_clone(struct __SipCore sip_core) {
+  return sip_core;
+};
 
 #define i_type SipCorePtr
 #define i_key struct __SipCore
