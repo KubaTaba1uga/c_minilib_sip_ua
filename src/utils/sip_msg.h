@@ -115,6 +115,28 @@ error_out:
   return NULL;
 }
 
+static inline csview *SipMessagePtr_get_status_code_and_reason(
+    struct SipMessagePtr msgp, uint32_t *code_out, csview *reason_out) {
+  struct cmsc_String reason = {0};
+
+  reason = cmsc_bs_msg_to_string(
+      &(msgp.get->sip_msg)->status_line.reason_phrase, msgp.get->sip_msg);
+
+  if (!reason.len) {
+    goto error_out;
+  }
+
+  *reason_out = (csview){.buf = reason.buf, .size = reason.len};
+  *code_out = msgp.get->sip_msg->status_line.status_code;
+
+  return reason_out;
+
+error_out:
+  *code_out = 0;
+  *reason_out = (csview){0};
+  return NULL;
+}
+
 static inline bool SipMessagePtr_is_request(struct SipMessagePtr msgp) {
   return cmsc_sipmsg_is_field_present(msgp.get->sip_msg,
                                       cmsc_SupportedSipHeaders_REQUEST_LINE);

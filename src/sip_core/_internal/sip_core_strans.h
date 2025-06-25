@@ -47,7 +47,9 @@ struct __SipServerTransaction {
   struct TimerFdPtr invite_3xx_6xx_timer;
   struct TimerFdPtr invite_trying_timer;
   struct IpAddrPtr last_peer_ip;
-  struct SipMessagePtr request;
+  struct SipMessagePtr last_response;
+  struct SipMessagePtr init_request;
+
   struct SipCorePtr sip_core;
 };
 
@@ -69,9 +71,14 @@ cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
                                            struct SipServerTransactionPtr *out);
 
 cme_error_t
-SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
-                              // TO-DO add more sip-msg args to fill
-                              struct SipServerTransactionPtr strans);
+SipServerTransactionPtr_internal_reply(uint32_t status_code, cstr status,
+                                       // TO-DO add more sip-msg args to fill
+                                       struct SipServerTransactionPtr strans);
+
+cme_error_t
+SipServerTransactionPtr_tu_reply(uint32_t status_code, cstr status,
+                                 // TO-DO add more sip-msg args to fill
+                                 struct SipServerTransactionPtr strans);
 
 cme_error_t
 SipServerTransactionPtr_next_state(struct SipMessagePtr sip_msg,
@@ -82,7 +89,7 @@ SipServerTransactionPtr_get_branch(struct SipServerTransactionPtr strans,
                                    struct csview *out) {
   cme_error_t err;
 
-  void *result = SipMessagePtr_get_branch(strans.get->request, out);
+  void *result = SipMessagePtr_get_branch(strans.get->init_request, out);
   if (!result) {
     err =
         cme_error(ENODATA, "Missing via->branch in server transaction request");

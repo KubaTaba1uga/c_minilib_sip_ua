@@ -60,7 +60,7 @@ cme_error_t SipServerTransactionPtr_create(
       .type = is_invite ? __SipServerTransactionType_INVITE
                         : __SipServerTransactionType_NONINVITE,
       .state = __SipServerTransactionState_NONE,
-      .request = SipMessagePtr_clone(sip_msg),
+      .init_request = SipMessagePtr_clone(sip_msg),
       .sip_core = SipCorePtr_clone(sip_core),
       .last_peer_ip = IpAddrPtr_clone(peer_ip),
   };
@@ -75,12 +75,16 @@ void __SipServerTransaction_destroy(void *data) {
   puts(__func__);
   struct SipServerTransactionPtr *sip_strans = data;
 
-  SipMessagePtr_drop(&sip_strans->get->request);
+  SipMessagePtr_drop(&sip_strans->get->init_request);
+  if (sip_strans->get->last_response.get) {
+    SipMessagePtr_drop(&sip_strans->get->last_response);
+  }
 };
 
 cme_error_t
 SipServerTransactionPtr_next_state(struct SipMessagePtr sip_msg,
                                    struct SipServerTransactionPtr strans) {
+  puts(__func__);
   cme_error_t err;
 
   switch (strans.get->type) {
@@ -97,14 +101,14 @@ error_out:
 }
 
 cme_error_t
-SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
-                              struct SipServerTransactionPtr strans) {
+SipServerTransactionPtr_internal_reply(uint32_t status_code, cstr status,
+                                       struct SipServerTransactionPtr strans) {
   puts(__func__);
-  struct BufferPtr bytes;
   struct SipMessagePtr sipmsg;
+  struct BufferPtr bytes;
   cme_error_t err;
 
-  err = SipMessagePtr_status_from_request(strans.get->request, status_code,
+  err = SipMessagePtr_status_from_request(strans.get->init_request, status_code,
                                           status, &sipmsg);
   if (err) {
     goto error_out;
@@ -115,20 +119,17 @@ SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
     goto error_sip_msg_cleanup;
   }
 
-  err = SipTransportPtr_send(&strans.get->sip_core.get->sip_transp,
+  err = SipTransportPtr_send(strans.get->sip_core.get->sip_transp,
                              strans.get->last_peer_ip, bytes);
   if (err) {
     goto error_bytes_cleanup;
   }
 
-  switch (strans.get->type) {
-  case __SipServerTransactionType_INVITE:
-    return SipServerTransactionPtr_invite_reply_callback(sipmsg, strans);
-  case __SipServerTransactionType_NONINVITE:
-    err = cme_error(
-        ENOENT, "Non invite server transactions are currently not supported");
-    goto error_bytes_cleanup;
+  if (strans.get->last_response.get) {
+    SipMessagePtr_drop(&strans.get->last_response);
   }
+
+  strans.get->last_response = SipMessagePtr_clone(sipmsg);
 
   BufferPtr_drop(&bytes);
   SipMessagePtr_drop(&sipmsg);
@@ -139,6 +140,40 @@ error_bytes_cleanup:
   BufferPtr_drop(&bytes);
 error_sip_msg_cleanup:
   SipMessagePtr_drop(&sipmsg);
+error_out:
+  return cme_return(err);
+}
+
+// This function is meant to be called by TU.
+cme_error_t
+SipServerTransactionPtr_tu_reply(uint32_t status_code, cstr status,
+                                 // TO-DO add more sip-msg args to fill
+                                 struct SipServerTransactionPtr strans) {
+  bool is_for_transp;
+  cme_error_t err;
+
+  switch (strans.get->type) {
+  case __SipServerTransactionType_INVITE:
+    err = SipServerTransactionPtr_invite_tu_reply_next_state(
+        status_code, status, strans, &is_for_transp);
+    if (err) {
+      goto error_out;
+    }
+  case __SipServerTransactionType_NONINVITE:
+    err = cme_error(
+        ENOENT, "Non invite server transactions are currently not supported");
+    goto error_out;
+  }
+
+  if (is_for_transp) {
+    err = SipServerTransactionPtr_internal_reply(status_code, status, strans);
+    if (err) {
+      goto error_out;
+    }
+  }
+
+  return 0;
+
 error_out:
   return cme_return(err);
 }

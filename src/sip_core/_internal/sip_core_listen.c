@@ -127,6 +127,11 @@ This means we need sth to match client transactions and user callbacks.
         goto error_out;
       }
 
+      err = SipServerTransactionPtr_next_state(sip_msg, strans);
+      if (err) {
+        goto error_out;
+      }
+
       c_foreach(lstner, queue__SipCoreListeners, *sip_core.get->listeners) {
         err =
             lstner.ref->connh(sip_msg, sip_core, strans, lstner.ref->connh_arg);
