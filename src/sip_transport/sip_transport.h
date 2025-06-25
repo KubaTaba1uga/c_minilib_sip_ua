@@ -65,11 +65,11 @@ cme_error_t SipTransportPtr_create(struct EventLoopPtr evl,
      `sip_transp_recvh_t recvh`
 
 */
-cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
+cme_error_t SipTransportPtr_listen(struct SipTransportPtr sip_transpp,
                                    sip_transp_recvh_t recvh,
                                    struct GenericPtr arg);
 
-cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
+cme_error_t SipTransportPtr_send(struct SipTransportPtr sip_transpp,
                                  struct IpAddrPtr ip_addr,
                                  struct BufferPtr bytes);
 

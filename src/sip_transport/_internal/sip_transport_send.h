@@ -12,14 +12,14 @@
 #include "sip_transport/sip_transport.h"
 #include "udp_socket/udp_socket.h"
 
-cme_error_t __SipTransport_send(struct SipTransportPtr *sip_transpp,
+cme_error_t __SipTransport_send(struct SipTransportPtr sip_transpp,
                                 struct IpAddrPtr ip_addr,
                                 struct BufferPtr bytes) {
   cme_error_t err;
 
-  switch (sip_transpp->get->proto_type) {
+  switch (sip_transpp.get->proto_type) {
   case SipTransportProtocolType_UDP: {
-    err = UdpSocketPtr_send(sip_transpp->get->udp_socket, ip_addr, bytes);
+    err = UdpSocketPtr_send(sip_transpp.get->udp_socket, ip_addr, bytes);
     if (err) {
       goto error_out;
     }
@@ -27,7 +27,8 @@ cme_error_t __SipTransport_send(struct SipTransportPtr *sip_transpp,
   } break;
 
   default:
-    err = cme_error(EINVAL, "Unsupported transport protocol");
+    err = cme_errorf(EINVAL, "Unsupported transport protocol: %d",
+                     sip_transpp.get->proto_type);
     goto error_out;
   }
 

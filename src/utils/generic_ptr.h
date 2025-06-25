@@ -43,16 +43,16 @@ static inline void *__GenericPtr_clone(void *data) {
 #define GenericPtr_from_arc(TYPE, tptr)                                        \
   ({                                                                           \
     struct GenericPtr out__ = {                                                \
-        .use_count = (tptr)->use_count,                                        \
-        .get = (void *)((tptr)->get),                                          \
+        .use_count = (tptr).use_count,                                         \
+        .get = (void *)((tptr).get),                                           \
     };                                                                         \
     out__;                                                                     \
   })
 
 #define GenericPtr_dump(TYPE, gptr)                                            \
   ({                                                                           \
-    struct TYPE out__ =                                                        \
-        (struct TYPE){.use_count = gptr.use_count, .get = (void *)(gptr.get)}; \
+    struct TYPE out__ = (struct TYPE){.use_count = (gptr).use_count,           \
+                                      .get = (void *)((gptr).get)};            \
     out__;                                                                     \
   })
 

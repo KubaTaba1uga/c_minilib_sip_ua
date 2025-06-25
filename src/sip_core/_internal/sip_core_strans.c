@@ -1,7 +1,11 @@
+#include <asm-generic/errno-base.h>
+#include <asm-generic/errno.h>
 #include <assert.h>
 #include <stdio.h>
 
+#include "c_minilib_error.h"
 #include "sip_core/_internal/sip_core_strans.h"
+#include "sip_core/_internal/sip_core_strans_invite.h"
 #include "sip_core/_internal/sip_core_strans_map.h"
 #include "sip_transport/sip_transport.h"
 #include "timer_fd/_internal/timer_fd.h"
@@ -12,7 +16,7 @@
 /* How server transaction works for INVITE flow? */
 
 /*
- Server transaction starts in TRYING state. Point of this state is to send 100
+ Server transaction starts in NONE state. Point of this state is to send 100
  trying response to the calle. Once 100 is send transaction move to PROCEEDING
  state.
 
@@ -24,7 +28,7 @@
  In TERMINATED state transaction get destructed and all timers are stopped.
 
  In COMPLETED state timer H is set for T1*64. This timer retransmit last
- response until TERMINATED state is reached. If ACk is received in COMPLETED
+ response until TERMINATED state is reached. If ACK is received in COMPLETED
  state transaction move to CONFIRMED state.
 
  In CONFIRMED state transaction absorbs any additional ACK without informing
@@ -32,37 +36,9 @@
  fires up transaction move to TERMINATED state.
  */
 
-#define __SIP_CORE_STRANS_T1 500000000 // 500ms
-
-static inline cme_error_t
-SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
-                              struct SipServerTransactionPtr *strans);
-static inline cme_error_t
-SipServerTransactionPtr_timer_timeouth_invite_100_timer(struct TimerFdPtr timer,
-                                                        struct GenericPtr data);
-static inline cme_error_t
-SipServerTransactionPtr_timer_timeouth_invite_3xx_6xx_timer(
-    struct TimerFdPtr timer, struct GenericPtr data);
-static inline cme_error_t
-SipServerTransactionPtr_timer_timeouth_invite_retransmission_timer(
-    struct TimerFdPtr timer, struct GenericPtr data);
-
-cme_error_t
-SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
-                               struct SipCorePtr sip_core,
-                               struct IpAddrPtr last_peer_ip,
-                               // We need to take ptr to ptr becuase memory to
-                               // struct SipServerTransactionPtr that we want to
-                               // pass to TimerFdPtr_create (in next_state) is
-                               // allocated on the heap and owned by hmap.
-                               struct SipServerTransactionPtr *out) {
-  /*
-    Server transaction is composed of one or more SIP request and multiple SIP
-    statuses. This function is reposnible for creating new sip server
-    transaction and matching all next requests within this transaction to it.
-    Once new transaction is created use next on transaction to change it's
-    state.
-  */
+cme_error_t SipServerTransactionPtr_create(
+    struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
+    struct IpAddrPtr peer_ip, struct SipServerTransactionPtr *out) {
   bool is_invite = false;
   csview branch = {0};
   csview method = {0};
@@ -78,9 +54,9 @@ SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
   result = SipServerTransactions_find(branch, sip_core.get->stranses);
   if (result) {
     out = result;
-    IpAddrPtr_assign(&out->get->last_peer_ip,
-                     &last_peer_ip); // We need to update last peer ip
-                                     // to know where to send reply.
+    // Update Ip address
+    IpAddrPtr_drop(&out->get->last_peer_ip);
+    out->get->last_peer_ip = IpAddrPtr_clone(peer_ip);
     return 0;
   }
 
@@ -95,14 +71,15 @@ SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
   is_invite = strncmp(method.buf, "INVITE", method.size) == 0;
 
   struct __SipServerTransaction *strans =
-      my_calloc(1, sizeof(struct __SipServerTransaction));
+      my_malloc(sizeof(struct __SipServerTransaction));
 
   *strans = (struct __SipServerTransaction){
-      .state = __SipServerTransactionState_TRYING,
+      .type = is_invite ? __SipServerTransactionType_INVITE
+                        : __SipServerTransactionType_NONINVITE,
+      .state = __SipServerTransactionState_NONE,
       .request = SipMessagePtr_clone(sip_msg),
-      .is_invite = is_invite,
-      .sip_core = sip_core,
-      .last_peer_ip = last_peer_ip,
+      .sip_core = SipCorePtr_clone(sip_core),
+      .last_peer_ip = IpAddrPtr_clone(peer_ip),
   };
 
   err = SipServerTransactions_insert(branch,
@@ -127,96 +104,33 @@ void __SipServerTransaction_destroy(void *data) {
   SipMessagePtr_drop(&sip_strans->get->request);
 };
 
-struct __SipServerTransaction
-__SipServerTransaction_clone(struct __SipServerTransaction sip_strans) {
-  return sip_strans;
-};
-
 cme_error_t
 SipServerTransactionPtr_next_state(struct SipMessagePtr sip_msg,
                                    struct SipServerTransactionPtr strans) {
   cme_error_t err;
 
-  switch (strans.get->state) {
-
-  case __SipServerTransactionState_TRYING: {
-    if (strans.get->is_invite) {
-      if (!strans.get->invite_100_timer.get) {
-        // send 100 if TU won't in 200ms
-        SipServerTransactionPtr_clone(strans);
-        err = TimerFdPtr_create(
-            strans.get->sip_core.get->evl, 0,
-            200000000, // 200ms
-            SipServerTransactionPtr_timer_timeouth_invite_100_timer,
-            GenericPtr_from_arc(SipServerTransactionPtr, &strans),
-            &strans.get->invite_100_timer);
-        if (err) {
-          goto error_out;
-        }
-      }
-    } else {
-      // TO-DO process NON-INVITE server transaction
-    }
-
-  } break;
-
-  case __SipServerTransactionState_PROCEEDING: {
-  } break;
-
-  case __SipServerTransactionState_COMPLETED: {
-  } break;
-
-  case __SipServerTransactionState_CONFIRMED: {
-  } break;
-
-  case __SipServerTransactionState_TERMINATED: {
-  } break;
+  switch (strans.get->type) {
+  case __SipServerTransactionType_INVITE:
+    return SipServerTransactionPtr_invite_next_state(sip_msg, strans);
+  case __SipServerTransactionType_NONINVITE:
+    err = cme_error(
+        ENOENT, "Non invite server transactions are currently not supported");
+    goto error_out;
   }
-
-  return 0;
 
 error_out:
   return cme_return(err);
 }
 
-static inline cme_error_t
-SipServerTransactionPtr_timer_timeouth_invite_100_timer(
-    struct TimerFdPtr timer, struct GenericPtr data) {
-  puts(__func__);
-  struct SipServerTransactionPtr strans =
-      GenericPtr_dump(SipServerTransactionPtr, data);
-
-  assert(strans.get != NULL);
-
-  (void)SipServerTransactionPtr_reply;
-  /* cme_error_t err; */
-  /* switch (strans.get->state) { */
-  /* case __SipServerTransactionState_TRYING: */
-  /*   err = SipServerTransactionPtr_reply(100, cstr_from("Trying"), strans); */
-  /*   if (err) { */
-  /*     goto error_out; */
-  /*   } */
-
-  /* default:; */
-  /* } */
-
-  return 0;
-
-  /* error_out: */
-  /*   TimerFdPtr_rearm(*timer); // If we failed to send 100, we need to try
-   * again. */
-  /*   return cme_return(err); */
-};
-
-static inline cme_error_t
+cme_error_t
 SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
-                              struct SipServerTransactionPtr *strans) {
+                              struct SipServerTransactionPtr strans) {
   puts(__func__);
   struct BufferPtr bytes;
   struct SipMessagePtr sipmsg;
   cme_error_t err;
 
-  err = SipMessagePtr_status_from_request(strans->get->request, status_code,
+  err = SipMessagePtr_status_from_request(strans.get->request, status_code,
                                           status, &sipmsg);
   if (err) {
     goto error_out;
@@ -227,76 +141,30 @@ SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
     goto error_sip_msg_cleanup;
   }
 
-  err = SipTransportPtr_send(&strans->get->sip_core.get->sip_transp,
-                             strans->get->last_peer_ip, bytes);
+  err = SipTransportPtr_send(&strans.get->sip_core.get->sip_transp,
+                             strans.get->last_peer_ip, bytes);
   if (err) {
-    goto error_sip_msg_cleanup;
+    goto error_bytes_cleanup;
   }
 
-  switch (strans->get->state) {
-    if (strans->get->is_invite) {
-    case __SipServerTransactionState_TRYING:
-      if (status_code >= 100 && status_code <= 199) {
-        strans->get->state = __SipServerTransactionState_PROCEEDING;
-      }
-      if (status_code >= 200 && status_code <= 299) {
-        strans->get->state = __SipServerTransactionState_TERMINATED;
-      }
-    case __SipServerTransactionState_PROCEEDING:
-      if (status_code >= 200 && status_code <= 299) {
-        strans->get->state = __SipServerTransactionState_TERMINATED;
-      }
-      if (status_code >= 300 && status_code <= 699) {
-        strans->get->state = __SipServerTransactionState_COMPLETED;
-
-        err = TimerFdPtr_create(
-            strans->get->sip_core.get->evl, 0, __SIP_CORE_STRANS_T1,
-            SipServerTransactionPtr_timer_timeouth_invite_3xx_6xx_timer,
-            GenericPtr_from_arc(SipServerTransactionPtr, strans),
-            &strans->get->invite_3xx_6xx_timer);
-        if (err) {
-          goto error_sip_msg_cleanup;
-        }
-      }
-    case __SipServerTransactionState_COMPLETED:
-      strans->get->state = __SipServerTransactionState_COMPLETED;
-
-      err = TimerFdPtr_create(
-          strans->get->sip_core.get->evl, 0, __SIP_CORE_STRANS_T1 * 64,
-          SipServerTransactionPtr_timer_timeouth_invite_retransmission_timer,
-          GenericPtr_from_arc(SipServerTransactionPtr, strans),
-          &strans->get->invite_retransmission_timer);
-      if (err) {
-        goto error_sip_msg_cleanup;
-      }
-    case __SipServerTransactionState_TERMINATED:
-      SipServerTransactionPtr_drop(strans);
-    } else {
-      // Add handling for non invite
-    }
-
-    break;
-  default:;
+  switch (strans.get->type) {
+  case __SipServerTransactionType_INVITE:
+    return SipServerTransactionPtr_invite_reply_callback(sipmsg, strans);
+  case __SipServerTransactionType_NONINVITE:
+    err = cme_error(
+        ENOENT, "Non invite server transactions are currently not supported");
+    goto error_bytes_cleanup;
   }
 
+  BufferPtr_drop(&bytes);
   SipMessagePtr_drop(&sipmsg);
 
   return 0;
 
+error_bytes_cleanup:
+  BufferPtr_drop(&bytes);
 error_sip_msg_cleanup:
   SipMessagePtr_drop(&sipmsg);
 error_out:
   return cme_return(err);
-};
-
-static inline cme_error_t
-SipServerTransactionPtr_timer_timeouth_invite_3xx_6xx_timer(
-    struct TimerFdPtr timer, struct GenericPtr data) {
-  return 0;
-};
-
-static inline cme_error_t
-SipServerTransactionPtr_timer_timeouth_invite_retransmission_timer(
-    struct TimerFdPtr timer, struct GenericPtr data) {
-  return 0;
-};
+}

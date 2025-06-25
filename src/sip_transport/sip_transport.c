@@ -48,13 +48,13 @@ void __SipTransport_destroy(struct __SipTransport *sip_transp) {
   EventLoopPtr_drop(&sip_transp->evl);
 };
 
-cme_error_t SipTransportPtr_listen(struct SipTransportPtr *sip_transpp,
+cme_error_t SipTransportPtr_listen(struct SipTransportPtr sip_transpp,
                                    sip_transp_recvh_t recvh,
                                    struct GenericPtr arg) {
   return __SipTransport_listen(sip_transpp, recvh, arg);
 };
 
-cme_error_t SipTransportPtr_send(struct SipTransportPtr *sip_transpp,
+cme_error_t SipTransportPtr_send(struct SipTransportPtr sip_transpp,
                                  struct IpAddrPtr ip_addr,
                                  struct BufferPtr bytes) {
   return __SipTransport_send(sip_transpp, ip_addr, bytes);

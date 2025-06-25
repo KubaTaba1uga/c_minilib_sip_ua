@@ -33,7 +33,7 @@ cme_error_t UdpSocketPtr_create(struct EventLoopPtr evl,
   *out = UdpSocketPtr_from_ptr(udp_socket); // Now out->use_count is 1
 
   err = EventLoopPtr_insert_socketfd(evl, sockfd, __UdpSocket_recv,
-                                     GenericPtr_from_arc(UdpSocketPtr, out));
+                                     GenericPtr_from_arc(UdpSocketPtr, *out));
   if (err) {
     err = cme_errorf(errno,
                      "Cannot insert udp socket into event loop for IP=%s:%s",

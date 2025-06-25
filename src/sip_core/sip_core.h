@@ -28,11 +28,16 @@
 struct SipServerTransactionPtr;
 typedef cme_error_t (*sip_core_connh_t)(
     struct SipMessagePtr sip_msg, struct IpAddrPtr peer_ip,
-    struct SipCorePtr *sip_core, struct SipServerTransactionPtr *sip_strans,
-    struct GenericPtr data);
+    struct SipCorePtr sip_core,
+    // We need to pass ptr to `sip_strans` to callback because
+    //  sip_strans is purely SipCore internal concept and SipCore
+    //  user shouldn't unpack it on it's own. But we need to pass
+    //  it to callback so we preserve information about transaction
+    //  we are currently into. It is similiarly in sip_core_reqh_t.
+    struct SipServerTransactionPtr *sip_strans, struct GenericPtr arg);
 
 typedef cme_error_t (*sip_core_reqh_t)(
-    struct SipMessagePtr sip_msg, struct SipCorePtr *sip_core,
+    struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
     struct SipServerTransactionPtr *sip_strans, struct GenericPtr arg);
 
 cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,

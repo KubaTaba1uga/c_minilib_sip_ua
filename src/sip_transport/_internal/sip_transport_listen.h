@@ -28,14 +28,14 @@ static cme_error_t __SipTransport_udp_recvh(struct BufferPtr buf,
                                             struct GenericPtr data);
 
 static inline cme_error_t
-__SipTransport_listen(struct SipTransportPtr *sip_transp,
+__SipTransport_listen(struct SipTransportPtr sip_transp,
                       sip_transp_recvh_t recvh, struct GenericPtr arg) {
   cme_error_t err;
 
   // Each transport proto needs seperate handler
-  switch (sip_transp->get->proto_type) {
+  switch (sip_transp.get->proto_type) {
   case SipTransportProtocolType_UDP:
-    err = UdpSocketPtr_listen(sip_transp->get->udp_socket,
+    err = UdpSocketPtr_listen(sip_transp.get->udp_socket,
                               __SipTransport_udp_recvh,
                               GenericPtr_from_arc(SipTransportPtr, sip_transp));
     if (err) {
@@ -48,8 +48,8 @@ __SipTransport_listen(struct SipTransportPtr *sip_transp,
     goto error_out;
   }
 
-  sip_transp->get->recvh = recvh;
-  sip_transp->get->recvh_arg = arg;
+  sip_transp.get->recvh = recvh;
+  sip_transp.get->recvh_arg = arg;
 
   return 0;
 

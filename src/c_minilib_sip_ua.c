@@ -12,8 +12,8 @@
 
 cme_error_t __sip_core_request_handler(struct SipMessagePtr sip_msg,
                                        struct IpAddrPtr peer_ip,
-                                       struct SipCorePtr *sip_core,
-                                       struct SipServerTransactionPtr *strans,
+                                       struct SipCorePtr sip_core,
+                                       struct SipServerTransactionPtr strans,
                                        struct GenericPtr data) {
   puts("Received sip msg!!! :)");
   return 0;
@@ -41,7 +41,7 @@ int main(void) {
   }
 
   err = SipCorePtr_listen(__sip_core_request_handler,
-                          GenericPtr_from_arc(SipCorePtr, &sip_core), sip_core);
+                          GenericPtr_from_arc(SipCorePtr, sip_core), sip_core);
   if (err) {
     goto error_core_cleanup;
   }

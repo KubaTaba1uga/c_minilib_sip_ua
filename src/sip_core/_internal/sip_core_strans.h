@@ -21,7 +21,7 @@
 
 enum __SipServerTransactionType {
   __SipServerTransactionType_INVITE,
-  __SipServerTransactionType_NON_INVITE,
+  __SipServerTransactionType_NONINVITE,
 };
 
 enum __SipServerTransactionState {
@@ -52,8 +52,10 @@ struct __SipServerTransaction {
 };
 
 void __SipServerTransaction_destroy(void *data);
-struct __SipServerTransaction
-__SipServerTransaction_clone(struct __SipServerTransaction sip_strans);
+static inline struct __SipServerTransaction
+__SipServerTransaction_clone(struct __SipServerTransaction sip_strans) {
+  return sip_strans;
+};
 
 #define i_type SipServerTransactionPtr
 #define i_key struct __SipServerTransaction
@@ -65,6 +67,11 @@ cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
                                            struct SipCorePtr sip_core,
                                            struct IpAddrPtr last_peer_ip,
                                            struct SipServerTransactionPtr *out);
+
+cme_error_t
+SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
+                              // TO-DO add more sip-msg args to fill
+                              struct SipServerTransactionPtr strans);
 
 cme_error_t
 SipServerTransactionPtr_next_state(struct SipMessagePtr sip_msg,
