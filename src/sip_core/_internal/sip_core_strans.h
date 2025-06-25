@@ -45,7 +45,7 @@ struct __SipServerTransaction {
   enum __SipServerTransactionState state;
   struct TimerFdPtr invite_retransmission_timer;
   struct TimerFdPtr invite_3xx_6xx_timer;
-  struct TimerFdPtr invite_100_timer;
+  struct TimerFdPtr invite_trying_timer;
   struct IpAddrPtr last_peer_ip;
   struct SipMessagePtr request;
   struct SipCorePtr sip_core;
@@ -76,5 +76,23 @@ SipServerTransactionPtr_reply(uint32_t status_code, cstr status,
 cme_error_t
 SipServerTransactionPtr_next_state(struct SipMessagePtr sip_msg,
                                    struct SipServerTransactionPtr strans);
+
+static inline cme_error_t
+SipServerTransactionPtr_get_branch(struct SipServerTransactionPtr strans,
+                                   struct csview *out) {
+  cme_error_t err;
+
+  void *result = SipMessagePtr_get_branch(strans.get->request, out);
+  if (!result) {
+    err =
+        cme_error(ENODATA, "Missing via->branch in server transaction request");
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H

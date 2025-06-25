@@ -40,10 +40,27 @@ cme_error_t SipServerTransactionPtr_create(
     struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
     struct IpAddrPtr peer_ip, struct SipServerTransactionPtr *out) {
   bool is_invite = false;
+  csview branch = {0};
   csview method = {0};
   cme_error_t err;
 
-  void *result = SipMessagePtr_get_method(sip_msg, &method);
+  void *result = SipMessagePtr_get_branch(sip_msg, &branch);
+  if (!result) {
+    err =
+        cme_error(ENODATA, "Missing via->branch in server transaction request");
+    goto error_out;
+  }
+
+  result = SipServerTransactions_find(branch, sip_core.get->stranses);
+  if (result) {
+    out = result;
+    // Update Ip address
+    IpAddrPtr_drop(&out->get->last_peer_ip);
+    out->get->last_peer_ip = IpAddrPtr_clone(peer_ip);
+    return 0;
+  }
+
+  result = SipMessagePtr_get_method(sip_msg, &method);
   if (!result) {
     err = cme_error(
         ENODATA,
@@ -65,8 +82,17 @@ cme_error_t SipServerTransactionPtr_create(
       .last_peer_ip = IpAddrPtr_clone(peer_ip),
   };
 
+  err = SipServerTransactions_insert(branch,
+                                     SipServerTransactionPtr_from_ptr(strans),
+                                     sip_core.get->stranses, out);
+  if (err) {
+    goto error_stransp_cleanup;
+  }
+
   return 0;
 
+error_stransp_cleanup:
+  SipServerTransactionPtr_drop(out);
 error_out:
   return cme_return(err);
 }

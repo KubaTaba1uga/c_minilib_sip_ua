@@ -21,28 +21,24 @@
 #include "utils/ip.h"
 
 #include "sip_core/_internal/sip_core.h"
+#include "sip_core/_internal/sip_core_strans.h"
 
 /******************************************************************************
  *                               Sip Core                                     *
  ******************************************************************************/
 struct SipServerTransactionPtr;
 typedef cme_error_t (*sip_core_connh_t)(
-    struct SipMessagePtr sip_msg, struct IpAddrPtr peer_ip,
-    struct SipCorePtr sip_core,
-    // We need to pass ptr to `sip_strans` to callback because
-    //  sip_strans is purely SipCore internal concept and SipCore
-    //  user shouldn't unpack it on it's own. But we need to pass
-    //  it to callback so we preserve information about transaction
-    //  we are currently into. It is similiarly in sip_core_reqh_t.
-    struct SipServerTransactionPtr *sip_strans, struct GenericPtr arg);
+    struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
+    struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
 
 typedef cme_error_t (*sip_core_reqh_t)(
     struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
-    struct SipServerTransactionPtr *sip_strans, struct GenericPtr arg);
+    struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
 
 cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
                               enum SipTransportProtocolType proto_type,
                               struct SipCorePtr *out);
+
 /*
  SipCore_listen set up recvh on sip stack created in SipCore_create. So every
  time SIP receives valid msg starting new SIP transaction it will fire up
@@ -73,8 +69,8 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
      `sip_core_connh_t requesth`
 
  TU interacts directly with Sip Core. Main goal of Sip Core is to allow
- for implementing different TU operations quickly and easilly. Sip Core
- handles matching requests to responses via transactions and handles
+ for implementing different TU operations quickly and easilly. To do so
+ Sip Core handles matching requests to responses via transactions and
  retransmissions for unreliable transport protocols.
 */
 cme_error_t SipCorePtr_listen(sip_core_connh_t connh, struct GenericPtr arg,

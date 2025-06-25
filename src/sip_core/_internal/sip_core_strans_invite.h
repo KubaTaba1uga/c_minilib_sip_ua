@@ -1,5 +1,7 @@
 #include "c_minilib_error.h"
 #include "sip_core/_internal/sip_core_strans.h"
+#include "timer_fd/_internal/timer_fd.h"
+#include "utils/sip_msg.h"
 #include "utils/sip_status_codes.h"
 #include <asm-generic/errno-base.h>
 #include <stdint.h>
@@ -8,27 +10,38 @@
 #define __SIP_CORE_STRANS_T1 500000000          // 500ms
 
 static inline cme_error_t
-SipServerTransactionPtr_timeouth_invite_100_timer(struct TimerFdPtr timer,
-                                                  struct GenericPtr data);
+SipServerTransactionPtr_timeouth_invite_trying_timer(struct TimerFdPtr timer,
+                                                     struct GenericPtr data);
 
 static inline cme_error_t SipServerTransactionPtr_invite_next_state(
     struct SipMessagePtr sip_msg, struct SipServerTransactionPtr strans) {
+  struct csview sip_method = {0};
   cme_error_t err;
 
-  switch (strans.get->state) {
+  SipMessagePtr_get_method(sip_msg, &sip_method);
+  if (csview_equals(sip_method, "INVITE")) {
+    // If we have re-invite it means that this transaction was accepted before
+    //   and another TU propably didn't receive 100. So we need to rearm our
+    //   timer again.
+    strans.get->state = __SipServerTransactionState_NONE;
+    err = TimerFdPtr_create(
+        strans.get->sip_core.get->evl, 0, __SIP_CORE_STRANS_INVITE_T100,
+        SipServerTransactionPtr_timeouth_invite_trying_timer,
+        GenericPtr_from_arc(SipServerTransactionPtr, strans),
+        &strans.get->invite_trying_timer);
+    if (err) {
+      goto error_out;
+    }
+  }
 
+  switch (strans.get->state) {
   case __SipServerTransactionState_NONE:
-    if (!strans.get->invite_100_timer.get) {
-      // send 100 if TU won't in 200ms
+    if (!strans.get->invite_trying_timer.get) {
+      /*
+        Send 100 if TU won't in 200ms. Once 100 is send move to PROCEEDING
+        state.
+      */
       SipServerTransactionPtr_clone(strans);
-      err = TimerFdPtr_create(
-          strans.get->sip_core.get->evl, 0, __SIP_CORE_STRANS_INVITE_T100,
-          SipServerTransactionPtr_timeouth_invite_100_timer,
-          GenericPtr_from_arc(SipServerTransactionPtr, strans),
-          &strans.get->invite_100_timer);
-      if (err) {
-        goto error_out;
-      }
     }
     break;
 
@@ -56,8 +69,8 @@ error_out:
 }
 
 static inline cme_error_t
-SipServerTransactionPtr_timeouth_invite_100_timer(struct TimerFdPtr timer,
-                                                  struct GenericPtr data) {
+SipServerTransactionPtr_timeouth_invite_trying_timer(struct TimerFdPtr timer,
+                                                     struct GenericPtr data) {
   puts(__func__);
   struct SipServerTransactionPtr strans =
       GenericPtr_dump(SipServerTransactionPtr, data);
@@ -77,10 +90,16 @@ SipServerTransactionPtr_timeouth_invite_100_timer(struct TimerFdPtr timer,
   default:;
   }
 
+  // If we send 100, we need to stop sending another ones. If user
+  // won't receive 100, user will send invite once again.
+  strans.get->invite_trying_timer = (struct TimerFdPtr){0};
+
   return 0;
 
 error_out:
-  TimerFdPtr_rearm(timer); // If we failed to send 100, we need to try again.
+  TimerFdPtr_rearm(                     // If we failed to send 100,
+      strans.get->invite_trying_timer); // we need to try again.
+
   return cme_return(err);
 };
 

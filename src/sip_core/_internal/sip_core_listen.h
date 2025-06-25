@@ -54,9 +54,18 @@
 
 */
 struct __SipCoreListener {
+  /*
+    Connection handler is responsible for deciding whether we want this new
+    connection or not. If connection is accepted all requests and responses
+    related to it will be dispatched to TU in server transaction ctx.
+  */
   sip_core_connh_t connh;
   struct GenericPtr connh_arg;
 
+  /*
+    Request handler is responsible handling all requests related to transaction
+    once transaction got accepted by TU.
+  */
   sip_core_reqh_t reqh;
   struct GenericPtr reqh_arg;
 };
