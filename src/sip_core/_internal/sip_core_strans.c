@@ -65,19 +65,20 @@ cme_error_t SipServerTransactionPtr_create(
       .last_peer_ip = IpAddrPtr_clone(peer_ip),
   };
 
+  *out = SipServerTransactionPtr_from_ptr(strans);
+
   return 0;
 
 error_out:
   return cme_return(err);
 }
 
-void __SipServerTransaction_destroy(void *data) {
+void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
   puts(__func__);
-  struct SipServerTransactionPtr *sip_strans = data;
 
-  SipMessagePtr_drop(&sip_strans->get->init_request);
-  if (sip_strans->get->last_response.get) {
-    SipMessagePtr_drop(&sip_strans->get->last_response);
+  SipMessagePtr_drop(&sip_strans->init_request);
+  if (sip_strans->last_response.get) {
+    SipMessagePtr_drop(&sip_strans->last_response);
   }
 };
 

@@ -120,10 +120,10 @@ static inline cme_error_t SipServerTransactionPtr_invite_tu_reply_next_state(
   case __SipServerTransactionState_INVITE_PROCEEDING:
     *is_for_transp = true;
 
-    if (status_code >= 200 && status_code < 300) {
+    if (status_code >= 200 && status_code < 300) { // NOLINT
       strans.get->state = __SipServerTransactionState_INVITE_TERMINATED;
     }
-    if (status_code >= 200 && status_code < 300) {
+    if (status_code >= 200 && status_code < 300) { // NOLINT
       strans.get->state = __SipServerTransactionState_INVITE_COMPLETED;
       // TO-DO set unrialible transport timer G
     }

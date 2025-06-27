@@ -53,7 +53,7 @@ struct __SipServerTransaction {
   struct SipCorePtr sip_core;
 };
 
-void __SipServerTransaction_destroy(void *data);
+void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans);
 static inline struct __SipServerTransaction
 __SipServerTransaction_clone(struct __SipServerTransaction sip_strans) {
   return sip_strans;

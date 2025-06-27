@@ -316,8 +316,8 @@ __SipMessagePtr_status_add_to_tag(csview to_uri,
   char new_tag[10];
   uint32_t chunk_size = 2;
   for (uint32_t i = 0; i < 4; i++) {
-    char random = abs((char)crand32_uint_r(&rng, 1));
-    sprintf(new_tag + (i * chunk_size), "%.*d", chunk_size, random);
+    char random = (char)abs((char)crand32_uint_r(&rng, 1));
+    sprintf(new_tag + (char)(i * chunk_size), "%.*d", chunk_size, random);
   }
 
   printf("Random=%.*s\n", 8, new_tag);

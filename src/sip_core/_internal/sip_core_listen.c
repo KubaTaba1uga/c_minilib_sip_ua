@@ -60,8 +60,8 @@ cme_error_t __SipCore_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
     goto error_out;
   }
 
-  err =
-      SipServerTransactionPtr_reply(SIP_STATUS_OK, cstr_lit("Ok"), sip_strans);
+  err = SipServerTransactionPtr_tu_reply(SIP_STATUS_OK, cstr_lit("Ok"),
+                                         sip_strans);
   if (err) {
     goto error_out;
   }
@@ -85,10 +85,10 @@ static inline cme_error_t __SipCore_sip_transp_recvh(
     On every request we do:
      1. If it is sip request (which is not ACK and is not matching to any
 current server tramsaction) we are creating new server transaction and running
-user callback with this new transaction.
+user `connh` callback with this new transaction.
 
      2. If it is sip request which is matching to any current server tramsaction
-we are running user callback whith exsisting server transaction.
+we are running user `reqh` callback whith exsisting server transaction.
 
      3. If it is sip request ACK we are looking for server transaction that it
 matches to to change it state to DONE. We are not running any user
@@ -158,7 +158,7 @@ This means we need sth to match client transactions and user callbacks.
     // TO-DO: handle client transaction
   }
 
-  (void)arg;
+  SipServerTransactionPtr_drop(&strans);
 
   return 0;
 

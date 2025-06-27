@@ -11,7 +11,6 @@
 #include "utils/ip.h"
 
 cme_error_t __sip_core_request_handler(struct SipMessagePtr sip_msg,
-                                       struct IpAddrPtr peer_ip,
                                        struct SipCorePtr sip_core,
                                        struct SipServerTransactionPtr strans,
                                        struct GenericPtr data) {
@@ -34,8 +33,10 @@ int main(void) {
   }
 
   struct SipCorePtr sip_core;
-  struct IpAddrPtr ip = IpAddrPtr_create(cstr_lit("0.0.0.0"), cstr_lit("7337"));
-  err = SipCorePtr_create(evl, ip, SipTransportProtocolType_UDP, &sip_core);
+  struct IpAddrPtr ip_addr =
+      IpAddrPtr_create(cstr_lit("0.0.0.0"), cstr_lit("7337"));
+  err =
+      SipCorePtr_create(evl, ip_addr, SipTransportProtocolType_UDP, &sip_core);
   if (err) {
     goto error_evl_cleanup;
   }
@@ -50,7 +51,7 @@ int main(void) {
   EventLoopPtr_start(evl);
   puts("Event loop done\n");
 
-  IpAddrPtr_drop(&ip);
+  IpAddrPtr_drop(&ip_addr);
   SipCorePtr_drop(&sip_core);
   EventLoopPtr_drop(&evl);
   cme_destroy();
