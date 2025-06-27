@@ -50,6 +50,7 @@ struct __SipServerTransaction {
 
   struct IpAddrPtr last_peer_ip;
   struct SipMessagePtr last_response;
+  struct SipMessagePtr last_request;
   struct SipMessagePtr init_request;
 
   struct SipCorePtr sip_core;
@@ -73,35 +74,16 @@ cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
                                            struct SipServerTransactionPtr *out);
 
 cme_error_t
-SipServerTransactionPtr_internal_reply(uint32_t status_code, cstr status,
-                                       // TO-DO add more sip-msg args to fill
-                                       struct SipServerTransactionPtr strans);
+SipServerTransactionPtr_recv_next_state(struct SipMessagePtr sip_msg,
+                                        struct SipServerTransactionPtr strans);
 
 cme_error_t
-SipServerTransactionPtr_tu_reply(uint32_t status_code, cstr status,
-                                 // TO-DO add more sip-msg args to fill
-                                 struct SipServerTransactionPtr strans);
+SipServerTransactionPtr_accept(struct SipServerTransactionPtr strans);
 
 cme_error_t
-SipServerTransactionPtr_next_state(struct SipMessagePtr sip_msg,
-                                   struct SipServerTransactionPtr strans);
+SipServerTransactionPtr_reject(struct SipServerTransactionPtr strans);
 
 static inline cme_error_t
-SipServerTransactionPtr_get_branch(struct SipServerTransactionPtr strans,
-                                   struct csview *out) {
-  cme_error_t err;
-
-  void *result = SipMessagePtr_get_branch(strans.get->init_request, out);
-  if (!result) {
-    err =
-        cme_error(ENODATA, "Missing via->branch in server transaction request");
-    goto error_out;
-  }
-
-  return 0;
-
-error_out:
-  return cme_return(err);
-}
-
+SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
+                               struct csview *out);
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H

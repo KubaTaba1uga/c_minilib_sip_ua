@@ -47,4 +47,8 @@ typedef cme_error_t (*sip_core_reqh_t)(
     struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
     struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
 
+typedef cme_error_t (*sip_core_errh_t)(
+    struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
+    struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
+
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_H

@@ -23,6 +23,10 @@ static inline cme_error_t
 SipServerTransactionPtr_g_unrliable_timeouth(struct TimerFdPtr timer,
                                              struct GenericPtr data);
 
+static inline cme_error_t
+SipServerTransactionPtr_ack_timeouth(struct TimerFdPtr timer,
+                                     struct GenericPtr data);
+
 static inline cme_error_t SipServerTransactionPtr_invite_next_state(
     struct SipMessagePtr sip_msg, struct SipServerTransactionPtr strans) {
   cme_error_t err;
@@ -96,7 +100,7 @@ error_out:
 
 static inline cme_error_t SipServerTransactionPtr_invite_tu_reply_next_state(
     uint32_t status_code, cstr status, struct SipServerTransactionPtr strans,
-    bool *is_for_transp) {
+    sip_core_errh_t errh, bool *is_for_transp) {
   /*
 
     So as you can see TU sending reply changes server transaction state.
@@ -153,17 +157,23 @@ static inline cme_error_t SipServerTransactionPtr_invite_tu_reply_next_state(
           goto error_out;
         }
       }
+
       /*
         According rfc 3261 17.2.1 INVITE Server Transaction:
           When the "Completed" state is entered, timer H MUST be set to fire in
           64*T1 seconds for all transports. Timer H determines when the server
           transaction abandons retransmitting the response. ...
 
-          If timer H fires while in the "Completed" state, it implies that the
-          ACK was never received. In this case, the server transaction MUST
-          transition to the "Terminated" state, and MUST indicate to the TU
-          that a transaction failure has occurred.
-   */
+      */
+      strans.get->invite_ack_errh = errh;
+      err = TimerFdPtr_create(
+          strans.get->sip_core.get->evl, 0, __SIP_CORE_STRANS_T1 * (long)64,
+          SipServerTransactionPtr_ack_timeouth,
+          GenericPtr_from_arc(SipServerTranscationPtr, strans),
+          &strans.get->invite_ack_timer);
+      if (err) {
+        goto error_out;
+      }
     }
     break;
 
@@ -253,3 +263,16 @@ SipServerTransactionPtr_g_unrliable_timeouth(struct TimerFdPtr timer,
 error_out:
   return cme_return(err);
 }
+
+static inline cme_error_t
+SipServerTransactionPtr_ack_timeouth(struct TimerFdPtr timer,
+                                     struct GenericPtr data) {
+  /*
+    According rfc 3261 17.2.1 INVITE Server Transaction:
+     If timer H fires while in the "Completed" state, it implies that the
+     ACK was never received. In this case, the server transaction MUST
+     transition to the "Terminated" state, and MUST indicate to the TU
+     that a transaction failure has occurred.
+  */
+  return 0;
+};

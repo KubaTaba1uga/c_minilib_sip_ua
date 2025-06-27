@@ -73,6 +73,12 @@ struct __SipCoreListener {
   */
   sip_core_reqh_t reqh;
   struct GenericPtr reqh_arg;
+
+  /*
+    Error handler is responsible for handling all errors related to
+    transaction once transaction got accepted by TU.
+  */
+  sip_core_reqh_t err_h;
 };
 
 #define i_tag _SipCoreListeners
