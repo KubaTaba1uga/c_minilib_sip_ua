@@ -15,9 +15,16 @@
 
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
+#include "utils/sip_status_codes.h"
 
 #include "sip_core/_internal/sip_core.h"
 #include "timer_fd/timer_fd.h"
+
+struct SipCoreAcceptOps {
+  sip_core_reqh_t reqh;
+  sip_core_errh_t errh;
+  struct GenericPtr arg;
+};
 
 enum __SipServerTransactionType {
   __SipServerTransactionType_INVITE,
@@ -41,19 +48,18 @@ enum __SipServerTransactionState {
 };
 
 struct __SipServerTransaction {
+  // Generic ops and data
   enum __SipServerTransactionType type;
   enum __SipServerTransactionState state;
-  struct TimerFdPtr invite_3xx_6xx_timer;
-
-  sip_core_errh_t invite_ack_errh;
-  struct TimerFdPtr invite_ack_timer;
-
-  struct IpAddrPtr last_peer_ip;
   struct SipMessagePtr last_response;
-  struct SipMessagePtr last_request;
   struct SipMessagePtr init_request;
-
+  struct SipCoreAcceptOps tu_ops;
+  struct IpAddrPtr last_peer_ip;
   struct SipCorePtr sip_core;
+
+  // Invite Server Transaction ops and data
+  struct TimerFdPtr invite_3xx_6xx_timer;
+  struct TimerFdPtr invite_ack_timer;
 };
 
 void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans);
@@ -78,12 +84,11 @@ SipServerTransactionPtr_recv_next_state(struct SipMessagePtr sip_msg,
                                         struct SipServerTransactionPtr strans);
 
 cme_error_t
-SipServerTransactionPtr_accept(struct SipServerTransactionPtr strans);
+SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
+                              struct SipServerTransactionPtr strans);
 
 cme_error_t
-SipServerTransactionPtr_reject(struct SipServerTransactionPtr strans);
-
-static inline cme_error_t
 SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
                                struct csview *out);
+
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_H

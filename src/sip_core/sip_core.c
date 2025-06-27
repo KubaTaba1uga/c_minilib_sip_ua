@@ -47,13 +47,17 @@ void __SipCore_destroy(struct __SipCore *sip_core) {
 };
 
 cme_error_t SipCorePtr_listen(sip_core_connh_t connh,
-                              struct GenericPtr connh_arg, sip_core_reqh_t reqh,
-                              struct GenericPtr reqh_arg,
+                              struct GenericPtr connh_arg,
                               struct SipCorePtr sip_core) {
-  return __SipCore_listen(connh, connh_arg, reqh, reqh_arg, sip_core);
+  return __SipCore_listen(connh, connh_arg, sip_core);
 };
 
-cme_error_t SipCorePtr_accept(struct SipServerTransactionPtr sip_strans,
-                              struct SipCorePtr sip_core) {
-  return __SipCore_accept(sip_strans, sip_core);
+cme_error_t SipCorePtr_accept(struct SipCoreAcceptOps accept_ops,
+                              struct SipServerTransactionPtr sip_strans) {
+  return __SipCore_accept(accept_ops, sip_strans);
 }
+
+cme_error_t
+SipCorePtr_reject_busy_here(struct SipServerTransactionPtr sip_strans) {
+  return __SipCore_reject_busy_here(sip_strans);
+};

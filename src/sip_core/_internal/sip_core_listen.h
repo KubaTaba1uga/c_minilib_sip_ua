@@ -66,19 +66,6 @@ struct __SipCoreListener {
   */
   sip_core_connh_t connh;
   struct GenericPtr connh_arg;
-
-  /*
-    Request handler is responsible for handling all requests related to
-    transaction once transaction got accepted by TU.
-  */
-  sip_core_reqh_t reqh;
-  struct GenericPtr reqh_arg;
-
-  /*
-    Error handler is responsible for handling all errors related to
-    transaction once transaction got accepted by TU.
-  */
-  sip_core_reqh_t err_h;
 };
 
 #define i_tag _SipCoreListeners
@@ -86,15 +73,13 @@ struct __SipCoreListener {
 #include "stc/queue.h"
 
 cme_error_t __SipCore_listen(sip_core_connh_t connh,
-                             struct GenericPtr connh_arg, sip_core_reqh_t reqh,
-                             struct GenericPtr reqh_arg,
+                             struct GenericPtr connh_arg,
                              struct SipCorePtr sip_core);
 
-cme_error_t __SipCore_accept(struct SipServerTransactionPtr sip_strans,
-                             struct SipCorePtr sip_core);
+cme_error_t __SipCore_accept(struct SipCoreAcceptOps accept_ops,
+                             struct SipServerTransactionPtr sip_strans);
 
 cme_error_t
-__SipCore_reject_busy_here(struct SipServerTransactionPtr sip_strans,
-                           struct SipCorePtr sip_core);
+__SipCore_reject_busy_here(struct SipServerTransactionPtr sip_strans);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H

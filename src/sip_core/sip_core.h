@@ -21,7 +21,7 @@
 #include "utils/ip.h"
 
 #include "sip_core/_internal/sip_core.h"
-#include "sip_core/_internal/sip_core_strans.h"
+#include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
 
 /******************************************************************************
  *                               Sip Core                                     *
@@ -65,16 +65,14 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
  retransmissions for unreliable transport protocols.
 */
 cme_error_t SipCorePtr_listen(sip_core_connh_t connh,
-                              struct GenericPtr connh_arg, sip_core_reqh_t reqh,
-                              struct GenericPtr reqh_arg,
+                              struct GenericPtr connh_arg,
                               struct SipCorePtr sip_core);
 
-cme_error_t SipCorePtr_accept(struct SipServerTransactionPtr sip_strans,
-                              struct SipCorePtr sip_core);
+cme_error_t SipCorePtr_accept(struct SipCoreAcceptOps accept_ops,
+                              struct SipServerTransactionPtr sip_strans);
 
 cme_error_t
-SipCorePtr_reject_busy_here(struct SipServerTransactionPtr sip_strans,
-                            struct SipCorePtr sip_core);
+SipCorePtr_reject_busy_here(struct SipServerTransactionPtr sip_strans);
 
 /* cme_error_t sip_send(sip_core_response_handler_t resph, struct SipMessagePtr
  * sipmsg, */

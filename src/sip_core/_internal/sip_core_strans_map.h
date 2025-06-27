@@ -13,7 +13,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 
-#include "sip_core/_internal/sip_core_strans.h"
+#include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
 #include "utils/sip_msg.h"
 
 #define i_tag _SipServerTransactions
