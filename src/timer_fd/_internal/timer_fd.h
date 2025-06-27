@@ -6,6 +6,7 @@
 
 #ifndef C_MINILIB_SIP_UA_INT_TIMER_FD_H
 #define C_MINILIB_SIP_UA_INT_TIMER_FD_H
+#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 
@@ -25,6 +26,8 @@ struct __TimerFd {
 
   // Timer data
   bool do_cleanup;
+  uint32_t nseconds;
+  uint32_t seconds;
 
   // User data & ops
   timer_fd_timeouth_t timeouth;

@@ -52,19 +52,24 @@
            V
      `sip_core_reqh_t reqh`
 
+ There are multiple listeners per one sip core so TU can split their ops into
+ multiple modules. Like one listener for invites one for registers one for SMSes
+ etc. having multiple listeners allow each listener to decide whther take action
+ or no in modular fashion.
 */
 struct __SipCoreListener {
   /*
     Connection handler is responsible for deciding whether we want this new
     connection or not. If connection is accepted all requests and responses
-    related to it will be dispatched to TU in server transaction ctx.
+    related to it will be dispatched to TU in server transaction ctx via
+    request callback.
   */
   sip_core_connh_t connh;
   struct GenericPtr connh_arg;
 
   /*
-    Request handler is responsible handling all requests related to transaction
-    once transaction got accepted by TU.
+    Request handler is responsible for handling all requests related to
+    transaction once transaction got accepted by TU.
   */
   sip_core_reqh_t reqh;
   struct GenericPtr reqh_arg;
@@ -74,11 +79,16 @@ struct __SipCoreListener {
 #define i_key struct __SipCoreListener
 #include "stc/queue.h"
 
-cme_error_t __SipCore_listen(sip_core_connh_t connh, struct GenericPtr arg,
+cme_error_t __SipCore_listen(sip_core_connh_t connh,
+                             struct GenericPtr connh_arg, sip_core_reqh_t reqh,
+                             struct GenericPtr reqh_arg,
                              struct SipCorePtr sip_core);
 
-cme_error_t __SipCore_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
-                             struct SipServerTransactionPtr sip_strans,
+cme_error_t __SipCore_accept(struct SipServerTransactionPtr sip_strans,
                              struct SipCorePtr sip_core);
+
+cme_error_t
+__SipCore_reject_busy_here(struct SipServerTransactionPtr sip_strans,
+                           struct SipCorePtr sip_core);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H

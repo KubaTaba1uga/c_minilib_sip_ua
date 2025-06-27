@@ -13,13 +13,17 @@ SipServerTransactions_insert(csview key, struct SipServerTransactionPtr value,
 
 struct SipServerTransactionPtr *
 SipServerTransactions_find(csview key,
-                           struct hmap__SipServerTransactions *stmap) {
+                           struct hmap__SipServerTransactions *stmap,
+                           struct SipServerTransactionPtr *out) {
   cstr cstr_key = cstr_from_sv(key);
   const char *raw_key = cstr_toraw(&cstr_key);
 
   if (!hmap__SipServerTransactions_contains(stmap, raw_key)) {
+    *out = (struct SipServerTransactionPtr){0};
     return NULL;
   }
 
-  return hmap__SipServerTransactions_at_mut(stmap, raw_key);
+  *out = *hmap__SipServerTransactions_at_mut(stmap, raw_key);
+
+  return out;
 }

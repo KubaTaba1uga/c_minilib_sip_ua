@@ -26,15 +26,6 @@
 /******************************************************************************
  *                               Sip Core                                     *
  ******************************************************************************/
-struct SipServerTransactionPtr;
-typedef cme_error_t (*sip_core_connh_t)(
-    struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
-    struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
-
-typedef cme_error_t (*sip_core_reqh_t)(
-    struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
-    struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
-
 cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
                               enum SipTransportProtocolType proto_type,
                               struct SipCorePtr *out);
@@ -73,12 +64,17 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
  Sip Core handles matching requests to responses via transactions and
  retransmissions for unreliable transport protocols.
 */
-cme_error_t SipCorePtr_listen(sip_core_connh_t connh, struct GenericPtr arg,
+cme_error_t SipCorePtr_listen(sip_core_connh_t connh,
+                              struct GenericPtr connh_arg, sip_core_reqh_t reqh,
+                              struct GenericPtr reqh_arg,
                               struct SipCorePtr sip_core);
 
-cme_error_t SipCorePtr_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
-                              struct SipServerTransactionPtr sip_strans,
+cme_error_t SipCorePtr_accept(struct SipServerTransactionPtr sip_strans,
                               struct SipCorePtr sip_core);
+
+cme_error_t
+SipCorePtr_reject_busy_here(struct SipServerTransactionPtr sip_strans,
+                            struct SipCorePtr sip_core);
 
 /* cme_error_t sip_send(sip_core_response_handler_t resph, struct SipMessagePtr
  * sipmsg, */

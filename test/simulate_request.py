@@ -23,11 +23,12 @@ def send_udp_request(port=7337):
     addr = ("127.0.0.1", port)
     print(f"Sending to UDP {addr}...")
 
-    while True:
-        sock.sendto(SIP_REQUEST.encode(), addr)
-        print(f"Sent SIP {SIP_METHOD} to {addr}")
-        data, sender_addr = sock.recvfrom(2048)
-        print(f"Received from {sender_addr}:\n{data.decode(errors='ignore')}")
+    sock.sendto(SIP_REQUEST.encode(), addr)
+    print(f"Sent SIP {SIP_METHOD} to {addr}")
+    data, sender_addr = sock.recvfrom(2048)
+    print(f"Received from {sender_addr}:\n{data.decode(errors='ignore')}")
+    data, sender_addr = sock.recvfrom(2048)
+    print(f"Received from {sender_addr}:\n{data.decode(errors='ignore')}")
 
 
 if __name__ == "__main__":

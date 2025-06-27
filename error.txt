@@ -1,5 +1,5 @@
 ====== ERROR DUMP ======
-Error code: No data available
-Error message: Missing via->branch in server transaction request
+Error code: No such file or directory
+Error message: Non invite server transactions are currently not supported
 ------------------------
-0:__SipCore_accept:../src/sip_core/_internal/sip_core_listen.c:59
+0:SipServerTransactionPtr_tu_reply:../src/sip_core/_internal/sip_core_strans.c:168

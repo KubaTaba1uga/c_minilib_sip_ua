@@ -35,12 +35,12 @@ cme_error_t TimerFdPtr_create(struct EventLoopPtr evl, time_t seconds,
     goto error_evl_cleanup;
   }
 
-  *out = TimerFdPtr_from((struct __TimerFd){
-      .evl = EventLoopPtr_clone(evl),
-      .timeouth = timeouth,
-      .timeouth_arg = timeouth_arg,
-      .fd = timerfd,
-  });
+  *out = TimerFdPtr_from((struct __TimerFd){.evl = EventLoopPtr_clone(evl),
+                                            .timeouth = timeouth,
+                                            .timeouth_arg = timeouth_arg,
+                                            .fd = timerfd,
+                                            .seconds = seconds,
+                                            .nseconds = nseconds});
 
   err = EventLoopPtr_insert_timerfd(evl, timerfd, __Timer_timeouth,
                                     GenericPtr_from_arc(TimerFdPtr, *out));

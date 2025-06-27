@@ -163,6 +163,8 @@ SipServerTransactionPtr_tu_reply(uint32_t status_code, cstr status,
     if (err) {
       goto error_out;
     }
+
+    break;
   case __SipServerTransactionType_NONINVITE:
     err = cme_error(
         ENOENT, "Non invite server transactions are currently not supported");

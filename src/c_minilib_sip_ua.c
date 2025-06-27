@@ -26,10 +26,12 @@ cme_error_t __sip_core_connection_handler(struct SipMessagePtr sip_msg,
   puts("Ringing a tone ...");
   cme_error_t err;
 
-  err = SipCorePtr_accept(__sip_core_request_handler, data, strans, sip_core);
+  err = SipCorePtr_accept(strans, sip_core);
   if (err) {
     goto error_out;
   }
+
+  puts("Accepted sip invite");
 
   return 0;
 
@@ -62,6 +64,8 @@ int main(void) {
   }
 
   err = SipCorePtr_listen(__sip_core_connection_handler,
+                          GenericPtr_from_arc(SipCorePtr, sip_core),
+                          __sip_core_request_handler,
                           GenericPtr_from_arc(SipCorePtr, sip_core), sip_core);
   if (err) {
     goto error_core_cleanup;

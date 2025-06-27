@@ -43,9 +43,7 @@ enum __SipServerTransactionState {
 struct __SipServerTransaction {
   enum __SipServerTransactionType type;
   enum __SipServerTransactionState state;
-  struct TimerFdPtr invite_retransmission_timer;
   struct TimerFdPtr invite_3xx_6xx_timer;
-  struct TimerFdPtr invite_trying_timer;
   struct IpAddrPtr last_peer_ip;
   struct SipMessagePtr last_response;
   struct SipMessagePtr init_request;

@@ -26,13 +26,18 @@ static cme_error_t __SipCore_sip_transp_recvh(struct SipMessagePtr sip_msg,
                                               struct SipTransportPtr sip_transp,
                                               struct GenericPtr arg);
 
-cme_error_t __SipCore_listen(sip_core_connh_t connh, struct GenericPtr arg,
+cme_error_t __SipCore_listen(sip_core_connh_t connh,
+                             struct GenericPtr connh_arg, sip_core_reqh_t reqh,
+                             struct GenericPtr reqh_arg,
                              struct SipCorePtr sip_core) {
   cme_error_t err;
 
   queue__SipCoreListeners_push(
       sip_core.get->listeners,
-      (struct __SipCoreListener){.connh = connh, .connh_arg = arg});
+      (struct __SipCoreListener){.connh = connh,
+                                 .connh_arg = connh_arg,
+                                 .reqh = reqh,
+                                 .reqh_arg = reqh_arg});
 
   err = SipTransportPtr_listen(sip_core.get->sip_transp,
                                __SipCore_sip_transp_recvh,
@@ -47,16 +52,13 @@ error_out:
   return cme_return(err);
 };
 
-cme_error_t __SipCore_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
-                             struct SipServerTransactionPtr sip_strans,
+cme_error_t __SipCore_accept(struct SipServerTransactionPtr sip_strans,
                              struct SipCorePtr sip_core) {
   csview branch = {0};
   cme_error_t err;
 
-  void *result = SipServerTransactionPtr_get_branch(sip_strans, &branch);
-  if (!result) {
-    err =
-        cme_error(ENODATA, "Missing via->branch in server transaction request");
+  err = SipServerTransactionPtr_get_branch(sip_strans, &branch);
+  if (err) {
     goto error_out;
   }
 
@@ -66,8 +68,9 @@ cme_error_t __SipCore_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
     goto error_out;
   }
 
+  struct SipServerTransactionPtr result;
   err = SipServerTransactions_insert(branch, sip_strans, sip_core.get->stranses,
-                                     &(struct SipServerTransactionPtr){0});
+                                     &result);
   if (err) {
     goto error_out;
   }
@@ -75,7 +78,23 @@ cme_error_t __SipCore_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
   return 0;
 
 error_out:
+  return cme_return(err);
+};
 
+cme_error_t
+__SipCore_reject_busy_here(struct SipServerTransactionPtr sip_strans,
+                           struct SipCorePtr sip_core) {
+  cme_error_t err;
+
+  err = SipServerTransactionPtr_tu_reply(SIP_STATUS_BUSY_HERE,
+                                         cstr_lit("Busy Here"), sip_strans);
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
   return cme_return(err);
 };
 
@@ -121,8 +140,10 @@ This means we need sth to match client transactions and user callbacks.
       goto error_out;
     }
 
-    result = SipServerTransactions_find(branch, sip_core.get->stranses);
+    result =
+        SipServerTransactions_find(branch, sip_core.get->stranses, &strans);
     if (!result) {
+      puts("New server transaction");
       err = SipServerTransactionPtr_create(sip_msg, sip_core, peer_ip, &strans);
       if (err) {
         goto error_out;
@@ -141,6 +162,7 @@ This means we need sth to match client transactions and user callbacks.
         }
       }
     } else {
+      puts("Matched old server transaction");
       err = SipServerTransactionPtr_next_state(sip_msg, strans);
       if (err) {
         goto error_out;
@@ -158,8 +180,6 @@ This means we need sth to match client transactions and user callbacks.
   } else {
     // TO-DO: handle client transaction
   }
-
-  SipServerTransactionPtr_drop(&strans);
 
   return 0;
 
