@@ -22,6 +22,7 @@ cme_error_t EventLoopPtr_create(struct EventLoopPtr *out) {
 };
 
 void __EventLoop_destroy(struct __EventLoop *evl) {
+  puts(__func__);
   vec__PollFdsVec_drop(&evl->fds);
   hmap__FdHelpersMap_drop(&evl->fds_helpers);
 };
@@ -129,7 +130,6 @@ cme_error_t EventLoopPtr_start(struct EventLoopPtr evlp) {
   return 0;
 
 error_out:
-
   return cme_return(err);
 };
 

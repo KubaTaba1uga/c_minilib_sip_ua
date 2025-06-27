@@ -42,7 +42,9 @@ error_out:
 
 void __SipTransport_destroy(struct __SipTransport *sip_transp) {
   // Cleanup Udp socket
-  UdpSocketPtr_drop(&sip_transp->udp_socket);
+  if (sip_transp->udp_socket.get) {
+    UdpSocketPtr_drop(&sip_transp->udp_socket);
+  }
 
   // Cleanup Event loop
   EventLoopPtr_drop(&sip_transp->evl);

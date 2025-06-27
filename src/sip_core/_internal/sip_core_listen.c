@@ -75,6 +75,7 @@ cme_error_t __SipCore_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
   return 0;
 
 error_out:
+
   return cme_return(err);
 };
 
