@@ -189,7 +189,7 @@ static inline cme_error_t SipServerTransactionPtr_invite_tu_reply_next_state(
      */
     break;
 
-  case __SipServerTransactionState_INVITE_CONFIRMED:
+  case __SipServerTransactionState_INVITE_TERMINATED:
     /*
       According rfc 3261 17.2.1 INVITE Server Transaction:
        Once the transaction is in the "Terminated" state, it MUST be
