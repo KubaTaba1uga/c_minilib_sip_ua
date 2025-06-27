@@ -50,3 +50,9 @@ cme_error_t SipCorePtr_listen(sip_core_connh_t connh, struct GenericPtr arg,
                               struct SipCorePtr sip_core) {
   return __SipCore_listen(connh, arg, sip_core);
 };
+
+cme_error_t SipCorePtr_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
+                              struct SipServerTransactionPtr sip_strans,
+                              struct SipCorePtr sip_core) {
+  return __SipCore_accept(reqh, arg, sip_strans, sip_core);
+}

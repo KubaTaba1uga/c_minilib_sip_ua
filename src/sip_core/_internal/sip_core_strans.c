@@ -76,6 +76,9 @@ error_out:
 void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
   puts(__func__);
 
+  IpAddrPtr_drop(&sip_strans->last_peer_ip);
+  SipCorePtr_drop(&sip_strans->sip_core);
+
   SipMessagePtr_drop(&sip_strans->init_request);
   if (sip_strans->last_response.get) {
     SipMessagePtr_drop(&sip_strans->last_response);

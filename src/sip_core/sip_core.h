@@ -76,6 +76,10 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
 cme_error_t SipCorePtr_listen(sip_core_connh_t connh, struct GenericPtr arg,
                               struct SipCorePtr sip_core);
 
+cme_error_t SipCorePtr_accept(sip_core_reqh_t reqh, struct GenericPtr arg,
+                              struct SipServerTransactionPtr sip_strans,
+                              struct SipCorePtr sip_core);
+
 /* cme_error_t sip_send(sip_core_response_handler_t resph, struct SipMessagePtr
  * sipmsg, */
 /*                      void *data, struct SipCorePtr sip_core); */

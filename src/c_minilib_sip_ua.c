@@ -9,13 +9,31 @@
 #include "udp_socket/udp_socket.h"
 #include "utils/generic_ptr.h"
 #include "utils/ip.h"
-
 cme_error_t __sip_core_request_handler(struct SipMessagePtr sip_msg,
                                        struct SipCorePtr sip_core,
                                        struct SipServerTransactionPtr strans,
                                        struct GenericPtr data) {
-  puts("Received sip msg!!! :)");
+  puts("Received request matching transaction");
   return 0;
+}
+
+cme_error_t __sip_core_connection_handler(struct SipMessagePtr sip_msg,
+                                          struct SipCorePtr sip_core,
+                                          struct SipServerTransactionPtr strans,
+                                          struct GenericPtr data) {
+  puts("Received sip msg!!! :)");
+  puts("Ringing a tone ...");
+  cme_error_t err;
+
+  err = SipCorePtr_accept(__sip_core_request_handler, data, strans, sip_core);
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
 }
 
 int main(void) {
@@ -41,7 +59,7 @@ int main(void) {
     goto error_evl_cleanup;
   }
 
-  err = SipCorePtr_listen(__sip_core_request_handler,
+  err = SipCorePtr_listen(__sip_core_connection_handler,
                           GenericPtr_from_arc(SipCorePtr, sip_core), sip_core);
   if (err) {
     goto error_core_cleanup;
