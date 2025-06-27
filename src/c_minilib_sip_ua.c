@@ -66,7 +66,11 @@ int main(void) {
   }
 
   puts("Starting event loop...\n");
-  EventLoopPtr_start(evl);
+  err = EventLoopPtr_start(evl);
+  if (err) {
+    goto error_core_cleanup;
+  }
+
   puts("Event loop done\n");
 
   IpAddrPtr_drop(&ip_addr);

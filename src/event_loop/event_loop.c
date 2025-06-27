@@ -129,6 +129,7 @@ cme_error_t EventLoopPtr_start(struct EventLoopPtr evlp) {
   return 0;
 
 error_out:
+
   return cme_return(err);
 };
 

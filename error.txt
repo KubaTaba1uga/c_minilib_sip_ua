@@ -1,0 +1,5 @@
+====== ERROR DUMP ======
+Error code: No data available
+Error message: Missing via->branch in server transaction request
+------------------------
+0:__SipCore_accept:../src/sip_core/_internal/sip_core_listen.c:59
