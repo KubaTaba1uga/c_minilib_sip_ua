@@ -78,13 +78,14 @@ __SipServerTransaction_clone(struct __SipServerTransaction sip_strans) {
 Sip server transaction contain a state machine which affect two Server Transaction behaviours:
   - reciving sip request
   - sending sip response
+It is done like so because receiving and sending are both required to complete server transaction.
+Server needs to receive request and respond to it after all.
 
 Server transaction is always created on incoming request with NONE state. Then sip transaction
-automatically moves to appropriate state dependently of transaction type. INVITE server
-transaction and Non invite server transaction are handled quite differently. That's why we
-are dispatching handling dependently of transaction type. Handling of incoming request looks
+automatically moves to appropriate state dependently of transaction type. Then TU accepts/reject
+the transaction. If transaction is accepted TU passes ops which specify how interact with new.
+Handling of incoming request looks
 sth like this:
-
 
 Sip Transport
 |
@@ -115,7 +116,6 @@ V
 TU
 |
 |
-V
 -----------------------------------------------------------------------------
 |                                                                           |
 | reply(200)                                                                | reply(486)
@@ -140,98 +140,27 @@ V                                   V                                       V   
 |                                                                           |
 -----------------------------------------------------------------------------
 |
-|
+| return
 V                                         
-
-
-
-
-Sip Transport
+Sip Core
 |
-| __SipCore_sip_transp_recvh(...) 
+| return
+V                                         
+TU
+|
+| return 
 V
 Sip Core
 |
-| connh(...)
+|
 V
-TU
-|
-|
-|
--------------------------------------------
-|                                         |
-| reply(200)                              | reply(486)
-V                                         V
-Sip Core                                  Sip Core
-|                                         |
-| reply(200)                              | reply(486)
-V                                         V
-Sip server transaction                    Sip server transaction
-|
-|  
-|			   
----------------------------
-|                         |
-| invite_recvh            | 
-V                         V
-
-
-|                          |
-| next_state(TERMINATED)   | 
-V                          |
-Sip server transaction     |
-|                          |
-| destroy(strans)          | SipServerTransaction_invite_reply(486)
-                           V
-
-
-| next_state(TERMINATED)   | next_state(CONFIRMED/COMPLETED)
-V                          V
-Sip server transaction     Sip server transaction
-
-
-Sip server transaction     Sip server transaction
-|                          |
-| next_state(TERMINATED)   | next_state(CONFIRMED/COMPLETED)
-V                          V
-Sip server transaction     Sip server transaction
-
-
 Sip Transport
-|
-| 
-V
-Sip core
-|
-|
-V
-Sip Listener
-|
-|
-V
-Sip server transaction
-|
-|
-V
-TU
-|
----------------------------
-|                          |
-| accept                   | reject
-V                          V
-Sip core                   Sip core
-|                          |
-| reply(200)               | reply(486)
-V                          V
-Sip st                     Sip st
-|                          |
-| next_state(TERMINATED)   | next_state(CONFIRMED)
-V                          V
-ST sm                      St cm
+
+Notes:
+  - We need X_reply so X transaction can detect failure in transport send. It is required
+    in moving transaction state to TERMINATED in case of error.
+  - 
 */
-
-
-
 cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
                                            struct SipCorePtr sip_core,
                                            struct IpAddrPtr last_peer_ip,

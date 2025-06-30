@@ -122,12 +122,11 @@ This means we need sth to match client transactions and user callbacks.
       }
     } else {
       puts("Matched old server transaction");
-      err = SipServerTransactionPtr_recv_next_state(sip_msg, strans);
+      err = SipServerTransactionPtr_recvh(sip_msg, strans);
       if (err) {
         goto error_out;
       }
     }
-
   } else {
     // TO-DO: handle client transaction
   }

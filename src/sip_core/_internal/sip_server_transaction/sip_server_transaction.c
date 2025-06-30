@@ -5,7 +5,9 @@
 
 #include "c_minilib_error.h"
 
-/* How server transaction works for INVITE flow? */
+static cme_error_t
+__SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
+                                struct SipServerTransactionPtr *strans);
 
 /*
  Server transaction starts in NONE state. Point of this state is to send 100
@@ -59,8 +61,15 @@ cme_error_t SipServerTransactionPtr_create(
 
   *out = SipServerTransactionPtr_from_ptr(strans);
 
+  err = __SipServerTransactionPtr_recvh(sip_msg, out);
+  if (err) {
+    goto error_out_cleanup;
+  }
+
   return 0;
 
+error_out_cleanup:
+  SipServerTransactionPtr_drop(out);
 error_out:
   return cme_return(err);
 }
@@ -76,24 +85,6 @@ void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
     SipMessagePtr_drop(&sip_strans->last_response);
   }
 };
-
-cme_error_t
-SipServerTransactionPtr_recv_next_state(struct SipMessagePtr sip_msg,
-                                        struct SipServerTransactionPtr strans) {
-  cme_error_t err;
-
-  switch (strans.get->type) {
-  case __SipServerTransactionType_INVITE:
-    return __SipServerTransactionPtr_invite_recv_next_state(strans);
-  case __SipServerTransactionType_NONINVITE:
-    err = cme_error(
-        ENOENT, "Non-invite server transactions are currently not supported");
-    goto error_out;
-  }
-
-error_out:
-  return cme_return(err);
-}
 
 cme_error_t
 SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
@@ -119,3 +110,21 @@ SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
                                struct csview *out) {
   return 0;
 };
+
+static cme_error_t
+__SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
+                                struct SipServerTransactionPtr *strans) {
+  cme_error_t err;
+
+  switch (strans->get->type) {
+  case __SipServerTransactionType_INVITE:
+    return __SipServerTransactionPtr_invite_recv(sip_msg, *strans);
+  case __SipServerTransactionType_NONINVITE:
+    err = cme_error(
+        ENOENT, "Non-invite server transactions are currently not supported");
+    goto error_out;
+  }
+
+error_out:
+  return cme_return(err);
+}
