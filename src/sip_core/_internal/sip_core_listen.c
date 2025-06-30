@@ -14,6 +14,7 @@
 #include "c_minilib_sip_codec.h"
 #include "sip_core/_internal/sip_core_listen.h"
 #include "sip_core/_internal/sip_core_strans_map.h"
+#include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
 #include "sip_core/sip_core.h"
 #include "sip_transport/sip_transport.h"
 #include "stc/cstr.h"
@@ -100,7 +101,7 @@ This means we need sth to match client transactions and user callbacks.
         goto error_out;
       }
 
-      err = SipServerTransactionPtr_recv_next_state(sip_msg, strans);
+      err = SipServerTransactionPtr_recvh(sip_msg, strans);
       if (err) {
         goto error_out;
       }

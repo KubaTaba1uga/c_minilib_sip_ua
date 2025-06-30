@@ -79,7 +79,123 @@ Sip server transaction contain a state machine which affect two Server Transacti
   - reciving sip request
   - sending sip response
 
-Server transaction is always created on incoming request with NONE state. Then sip transaction automatically moves to appropriate state dependently of transaction type. INVITE server transaction and Non invite server transaction are handled quite differently.
+Server transaction is always created on incoming request with NONE state. Then sip transaction
+automatically moves to appropriate state dependently of transaction type. INVITE server
+transaction and Non invite server transaction are handled quite differently. That's why we
+are dispatching handling dependently of transaction type. Handling of incoming request looks
+sth like this:
+
+
+Sip Transport
+|
+| __SipCore_sip_transp_recvh(...)
+Sip Core
+|
+| __SipServerTransactionPtr_recvh(...)
+V
+Sip server transaction
+|
+|
+---------------------------
+|                         |
+| invite_recvh(...)       | noninvite_recvh(...)
+V                         V
+Sip server transaction    Sip server transaction
+|                         |
+|                         |
+V                         V
+---------------------------
+|                          
+| return
+V
+Sip Core
+|
+|
+V
+TU
+|
+|
+V
+-----------------------------------------------------------------------------
+|                                                                           |
+| reply(200)                                                                | reply(486)
+V                                                                           V
+Sip Core                                                                    Sip core
+|                                                                           |
+| reply(200)                                                                | reply(486)
+V                                                                           V
+Sip server transaction                                                      Sip server transaction
+|                                                                           |
+|                                                                           |
+-------------------------------------                                       -------------------------------------
+|                                   |                                       |                                   |
+| invite_reply(200)                 | noninvite_reply(200)                  | invite_reply(486)                 | noninvite_reply(486)
+V                                   V                                       V                                   V
+Sip server transaction             Sip server transaction                   Sip server transaction             Sip server transaction
+|                                   |                                       |                                   |
+| invite_next_state(TERMINATED)     | noninvite_next_state(COMPLETED)       | invite_next_state(CONFIRMED)      | noninvite_next_state(COMPLETED)
+V                                   V                                       V                                   V
+-------------------------------------                                       -------------------------------------
+|                                                                           |
+|                                                                           |
+-----------------------------------------------------------------------------
+|
+|
+V                                         
+
+
+
+
+Sip Transport
+|
+| __SipCore_sip_transp_recvh(...) 
+V
+Sip Core
+|
+| connh(...)
+V
+TU
+|
+|
+|
+-------------------------------------------
+|                                         |
+| reply(200)                              | reply(486)
+V                                         V
+Sip Core                                  Sip Core
+|                                         |
+| reply(200)                              | reply(486)
+V                                         V
+Sip server transaction                    Sip server transaction
+|
+|  
+|			   
+---------------------------
+|                         |
+| invite_recvh            | 
+V                         V
+
+
+|                          |
+| next_state(TERMINATED)   | 
+V                          |
+Sip server transaction     |
+|                          |
+| destroy(strans)          | SipServerTransaction_invite_reply(486)
+                           V
+
+
+| next_state(TERMINATED)   | next_state(CONFIRMED/COMPLETED)
+V                          V
+Sip server transaction     Sip server transaction
+
+
+Sip server transaction     Sip server transaction
+|                          |
+| next_state(TERMINATED)   | next_state(CONFIRMED/COMPLETED)
+V                          V
+Sip server transaction     Sip server transaction
+
 
 Sip Transport
 |
@@ -122,7 +238,7 @@ cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
                                            struct SipServerTransactionPtr *out);
 
 cme_error_t
-SipServerTransactionPtr_recv_handler(struct SipMessagePtr sip_msg,
+SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
                                      struct SipServerTransactionPtr strans);
 
 cme_error_t
