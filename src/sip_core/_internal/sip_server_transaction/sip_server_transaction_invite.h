@@ -13,13 +13,23 @@
 
 #include "c_minilib_error.h"
 
+#include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
 
 #include "sip_core/_internal/sip_core.h"
 #include "timer_fd/timer_fd.h"
 
-cme_error_t __SipServerTransactionPtr_invite_recv_next_state(
+cme_error_t
+__SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
+                                      struct SipServerTransactionPtr strans);
+
+cme_error_t
+__SipServerTransactionPtr_invite_reply(uint32_t status_code, cstr status_phrase,
+                                       struct SipServerTransactionPtr strans);
+
+cme_error_t __SipServerTransactionPtr_move_to_state(
+    enum __SipServerTransactionState next_state,
     struct SipServerTransactionPtr strans);
 
 #endif

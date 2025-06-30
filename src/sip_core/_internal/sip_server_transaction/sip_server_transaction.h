@@ -74,14 +74,56 @@ __SipServerTransaction_clone(struct __SipServerTransaction sip_strans) {
 #define i_keyclone __SipServerTransaction_clone
 #include "stc/arc.h"
 
+/*
+Sip server transaction contain a state machine which affect two Server Transaction behaviours:
+  - reciving sip request
+  - sending sip response
+
+Server transaction is always created on incoming request with NONE state. Then sip transaction automatically moves to appropriate state dependently of transaction type. INVITE server transaction and Non invite server transaction are handled quite differently.
+
+Sip Transport
+|
+| 
+V
+Sip core
+|
+|
+V
+Sip Listener
+|
+|
+V
+Sip server transaction
+|
+|
+V
+TU
+|
+---------------------------
+|                          |
+| accept                   | reject
+V                          V
+Sip core                   Sip core
+|                          |
+| reply(200)               | reply(486)
+V                          V
+Sip st                     Sip st
+|                          |
+| next_state(TERMINATED)   | next_state(CONFIRMED)
+V                          V
+ST sm                      St cm
+*/
+
+
+
 cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
                                            struct SipCorePtr sip_core,
                                            struct IpAddrPtr last_peer_ip,
                                            struct SipServerTransactionPtr *out);
 
 cme_error_t
-SipServerTransactionPtr_recv_next_state(struct SipMessagePtr sip_msg,
-                                        struct SipServerTransactionPtr strans);
+SipServerTransactionPtr_recv_handler(struct SipMessagePtr sip_msg,
+                                     struct SipServerTransactionPtr strans);
 
 cme_error_t
 SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,

@@ -87,7 +87,7 @@ SipServerTransactionPtr_recv_next_state(struct SipMessagePtr sip_msg,
     return __SipServerTransactionPtr_invite_recv_next_state(strans);
   case __SipServerTransactionType_NONINVITE:
     err = cme_error(
-        ENOENT, "Non invite server transactions are currently not supported");
+        ENOENT, "Non-invite server transactions are currently not supported");
     goto error_out;
   }
 
@@ -96,28 +96,23 @@ error_out:
 }
 
 cme_error_t
-SipServerTransactionPtr_accept(struct SipCoreAcceptOps tu_ops,
-                               struct SipServerTransactionPtr strans) {
-
+SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
+                              struct SipServerTransactionPtr strans) {
   cme_error_t err;
 
   switch (strans.get->type) {
   case __SipServerTransactionType_INVITE:
-    return __SipServerTransactionPtr_invite_accept(strans);
+    return __SipServerTransactionPtr_invite_reply(status_code, status_phrase,
+                                                  strans);
   case __SipServerTransactionType_NONINVITE:
     err = cme_error(
-        ENOENT, "Non invite server transactions are currently not supported");
+        ENOENT, "Non-invite server transactions are currently not supported");
     goto error_out;
   }
 
 error_out:
   return cme_return(err);
-};
-
-cme_error_t
-SipServerTransactionPtr_reject(struct SipServerTransactionPtr strans) {
-  return 0;
-};
+}
 
 cme_error_t
 SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
