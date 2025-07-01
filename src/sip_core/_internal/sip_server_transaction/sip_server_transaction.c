@@ -57,6 +57,7 @@ cme_error_t SipServerTransactionPtr_create(
       .init_request = SipMessagePtr_clone(sip_msg),
       .sip_core = SipCorePtr_clone(sip_core),
       .last_peer_ip = IpAddrPtr_clone(peer_ip),
+      .sip_responses = list__SipServerTransactionResponses_init(),
   };
 
   *out = SipServerTransactionPtr_from_ptr(strans);
@@ -81,9 +82,7 @@ void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
   SipCorePtr_drop(&sip_strans->sip_core);
 
   SipMessagePtr_drop(&sip_strans->init_request);
-  if (sip_strans->last_response.get) {
-    SipMessagePtr_drop(&sip_strans->last_response);
-  }
+  list__SipServerTransactionResponses_drop(&sip_strans->sip_responses);
 };
 
 cme_error_t
@@ -111,7 +110,7 @@ SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
   return 0;
 };
 
-static cme_error_t
+cme_error_t
 __SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
                                 struct SipServerTransactionPtr *strans) {
   cme_error_t err;

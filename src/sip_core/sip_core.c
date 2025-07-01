@@ -2,8 +2,8 @@
 
 #include "sip_core/_internal/sip_core.h"
 #include "sip_core/_internal/sip_core_listen.h"
-#include "sip_core/_internal/sip_core_strans.h"
 #include "sip_core/_internal/sip_core_strans_map.h"
+#include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
 #include "sip_core/sip_core.h"
 #include "sip_transport/sip_transport.h"
 #include "utils/memory.h"
@@ -46,18 +46,15 @@ void __SipCore_destroy(struct __SipCore *sip_core) {
   SipTransportPtr_drop(&sip_core->sip_transp);
 };
 
-cme_error_t SipCorePtr_listen(sip_core_connh_t connh,
-                              struct GenericPtr connh_arg,
+cme_error_t SipCorePtr_listen(sip_core_reqh_t reqh,
+                              sip_core_strans_errh_t strans_errh,
+                              struct GenericPtr arg,
                               struct SipCorePtr sip_core) {
-  return __SipCore_listen(connh, connh_arg, sip_core);
+  return __SipCore_listen(reqh, strans_errh, arg, sip_core);
 };
 
-cme_error_t SipCorePtr_accept(struct SipCoreAcceptOps accept_ops,
-                              struct SipServerTransactionPtr sip_strans) {
-  return __SipCore_accept(accept_ops, sip_strans);
+cme_error_t SipCorePtr_reply(uint32_t status_code, cstr status_phrase,
+                             struct SipServerTransactionPtr sip_strans) {
+  return __SipServerTransactionPtr_reply(status_code, status_phrase,
+                                         &sip_strans);
 }
-
-cme_error_t
-SipCorePtr_reject_busy_here(struct SipServerTransactionPtr sip_strans) {
-  return __SipCore_reject_busy_here(sip_strans);
-};

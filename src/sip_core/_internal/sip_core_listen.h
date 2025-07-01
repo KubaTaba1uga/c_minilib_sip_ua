@@ -14,6 +14,7 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 
+#include "sip_core/_internal/sip_core.h"
 #include "sip_core/sip_core.h"
 #include "sip_transport/sip_transport.h"
 #include "utils/ip.h"
@@ -21,10 +22,10 @@
 
 /*
  Sip Core Listener allow for handling incoming sip messages. Once new Sip
- message come (which is not part of any existing sip transaction) connh is
- called. If connh decide that this transaction should be further processed it
- invokes Sip Core accept and provide actual request handler to run when next
- requests being part of the same transaction come. Design looks sth like this:
+ message come (which is not part of any existing sip transaction) reqh is
+ called. If reqh decide that this transaction should be further processed it
+ invokes Sip Core reply and provide status code and status phrase.
+ Design looks sth like this:
 
   Receiving new transaction:
      Another UA
@@ -37,7 +38,7 @@
            |  SipMessage, SipServerTransaction
            |
            V
-     `sip_core_connh_t connh`
+     `sip_core_reqh_t reqh`
 
    Handling existsing transaction:
      Another UA
@@ -50,7 +51,7 @@
            |  SipMessage, SipServerTransaction
            |
            V
-     `sip_core_reqh_t reqh`
+     Sip Server Transaction
 
  There are multiple listeners per one sip core so TU can split their ops into
  multiple modules. Like one listener for invites one for registers one for SMSes
@@ -58,28 +59,19 @@
  or no in modular fashion.
 */
 struct __SipCoreListener {
-  /*
-    Connection handler is responsible for deciding whether we want this new
-    connection or not. If connection is accepted all requests and responses
-    related to it will be dispatched to TU in server transaction ctx via
-    request callback.
-  */
-  sip_core_connh_t connh;
-  struct GenericPtr connh_arg;
+  sip_core_reqh_t reqh;
+  // Strans_Errh is used only by transaction to inform TU about err in
+  // transaction
+  sip_core_strans_errh_t strans_errh;
+  struct GenericPtr arg;
 };
 
 #define i_tag _SipCoreListeners
 #define i_key struct __SipCoreListener
 #include "stc/queue.h"
 
-cme_error_t __SipCore_listen(sip_core_connh_t connh,
-                             struct GenericPtr connh_arg,
-                             struct SipCorePtr sip_core);
-
-cme_error_t __SipCore_accept(struct SipCoreAcceptOps accept_ops,
-                             struct SipServerTransactionPtr sip_strans);
-
-cme_error_t
-__SipCore_reject_busy_here(struct SipServerTransactionPtr sip_strans);
+cme_error_t __SipCore_listen(sip_core_reqh_t reqh,
+                             sip_core_strans_errh_t strans_errh,
+                             struct GenericPtr arg, struct SipCorePtr sip_core);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H

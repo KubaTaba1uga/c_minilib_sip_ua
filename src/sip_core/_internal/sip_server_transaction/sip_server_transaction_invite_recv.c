@@ -5,6 +5,8 @@
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction_invite.h"
 #include "utils/sip_msg.h"
 #include "utils/sip_status_codes.h"
+#include <assert.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -59,7 +61,8 @@ __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
   } break;
 
   case __SipServerTransactionState_INVITE_CONFIRMED:
-  case __SipServerTransactionState_INVITE_TERMINATED:;
+  case __SipServerTransactionState_INVITE_TERMINATED:
+    assert(false);
   }
 
   if (is_for_tu) {
@@ -73,6 +76,8 @@ __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
   return 0;
 
 error_out:
+  strans.get->tu_ops.errh(err, sipmsg, strans.get->sip_core, strans,
+                          strans.get->tu_ops.arg);
   return cme_return(err);
 }
 
