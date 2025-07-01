@@ -104,6 +104,10 @@ TU                               TU
 V                                |
 Sip Server Transaction -----------
 
+So Listener fires up TU reqh, then TU is responsible for creating
+SipServerTransaction, which then is used with reply. This way TU can manage
+transaction ctx easier.
+
 Sip server transaction contain a state machine which affect two Server
 Transaction behaviours:
   - reciving sip request
