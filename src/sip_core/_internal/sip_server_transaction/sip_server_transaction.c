@@ -1,5 +1,7 @@
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
+#include "sip_core/_internal/sip_core_strans_map.h"
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction_invite.h"
+#include "utils/generic_ptr.h"
 #include "utils/ip.h"
 #include "utils/sip_msg.h"
 
@@ -67,6 +69,18 @@ cme_error_t SipServerTransactionPtr_create(
     goto error_out_cleanup;
   }
 
+  csview strans_id = {0};
+  err = __SipServerTransactionPtr_get_id(*out, &strans_id);
+  if (err) {
+    goto error_out;
+  }
+
+  err = SipServerTransactions_insert(strans_id, *out, sip_core.get->stranses,
+                                     NULL);
+  if (err) {
+    goto error_out;
+  }
+
   return 0;
 
 error_out_cleanup:
@@ -85,10 +99,15 @@ void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
   list__SipServerTransactionResponses_drop(&sip_strans->sip_responses);
 };
 
-cme_error_t
-SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
-                              struct SipServerTransactionPtr strans) {
+cme_error_t SipServerTransactionPtr_reply(
+    uint32_t status_code, cstr status_phrase, sip_core_strans_errh_t errh,
+    struct GenericPtr arg, struct SipServerTransactionPtr strans) {
   cme_error_t err;
+
+  if (!strans.get->strans_errh && !strans.get->strans_errh_arg.get) {
+    strans.get->strans_errh = errh;
+    strans.get->strans_errh_arg = arg;
+  }
 
   switch (strans.get->type) {
   case __SipServerTransactionType_INVITE:

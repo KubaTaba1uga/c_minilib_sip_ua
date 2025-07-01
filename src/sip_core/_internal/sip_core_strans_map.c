@@ -4,9 +4,14 @@ cme_error_t
 SipServerTransactions_insert(csview key, struct SipServerTransactionPtr value,
                              struct hmap__SipServerTransactions *hmap,
                              struct SipServerTransactionPtr *out) {
-  *out = hmap__SipServerTransactions_insert_or_assign(hmap, cstr_from_sv(key),
-                                                      value)
-             .ref->second;
+  struct hmap__SipServerTransactions_value *result =
+      hmap__SipServerTransactions_insert_or_assign(hmap, cstr_from_sv(key),
+                                                   value)
+          .ref;
+
+  if (result && out) {
+    *out = result->second;
+  }
 
   return 0;
 }

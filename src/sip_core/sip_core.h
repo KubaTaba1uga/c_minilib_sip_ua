@@ -64,12 +64,18 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
  Sip Core handles matching requests to responses via transactions and
  retransmissions for unreliable transport protocols.
 */
-cme_error_t SipCorePtr_listen(sip_core_reqh_t reqh,
-                              sip_core_strans_errh_t strans_errh,
-                              struct GenericPtr arg,
+cme_error_t SipCorePtr_listen(sip_core_reqh_t reqh, struct GenericPtr arg,
                               struct SipCorePtr sip_core);
 
-cme_error_t SipCorePtr_reply(uint32_t status_code, cstr status_phrase,
-                             struct SipServerTransactionPtr sip_strans);
+cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
+                                           struct SipCorePtr sip_core,
+                                           struct IpAddrPtr last_peer_ip,
+                                           struct GenericPtr arg,
+                                           sip_core_strans_errh_t errh,
+                                           struct SipServerTransactionPtr *out);
+
+cme_error_t
+SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
+                              struct SipServerTransactionPtr sip_strans);
 
 #endif // C_MINILIB_SIP_UA_SIP_CORE_H

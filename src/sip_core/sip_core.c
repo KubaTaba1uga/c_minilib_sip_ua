@@ -46,15 +46,21 @@ void __SipCore_destroy(struct __SipCore *sip_core) {
   SipTransportPtr_drop(&sip_core->sip_transp);
 };
 
-cme_error_t SipCorePtr_listen(sip_core_reqh_t reqh,
-                              sip_core_strans_errh_t strans_errh,
-                              struct GenericPtr arg,
+cme_error_t SipCorePtr_listen(sip_core_reqh_t reqh, struct GenericPtr arg,
                               struct SipCorePtr sip_core) {
-  return __SipCore_listen(reqh, strans_errh, arg, sip_core);
+  return __SipCore_listen(reqh, arg, sip_core);
 };
 
-cme_error_t SipCorePtr_reply(uint32_t status_code, cstr status_phrase,
-                             struct SipServerTransactionPtr sip_strans) {
-  return __SipServerTransactionPtr_reply(status_code, status_phrase,
+cme_error_t SipCorePtr_replye(uint32_t status_code, cstr status_phrase,
+                              sip_core_strans_errh_t errh,
+                              struct GenericPtr arg,
+                              struct SipServerTransactionPtr sip_strans) {
+  return __SipServerTransactionPtr_reply(status_code, status_phrase, errh, arg,
                                          &sip_strans);
+}
+
+cme_error_t SipCorePtr_replyq(uint32_t status_code, cstr status_phrase,
+                              struct SipServerTransactionPtr sip_strans) {
+  return __SipServerTransactionPtr_reply(status_code, status_phrase, NULL,
+                                         (struct GenericPtr){0}, &sip_strans);
 }

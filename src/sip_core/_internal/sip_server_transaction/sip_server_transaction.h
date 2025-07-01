@@ -79,27 +79,30 @@ The SIP server transaction is responsible for handling one request
 (INVITE/REGISTER/MESSAGE etc.) and managing the reliable delivery of its
 responses. Here is overview of reciving operation:
 
-|           ^
-| bytes     | bytes
-V           |
-Socket UDP  <---
-|              |
-| bytes        | bytes
-V              |
-Sip Transport  <----
-|                  |
-| sip message      | bytes
-V                  |
-Sip Core  <--------------
-|                       |
-| sip message           | sip message
-V                       |
-Sip Server Transaction  <-------
-|                              |
-| sip server transaction       | status code, reason phrase
-V                              |
-TU------------------------------
-
+|                                ^
+| bytes                          | bytes
+V                                |
+Socket UDP                       Socket Udp
+|                                ^
+| bytes                          | bytes
+V                                |
+Sip Transport                    Sip Transport
+|                                ^
+| sip message                    | bytes
+V                                |
+Sip Core                         Sip Core
+|                                ^
+| sip message, sip core          | Sip msg
+V                                |
+Sip Listener                     Sip Server Transaction
+|                                ^
+| sip message, sip core          | Sip Server Transaction, status code
+V                                |                       , reason phrase
+TU                               TU
+|                                ^
+| sip message, sip core          | Sip Server Transaction
+V                                |
+Sip Server Transaction -----------
 
 Sip server transaction contain a state machine which affect two Server
 Transaction behaviours:
@@ -123,9 +126,9 @@ cme_error_t
 __SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
                                 struct SipServerTransactionPtr *strans);
 
-cme_error_t
-__SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
-                                struct SipServerTransactionPtr *strans);
+cme_error_t __SipServerTransactionPtr_reply(
+    uint32_t status_code, cstr status_phrase, sip_core_strans_errh_t errh,
+    struct GenericPtr arg, struct SipServerTransactionPtr *strans);
 
 cme_error_t
 __SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,

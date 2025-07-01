@@ -70,8 +70,7 @@ struct __SipCoreListener {
 #define i_key struct __SipCoreListener
 #include "stc/queue.h"
 
-cme_error_t __SipCore_listen(sip_core_reqh_t reqh,
-                             sip_core_strans_errh_t strans_errh,
-                             struct GenericPtr arg, struct SipCorePtr sip_core);
+cme_error_t __SipCore_listen(sip_core_reqh_t reqh, struct GenericPtr arg,
+                             struct SipCorePtr sip_core);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_LISTEN_H

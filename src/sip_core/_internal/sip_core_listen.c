@@ -27,16 +27,14 @@ static cme_error_t __SipCore_sip_transp_recvh(struct SipMessagePtr sip_msg,
                                               struct SipTransportPtr sip_transp,
                                               struct GenericPtr arg);
 
-cme_error_t __SipCore_listen(sip_core_reqh_t reqh,
-                             sip_core_strans_errh_t strans_errh,
-                             struct GenericPtr arg,
+cme_error_t __SipCore_listen(sip_core_reqh_t reqh, struct GenericPtr arg,
                              struct SipCorePtr sip_core) {
   cme_error_t err;
 
   queue__SipCoreListeners_push(sip_core.get->listeners,
                                (struct __SipCoreListener){
                                    .reqh = reqh,
-                                   .reqh_arg = reqh_arg,
+                                   .arg = arg,
                                });
 
   err = SipTransportPtr_listen(sip_core.get->sip_transp,
@@ -96,11 +94,6 @@ static inline cme_error_t __SipCore_sip_transp_recvh(
 
         // If TU replied we want to stop further processing
         if (!__SipServerTransactionPtr_is_responses_empty(strans)) {
-          strans.get->strans_errh =
-              lstner.ref
-                  ->strans_errh; // Server transaction needs a capability to
-                                 // inform user about canceled transaction.
-          strans.get->strans_errh_arg = lstner.ref->arg;
           break;
         }
       }
