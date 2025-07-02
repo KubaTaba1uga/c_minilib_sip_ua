@@ -45,21 +45,22 @@ enum __SipServerTransactionState {
 
 struct __SipServerTransaction {
   // Generic ops and data
-  enum __SipServerTransactionType type;
-  enum __SipServerTransactionState state;
-  struct list__SipServerTransactionResponses sip_responses;
-  struct SipMessagePtr init_request;
-  struct IpAddrPtr last_peer_ip;
   struct SipCorePtr sip_core;
 
+  enum __SipServerTransactionType __type;
+  enum __SipServerTransactionState __state;
+  struct list__SipServerTransactionResponses __sip_responses;
+  struct SipMessagePtr __init_request;
+  struct IpAddrPtr __last_peer_ip;
+
   // We need errh to inform user about errors in transaction
-  sip_core_strans_errh_t errh;
-  struct GenericPtr errh_arg;
+  sip_core_strans_errh_t __errh;
+  struct GenericPtr __errh_arg;
 
   // Invite Server Transaction ops and data
-  struct TimerFdPtr invite_g_timer; // unreliable transport timer
-  struct TimerFdPtr invite_h_timer; // ack timer
-  struct TimerFdPtr invite_i_timer; // ??
+  struct TimerFdPtr __invite_g_timer; // unreliable transport timer
+  struct TimerFdPtr __invite_h_timer; // ack timer
+  struct TimerFdPtr __invite_i_timer; // ??
 };
 
 void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans);
@@ -124,8 +125,7 @@ passes ops which specify how interact with new requests in transaction ctx.
 */
 cme_error_t __SipServerTransactionPtr_create(
     struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
-    struct IpAddrPtr peer_ip, sip_core_strans_errh_t errh,
-    struct GenericPtr arg, struct SipServerTransactionPtr *out);
+    struct IpAddrPtr peer_ip, struct SipServerTransactionPtr *out);
 
 cme_error_t
 __SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
@@ -142,5 +142,9 @@ __SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
 
 bool __SipServerTransactionPtr_is_responses_empty(
     struct SipServerTransactionPtr strans);
+
+void __SipServerTransactionPtr_set_errh(sip_core_strans_errh_t errh,
+                                        struct GenericPtr arg,
+                                        struct SipServerTransactionPtr strans);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_SIP_SERVER_TRANSACTION_H

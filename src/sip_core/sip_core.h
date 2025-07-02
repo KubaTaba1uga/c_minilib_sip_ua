@@ -67,15 +67,12 @@ cme_error_t SipCorePtr_create(struct EventLoopPtr evl, struct IpAddrPtr ip_addr,
 cme_error_t SipCorePtr_listen(sip_core_reqh_t reqh, struct GenericPtr arg,
                               struct SipCorePtr sip_core);
 
-cme_error_t SipServerTransactionPtr_create(struct SipMessagePtr sip_msg,
-                                           struct SipCorePtr sip_core,
-                                           struct IpAddrPtr peer_ip,
-                                           sip_core_strans_errh_t errh,
-                                           struct GenericPtr errh_arg,
-                                           struct SipServerTransactionPtr *out);
-
 cme_error_t
 SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
                               struct SipServerTransactionPtr *sip_strans);
+
+void SipServerTransactionPtr_set_errh(sip_core_strans_errh_t errh,
+                                      struct GenericPtr arg,
+                                      struct SipServerTransactionPtr strans);
 
 #endif // C_MINILIB_SIP_UA_SIP_CORE_H

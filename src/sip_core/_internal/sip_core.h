@@ -20,11 +20,11 @@
 struct __SipCore {
   // Transp Protocol data
   struct EventLoopPtr evl;
-  struct SipTransportPtr sip_transp;
+  struct SipTransportPtr __sip_transp;
 
   // SIP core data
-  struct queue__SipCoreListeners *listeners;
-  struct hmap__SipServerTransactions *stranses;
+  struct queue__SipCoreListeners *__listeners;
+  struct hmap__SipServerTransactions *__stranses;
 };
 
 void __SipCore_destroy(struct __SipCore *sip_core);

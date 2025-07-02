@@ -19,9 +19,9 @@ __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
                                       struct SipServerTransactionPtr *strans) {
   cme_error_t err;
 
-  strans->get->last_peer_ip = peer_ip;
+  strans->get->__last_peer_ip = peer_ip;
 
-  switch (strans->get->state) {
+  switch (strans->get->__state) {
   case __SipServerTransactionState_NONE:
     err = __SipServerTransactionPtr_move_to_state(
         __SipServerTransactionState_INVITE_PROCEEDING, *strans);
@@ -66,8 +66,9 @@ __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
   return 0;
 
 error_out:
-  strans->get->errh(err, sipmsg, strans->get->sip_core, *strans,
-                    strans->get->errh_arg);
+  if (strans->get->__errh) {
+    strans->get->__errh(err, sipmsg, *strans, strans->get->__errh_arg);
+  }
   return cme_return(err);
 }
 

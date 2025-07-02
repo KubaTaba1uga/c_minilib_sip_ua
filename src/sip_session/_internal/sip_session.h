@@ -54,7 +54,7 @@ __SipSession_clone(struct __SipSession sip_core) {
 #include "stc/arc.h"
 
 cme_error_t __SipSessionPtr_create(struct SipCorePtr sip_core,
-                                   struct SipServerTransactionPtr sip_strans,
+                                   struct SipServerTransactionPtr strans,
                                    sip_session_next_stateh_t next_stateh,
                                    struct GenericPtr arg,
                                    struct SipSessionPtr *out);

@@ -9,8 +9,7 @@
 
 cme_error_t __SipServerTransactionPtr_create(
     struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
-    struct IpAddrPtr peer_ip, sip_core_strans_errh_t errh,
-    struct GenericPtr arg, struct SipServerTransactionPtr *out) {
+    struct IpAddrPtr peer_ip, struct SipServerTransactionPtr *out) {
   bool is_invite = false;
   csview method = {0};
   cme_error_t err;
@@ -29,15 +28,13 @@ cme_error_t __SipServerTransactionPtr_create(
       my_malloc(sizeof(struct __SipServerTransaction));
 
   *strans = (struct __SipServerTransaction){
-      .type = is_invite ? __SipServerTransactionType_INVITE
-                        : __SipServerTransactionType_NONINVITE,
-      .state = __SipServerTransactionState_NONE,
-      .init_request = SipMessagePtr_clone(sip_msg),
       .sip_core = SipCorePtr_clone(sip_core),
-      .last_peer_ip = IpAddrPtr_clone(peer_ip),
-      .sip_responses = list__SipServerTransactionResponses_init(),
-      .errh = errh,
-      .errh_arg = arg,
+      .__type = is_invite ? __SipServerTransactionType_INVITE
+                          : __SipServerTransactionType_NONINVITE,
+      .__state = __SipServerTransactionState_NONE,
+      .__init_request = SipMessagePtr_clone(sip_msg),
+      .__last_peer_ip = IpAddrPtr_clone(peer_ip),
+      .__sip_responses = list__SipServerTransactionResponses_init(),
   };
 
   *out = SipServerTransactionPtr_from_ptr(strans);
@@ -47,17 +44,17 @@ cme_error_t __SipServerTransactionPtr_create(
     goto error_out_cleanup;
   }
 
-  csview strans_id = {0};
+  csview strans_id;
   err = __SipServerTransactionPtr_get_id(*out, &strans_id);
   if (err) {
     goto error_out_cleanup;
   }
 
-  err = __SipServerTransactions_insert(strans_id, *out, sip_core.get->stranses,
-                                       NULL);
-  if (err) {
-    goto error_out_cleanup;
-  }
+  /* err = __SipServerTransactions_insert(strans_id, *out, */
+  /*                                      sip_core.get->__stranses, out); */
+  /* if (err) { */
+  /*   goto error_out_cleanup; */
+  /* } */
 
   return 0;
 
@@ -70,11 +67,11 @@ error_out:
 void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
   puts(__func__);
 
-  IpAddrPtr_drop(&sip_strans->last_peer_ip);
+  IpAddrPtr_drop(&sip_strans->__last_peer_ip);
   SipCorePtr_drop(&sip_strans->sip_core);
 
-  SipMessagePtr_drop(&sip_strans->init_request);
-  list__SipServerTransactionResponses_drop(&sip_strans->sip_responses);
+  SipMessagePtr_drop(&sip_strans->__init_request);
+  list__SipServerTransactionResponses_drop(&sip_strans->__sip_responses);
 };
 
 cme_error_t
@@ -82,7 +79,7 @@ __SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
                                 struct SipServerTransactionPtr *strans) {
   cme_error_t err;
 
-  switch (strans->get->type) {
+  switch (strans->get->__type) {
   case __SipServerTransactionType_INVITE:
     return __SipServerTransactionPtr_invite_reply(status_code, status_phrase,
                                                   *strans);
@@ -108,7 +105,7 @@ __SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
                                 struct SipServerTransactionPtr *strans) {
   cme_error_t err;
 
-  switch (strans->get->type) {
+  switch (strans->get->__type) {
   case __SipServerTransactionType_INVITE:
     return __SipServerTransactionPtr_invite_recv(sip_msg, peer_ip, strans);
   case __SipServerTransactionType_NONINVITE:
@@ -124,5 +121,12 @@ error_out:
 bool __SipServerTransactionPtr_is_responses_empty(
     struct SipServerTransactionPtr strans) {
   return list__SipServerTransactionResponses_is_empty(
-      &strans.get->sip_responses);
+      &strans.get->__sip_responses);
+}
+
+void __SipServerTransactionPtr_set_errh(sip_core_strans_errh_t errh,
+                                        struct GenericPtr arg,
+                                        struct SipServerTransactionPtr strans) {
+  strans.get->__errh = errh;
+  strans.get->__errh_arg = arg;
 }

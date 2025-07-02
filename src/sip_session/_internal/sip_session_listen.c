@@ -12,9 +12,9 @@ static cme_error_t __SipSessionPtr_sip_core_reqh_t(
     struct SipMessagePtr sip_msg, struct IpAddrPtr peer_ip,
     struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
 
-static inline cme_error_t __SipSessionPtr_next_stateh(
-    enum SipSessionState next_state, struct SipMessagePtr sip_msg,
-    struct SipCorePtr sip_session, struct GenericPtr arg);
+static void __SipSessionPtr_sip_core_strans_errh(
+    cme_error_t err, struct SipMessagePtr sip_msg,
+    struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
 
 cme_error_t SipSessionPtr_listen(struct SipCorePtr sip_core,
                                  sip_session_next_stateh_t next_stateh,
@@ -62,6 +62,16 @@ static cme_error_t __SipSessionPtr_sip_core_reqh_t(
     if (err) {
       goto error_out;
     }
+
+    SipServerTransactionPtr_set_errh(
+        __SipSessionPtr_sip_core_strans_errh,
+        GenericPtr_from_arc(SipSessionPtr, sip_session), sip_strans);
+
+    err = sip_session.get->next_stateh(sip_session.get->state, sip_msg,
+                                       sip_session, sip_session.get->arg);
+    if (err) {
+      goto error_out;
+    }
   }
 
   return 0;
@@ -70,10 +80,9 @@ error_out:
   return cme_return(err);
 }
 
-static inline cme_error_t __SipSessionPtr_next_stateh(
-    enum SipSessionState next_state, struct SipMessagePtr sip_msg,
-    struct SipCorePtr sip_session, struct GenericPtr arg) {
+static void __SipSessionPtr_sip_core_strans_errh(
+    cme_error_t err, struct SipMessagePtr sip_msg,
+    struct SipServerTransactionPtr sip_strans, struct GenericPtr arg) {
   puts(__func__);
-
-  return 0;
+  puts(err->msg);
 }

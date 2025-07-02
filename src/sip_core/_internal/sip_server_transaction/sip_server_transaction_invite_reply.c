@@ -26,7 +26,7 @@ __SipServerTransactionPtr_invite_reply(uint32_t status_code, cstr status_phrase,
   struct BufferPtr bytes;
   cme_error_t err;
 
-  switch (strans.get->state) {
+  switch (strans.get->__state) {
   case __SipServerTransactionState_NONE:
   case __SipServerTransactionState_INVITE_PROCEEDING:
     err = __SipServerTransactionPtr_reply_handler_INVITE_PROCEEDING(
@@ -45,7 +45,7 @@ __SipServerTransactionPtr_invite_reply(uint32_t status_code, cstr status_phrase,
 
   if (is_for_transport) {
     err = SipMessagePtr_status_from_request(
-        strans.get->init_request, status_code, status_phrase, &sipmsg);
+        strans.get->__init_request, status_code, status_phrase, &sipmsg);
     if (err) {
       goto error_out;
     }
@@ -55,8 +55,8 @@ __SipServerTransactionPtr_invite_reply(uint32_t status_code, cstr status_phrase,
       goto error_sip_msg_cleanup;
     }
 
-    err = SipTransportPtr_send(strans.get->sip_core.get->sip_transp,
-                               strans.get->last_peer_ip, bytes);
+    err = SipTransportPtr_send(strans.get->sip_core.get->__sip_transp,
+                               strans.get->__last_peer_ip, bytes);
     if (err) {
       goto error_bytes_cleanup;
     }
@@ -124,12 +124,12 @@ static cme_error_t __SipServerTransactionPtr_reply_handler_INVITE_PROCEEDING(
       goto error_out;
     }
 
-    if (!SipTransportPtr_is_reliable(strans.get->sip_core.get->sip_transp)) {
+    if (!SipTransportPtr_is_reliable(strans.get->sip_core.get->__sip_transp)) {
       err = TimerFdPtr_create(
           strans.get->sip_core.get->evl, 0, __SIP_CORE_STRANS_T1,
           __SipServerTransactionPtr_g_unrliable_timeouth,
           GenericPtr_from_arc(SipServerTranscationPtr, strans),
-          &strans.get->invite_g_timer);
+          &strans.get->__invite_g_timer);
       if (err) {
         goto error_out;
       }

@@ -29,7 +29,7 @@ cme_error_t __SipServerTransactionPtr_move_to_state(
     struct SipServerTransactionPtr strans) {
   cme_error_t err;
 
-  if (next_state == strans.get->state) {
+  if (next_state == strans.get->__state) {
     return 0;
   }
 
@@ -69,7 +69,7 @@ cme_error_t __SipServerTransactionPtr_move_to_state(
   (void)__SipServerTransactionPtr_invite_g_timerh;
   (void)__SipServerTransactionPtr_invite_h_timerh;
   (void)__SipServerTransactionPtr_invite_i_timerh;
-  strans.get->state = next_state;
+  strans.get->__state = next_state;
 
   return 0;
 
