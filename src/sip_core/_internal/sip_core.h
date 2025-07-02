@@ -39,9 +39,10 @@ static inline struct __SipCore __SipCore_clone(struct __SipCore sip_core) {
 #include "stc/arc.h"
 
 struct SipServerTransactionPtr;
-typedef cme_error_t (*sip_core_reqh_t)(
-    struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
-    struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
+typedef cme_error_t (*sip_core_reqh_t)(struct SipMessagePtr sip_msg,
+                                       struct IpAddrPtr peer_ip,
+                                       struct SipCorePtr sip_core,
+                                       struct GenericPtr arg);
 
 typedef void (*sip_core_strans_errh_t)(
     cme_error_t err, struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,

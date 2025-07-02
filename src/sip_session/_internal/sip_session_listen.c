@@ -1,6 +1,6 @@
-#include "sip_session/sip_session.h"
 #include "c_minilib_error.h"
 #include "sip_core/sip_core.h"
+#include "sip_session/sip_session.h"
 #include "utils/generic_ptr.h"
 #include "utils/sip_msg.h"
 #include <stdio.h>
