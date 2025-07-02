@@ -22,7 +22,8 @@
 
 cme_error_t
 __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
-                                      struct SipServerTransactionPtr strans);
+                                      struct IpAddrPtr peer_ip,
+                                      struct SipServerTransactionPtr *strans);
 
 cme_error_t
 __SipServerTransactionPtr_invite_reply(uint32_t status_code, cstr status_phrase,

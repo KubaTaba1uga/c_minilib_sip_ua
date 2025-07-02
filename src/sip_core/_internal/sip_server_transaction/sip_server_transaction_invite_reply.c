@@ -5,6 +5,7 @@
 #include "sip_transport/sip_transport.h"
 #include "timer_fd/_internal/timer_fd.h"
 #include "timer_fd/timer_fd.h"
+#include <assert.h>
 
 #define __SIP_CORE_STRANS_T1 500000000
 
@@ -35,6 +36,11 @@ __SipServerTransactionPtr_invite_reply(uint32_t status_code, cstr status_phrase,
     }
 
     break;
+
+  case __SipServerTransactionState_INVITE_TERMINATED:
+    assert(false);
+
+  default:;
   }
 
   if (is_for_transport) {
@@ -94,8 +100,8 @@ static cme_error_t __SipServerTransactionPtr_reply_handler_INVITE_PROCEEDING(
   */
   if (status_code >= 200 && status_code <= 299) { // NOLINT
     *is_for_transp = true;
-    strans.get->state = __SipServerTransactionState_INVITE_TERMINATED;
-    err = __SipServerTransactionPtr_on_INVITE_TERMINATED(strans);
+    err = __SipServerTransactionPtr_move_to_state(
+        __SipServerTransactionState_INVITE_TERMINATED, strans);
     if (err) {
       goto error_out;
     }
@@ -112,13 +118,18 @@ static cme_error_t __SipServerTransactionPtr_reply_handler_INVITE_PROCEEDING(
   */
   if (status_code >= 300 && status_code <= 699) { // NOLINT
     *is_for_transp = true;
-    strans.get->state = __SipServerTransactionState_INVITE_COMPLETED;
+    err = __SipServerTransactionPtr_move_to_state(
+        __SipServerTransactionState_INVITE_COMPLETED, strans);
+    if (err) {
+      goto error_out;
+    }
+
     if (!SipTransportPtr_is_reliable(strans.get->sip_core.get->sip_transp)) {
       err = TimerFdPtr_create(
           strans.get->sip_core.get->evl, 0, __SIP_CORE_STRANS_T1,
           __SipServerTransactionPtr_g_unrliable_timeouth,
           GenericPtr_from_arc(SipServerTranscationPtr, strans),
-          &strans.get->invite_3xx_6xx_timer);
+          &strans.get->invite_g_timer);
       if (err) {
         goto error_out;
       }

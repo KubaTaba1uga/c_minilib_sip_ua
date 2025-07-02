@@ -52,9 +52,9 @@ struct __SipServerTransaction {
   struct IpAddrPtr last_peer_ip;
   struct SipCorePtr sip_core;
 
-  // We need strans_errh to inform user about canceled transaction
-  sip_core_strans_errh_t strans_errh;
-  struct GenericPtr strans_errh_arg;
+  // We need errh to inform user about errors in transaction
+  sip_core_strans_errh_t errh;
+  struct GenericPtr errh_arg;
 
   // Invite Server Transaction ops and data
   struct TimerFdPtr invite_g_timer; // unreliable transport timer
@@ -124,15 +124,17 @@ passes ops which specify how interact with new requests in transaction ctx.
 */
 cme_error_t __SipServerTransactionPtr_create(
     struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
-    struct IpAddrPtr last_peer_ip, struct SipServerTransactionPtr *out);
+    struct IpAddrPtr peer_ip, sip_core_strans_errh_t errh,
+    struct GenericPtr arg, struct SipServerTransactionPtr *out);
 
 cme_error_t
 __SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
+                                struct IpAddrPtr peer_ip,
                                 struct SipServerTransactionPtr *strans);
 
-cme_error_t __SipServerTransactionPtr_reply(
-    uint32_t status_code, cstr status_phrase, sip_core_strans_errh_t errh,
-    struct GenericPtr arg, struct SipServerTransactionPtr *strans);
+cme_error_t
+__SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
+                                struct SipServerTransactionPtr *strans);
 
 cme_error_t
 __SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,

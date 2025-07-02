@@ -4,41 +4,13 @@
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
 #include "sip_core/sip_core.h"
+#include "sip_session/sip_session.h"
 #include "sip_transport/_internal/sip_transport.h"
 #include "sip_transport/sip_transport.h"
 #include "stc/cstr.h"
 #include "udp_socket/udp_socket.h"
 #include "utils/generic_ptr.h"
 #include "utils/ip.h"
-cme_error_t __sip_core_request_handler(struct SipMessagePtr sip_msg,
-                                       struct SipCorePtr sip_core,
-                                       struct SipServerTransactionPtr strans,
-                                       struct GenericPtr data) {
-  puts("Received request matching transaction");
-  return 0;
-}
-
-cme_error_t __sip_core_connection_handler(struct SipMessagePtr sip_msg,
-                                          struct SipCorePtr sip_core,
-                                          struct SipServerTransactionPtr strans,
-                                          struct GenericPtr data) {
-  puts("Received sip msg!!! :)");
-  puts("Ringing a tone ...");
-  cme_error_t err;
-
-  err = SipCorePtr_accept(strans, sip_core);
-  if (err) {
-    goto error_out;
-  }
-
-  puts("Accepted sip invite");
-
-  return 0;
-
-error_out:
-
-  return cme_return(err);
-}
 
 int main(void) {
   cme_error_t err;
@@ -63,10 +35,7 @@ int main(void) {
     goto error_evl_cleanup;
   }
 
-  err = SipCorePtr_listen(__sip_core_connection_handler,
-                          GenericPtr_from_arc(SipCorePtr, sip_core),
-                          __sip_core_request_handler,
-                          GenericPtr_from_arc(SipCorePtr, sip_core), sip_core);
+  err = SipSessionPtr_listen(sip_core);
   if (err) {
     goto error_core_cleanup;
   }

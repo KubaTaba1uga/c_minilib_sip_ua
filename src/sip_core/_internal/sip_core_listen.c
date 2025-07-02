@@ -76,15 +76,9 @@ static inline cme_error_t __SipCore_sip_transp_recvh(
     }
 
     result =
-        SipServerTransactions_find(branch, sip_core.get->stranses, &strans);
+        __SipServerTransactions_find(branch, sip_core.get->stranses, &strans);
     if (!result) {
       puts("New server transaction");
-      err =
-          __SipServerTransactionPtr_create(sip_msg, sip_core, peer_ip, &strans);
-      if (err) {
-        goto error_out;
-      }
-
       c_foreach(lstner, queue__SipCoreListeners, *sip_core.get->listeners) {
         // We need reqh so the user can reply to incoming message.
         err = lstner.ref->reqh(sip_msg, sip_core, strans, lstner.ref->arg);
@@ -99,13 +93,13 @@ static inline cme_error_t __SipCore_sip_transp_recvh(
       }
     } else {
       puts("Matched old server transaction");
-      err = __SipServerTransactionPtr_recvh(sip_msg, &strans);
+      err = __SipServerTransactionPtr_recvh(sip_msg, peer_ip, &strans);
       if (err) {
         goto error_out;
       }
     }
   } else {
-    // TO-DO: handle client transaction
+    // TO-DO: handle NONINVITE transaction
     assert(false);
   }
 
@@ -116,60 +110,3 @@ error_strans_cleanup:
 error_out:
   return cme_return(err);
 }
-
-/* cme_error_t __SipCore_accept(struct SipCoreAcceptOps accept_ops, */
-/*                              struct SipServerTransactionPtr sip_strans) { */
-/*   csview strans_id = {0}; */
-/*   cme_error_t err; */
-
-/*   err = SipServerTransactionPtr_get_id(sip_strans, &strans_id); */
-/*   if (err) { */
-/*     goto error_out; */
-/*   } */
-
-/*   err = */
-/*       SipServerTransactionPtr_reply(SIP_STATUS_OK, cstr_lit("Ok"),
- * sip_strans); */
-/*   if (err) { */
-/*     goto error_out; */
-/*   } */
-
-/*   struct SipServerTransactionPtr result; */
-/*   err = SipServerTransactions_insert( */
-/*       strans_id, sip_strans, sip_strans.get->sip_core.get->stranses,
- * &result); */
-/*   if (err) { */
-/*     goto error_out; */
-/*   } */
-
-/*   return 0; */
-
-/* error_out: */
-/*   return cme_return(err); */
-/* }; */
-
-/* cme_error_t */
-/* __SipCore_reject_busy_here(struct SipServerTransactionPtr sip_strans) { */
-/*   csview strans_id = {0}; */
-/*   cme_error_t err; */
-
-/*   err = SipServerTransactionPtr_get_id(sip_strans, &strans_id); */
-/*   if (err) { */
-/*     goto error_out; */
-/*   } */
-
-/*   err = SipServerTransactionPtr_reply(SIP_STATUS_BUSY_HERE, */
-/*                                       cstr_lit("Busy Here"), sip_strans); */
-/*   if (err) { */
-/*     goto error_out; */
-/*   } */
-
-/*   hmap__SipServerTransactions_erase(sip_strans.get->sip_core.get->stranses,
- */
-/*                                     strans_id.buf); */
-
-/*   return 0; */
-
-/* error_out: */
-/*   return cme_return(err); */
-/* }; */

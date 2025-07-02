@@ -66,6 +66,9 @@ cme_error_t __SipServerTransactionPtr_move_to_state(
     break;
   }
 
+  (void)__SipServerTransactionPtr_invite_g_timerh;
+  (void)__SipServerTransactionPtr_invite_h_timerh;
+  (void)__SipServerTransactionPtr_invite_i_timerh;
   strans.get->state = next_state;
 
   return 0;

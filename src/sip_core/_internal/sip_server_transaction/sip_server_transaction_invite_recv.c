@@ -11,32 +11,28 @@
 #include <string.h>
 
 static cme_error_t __SipServerTransactionPtr_recv_handler_INVITE_PROCEEDING(
-    struct SipMessagePtr sipmsg, struct SipServerTransactionPtr strans,
-    bool *is_for_tu);
+    struct SipMessagePtr sipmsg, struct SipServerTransactionPtr strans);
 
-/*
-   Once sip core receives request related to server invite transaction
-   it will always run this function.
-*/
 cme_error_t
 __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
-                                      struct SipServerTransactionPtr strans) {
+                                      struct IpAddrPtr peer_ip,
+                                      struct SipServerTransactionPtr *strans) {
   cme_error_t err;
 
-  bool is_for_tu = false;
+  strans->get->last_peer_ip = peer_ip;
 
-  switch (strans.get->state) {
+  switch (strans->get->state) {
   case __SipServerTransactionState_NONE:
     err = __SipServerTransactionPtr_move_to_state(
-        __SipServerTransactionState_INVITE_PROCEEDING, strans);
+        __SipServerTransactionState_INVITE_PROCEEDING, *strans);
     if (err) {
       goto error_out;
     }
     break;
 
   case __SipServerTransactionState_INVITE_PROCEEDING:
-    err = __SipServerTransactionPtr_recv_handler_INVITE_PROCEEDING(
-        sipmsg, strans, &is_for_tu);
+    err = __SipServerTransactionPtr_recv_handler_INVITE_PROCEEDING(sipmsg,
+                                                                   *strans);
     if (err) {
       goto error_out;
     }
@@ -53,7 +49,7 @@ __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
         &sipmsg.get->sip_msg->request_line.sip_method, sipmsg.get->sip_msg);
     if (strncmp(method.buf, "ACK", method.len) == 0) {
       err = __SipServerTransactionPtr_move_to_state(
-          __SipServerTransactionState_INVITE_CONFIRMED, strans);
+          __SipServerTransactionState_INVITE_CONFIRMED, *strans);
       if (err) {
         goto error_out;
       }
@@ -61,29 +57,22 @@ __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
   } break;
 
   case __SipServerTransactionState_INVITE_CONFIRMED:
+    break;
+
   case __SipServerTransactionState_INVITE_TERMINATED:
     assert(false);
-  }
-
-  if (is_for_tu) {
-    err = strans.get->tu_ops.reqh(sipmsg, strans.get->sip_core, strans,
-                                  strans.get->tu_ops.arg);
-    if (err) {
-      printf("Error in server transaction tu.reqh: %s\n", err->msg);
-    }
   }
 
   return 0;
 
 error_out:
-  strans.get->tu_ops.errh(err, sipmsg, strans.get->sip_core, strans,
-                          strans.get->tu_ops.arg);
+  strans->get->errh(err, sipmsg, strans->get->sip_core, *strans,
+                    strans->get->errh_arg);
   return cme_return(err);
 }
 
 static cme_error_t __SipServerTransactionPtr_recv_handler_INVITE_PROCEEDING(
-    struct SipMessagePtr sipmsg, struct SipServerTransactionPtr strans,
-    bool *is_for_tu) {
+    struct SipMessagePtr sipmsg, struct SipServerTransactionPtr strans) {
   /*
     According rfc 3261 17.2.1 INVITE Server Transaction:
       If a request retransmission is received while in the "Proceeding" state,
@@ -91,23 +80,21 @@ static cme_error_t __SipServerTransactionPtr_recv_handler_INVITE_PROCEEDING(
       be passed to the transport layer for retransmission ...
   */
   puts(__func__);
-  struct csview reason_phrase;
-  uint32_t status_code;
-  cme_error_t err;
+  /* struct csview reason_phrase; */
+  /* uint32_t status_code; */
+  /* cme_error_t err; */
 
-  SipMessagePtr_get_status_code_and_reason(strans.get->last_response,
-                                           &status_code, &reason_phrase);
+  /* SipMessagePtr_get_status_code_and_reason(strans.get->last_response, */
+  /*                                          &status_code, &reason_phrase); */
 
-  err = __SipServerTransactionPtr_invite_reply(
-      status_code, cstr_from_sv(reason_phrase), strans);
-  if (err) {
-    goto error_out;
-  }
-
-  *is_for_tu = false;
+  /* err = __SipServerTransactionPtr_invite_reply( */
+  /*     status_code, cstr_from_sv(reason_phrase), strans); */
+  /* if (err) { */
+  /*   goto error_out; */
+  /* } */
 
   return 0;
 
-error_out:
-  return cme_return(err);
+  /* error_out: */
+  /* return cme_return(err); */
 }

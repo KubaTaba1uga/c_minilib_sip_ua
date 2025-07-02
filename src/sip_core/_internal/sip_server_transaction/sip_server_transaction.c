@@ -7,34 +7,10 @@
 
 #include "c_minilib_error.h"
 
-static cme_error_t
-__SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
-                                struct SipServerTransactionPtr *strans);
-
-/*
- Server transaction starts in NONE state. Point of this state is to send 100
- trying response to the calle. Once 100 is send transaction move to PROCEEDING
- state.
-
- In PROCEEDING state we need to ensure all responses send by TU are passed to
- transport layer. Once user send 2xx in PROCEEDING state transaction move to
- TERMINATED state. Once user send from 300 to 699 in PROCEEDING state
- transaction move to COMPLETED state, now timer G is set up for T1.
-
- In TERMINATED state transaction get destructed and all timers are stopped.
-
- In COMPLETED state timer H is set for T1*64. This timer retransmit last
- response until TERMINATED state is reached. If ACK is received in COMPLETED
- state transaction move to CONFIRMED state.
-
- In CONFIRMED state transaction absorbs any additional ACK without informing
- User. When CONFIRMED state is entered timer I is set up for T4. Once timer I
- fires up transaction move to TERMINATED state.
- */
-
-cme_error_t SipServerTransactionPtr_create(
+cme_error_t __SipServerTransactionPtr_create(
     struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
-    struct IpAddrPtr peer_ip, struct SipServerTransactionPtr *out) {
+    struct IpAddrPtr peer_ip, sip_core_strans_errh_t errh,
+    struct GenericPtr arg, struct SipServerTransactionPtr *out) {
   bool is_invite = false;
   csview method = {0};
   cme_error_t err;
@@ -60,11 +36,13 @@ cme_error_t SipServerTransactionPtr_create(
       .sip_core = SipCorePtr_clone(sip_core),
       .last_peer_ip = IpAddrPtr_clone(peer_ip),
       .sip_responses = list__SipServerTransactionResponses_init(),
+      .errh = errh,
+      .errh_arg = arg,
   };
 
   *out = SipServerTransactionPtr_from_ptr(strans);
 
-  err = __SipServerTransactionPtr_recvh(sip_msg, out);
+  err = __SipServerTransactionPtr_recvh(sip_msg, peer_ip, out);
   if (err) {
     goto error_out_cleanup;
   }
@@ -75,8 +53,8 @@ cme_error_t SipServerTransactionPtr_create(
     goto error_out;
   }
 
-  err = SipServerTransactions_insert(strans_id, *out, sip_core.get->stranses,
-                                     NULL);
+  err = __SipServerTransactions_insert(strans_id, *out, sip_core.get->stranses,
+                                       NULL);
   if (err) {
     goto error_out;
   }
@@ -99,20 +77,15 @@ void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
   list__SipServerTransactionResponses_drop(&sip_strans->sip_responses);
 };
 
-cme_error_t SipServerTransactionPtr_reply(
-    uint32_t status_code, cstr status_phrase, sip_core_strans_errh_t errh,
-    struct GenericPtr arg, struct SipServerTransactionPtr strans) {
+cme_error_t
+__SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
+                                struct SipServerTransactionPtr *strans) {
   cme_error_t err;
 
-  if (!strans.get->strans_errh && !strans.get->strans_errh_arg.get) {
-    strans.get->strans_errh = errh;
-    strans.get->strans_errh_arg = arg;
-  }
-
-  switch (strans.get->type) {
+  switch (strans->get->type) {
   case __SipServerTransactionType_INVITE:
     return __SipServerTransactionPtr_invite_reply(status_code, status_phrase,
-                                                  strans);
+                                                  *strans);
   case __SipServerTransactionType_NONINVITE:
     err = cme_error(
         ENOENT, "Non-invite server transactions are currently not supported");
@@ -124,19 +97,20 @@ error_out:
 }
 
 cme_error_t
-SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
-                               struct csview *out) {
+__SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
+                                 struct csview *out) {
   return 0;
 };
 
 cme_error_t
 __SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
+                                struct IpAddrPtr peer_ip,
                                 struct SipServerTransactionPtr *strans) {
   cme_error_t err;
 
   switch (strans->get->type) {
   case __SipServerTransactionType_INVITE:
-    return __SipServerTransactionPtr_invite_recv(sip_msg, *strans);
+    return __SipServerTransactionPtr_invite_recv(sip_msg, peer_ip, strans);
   case __SipServerTransactionType_NONINVITE:
     err = cme_error(
         ENOENT, "Non-invite server transactions are currently not supported");
@@ -145,4 +119,10 @@ __SipServerTransactionPtr_recvh(struct SipMessagePtr sip_msg,
 
 error_out:
   return cme_return(err);
+}
+
+bool __SipServerTransactionPtr_is_responses_empty(
+    struct SipServerTransactionPtr strans) {
+  return list__SipServerTransactionResponses_is_empty(
+      &strans.get->sip_responses);
 }
