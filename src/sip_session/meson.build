@@ -3,4 +3,4 @@ sources += files(
    'sip_session.c',
 )
 
-# subdir('_internal')
+subdir('_internal')

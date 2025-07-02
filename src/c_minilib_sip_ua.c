@@ -4,6 +4,7 @@
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
 #include "sip_core/sip_core.h"
+#include "sip_session/_internal/sip_session.h"
 #include "sip_session/sip_session.h"
 #include "sip_transport/_internal/sip_transport.h"
 #include "sip_transport/sip_transport.h"
@@ -11,6 +12,32 @@
 #include "udp_socket/udp_socket.h"
 #include "utils/generic_ptr.h"
 #include "utils/ip.h"
+
+static cme_error_t __main_sip_session_next_stateh(
+    enum SipSessionState next_state, struct SipMessagePtr sip_msg,
+    struct SipSessionPtr sip_session, struct GenericPtr arg) {
+  puts(__func__);
+  cme_error_t err;
+
+  switch (next_state) {
+  case SipSessionState_INVITED:
+    err = SipSessionPtr_accept(&sip_session);
+    if (err) {
+      goto error_out;
+    }
+    break;
+
+  case SipSessionState_ESTABLISHED:
+  case SipSessionState_TERMINATED:;
+  }
+
+  puts("HIT");
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
 
 int main(void) {
   cme_error_t err;
@@ -35,7 +62,8 @@ int main(void) {
     goto error_evl_cleanup;
   }
 
-  err = SipSessionPtr_listen(sip_core);
+  err = SipSessionPtr_listen(sip_core, __main_sip_session_next_stateh,
+                             (struct GenericPtr){0});
   if (err) {
     goto error_core_cleanup;
   }
@@ -47,8 +75,6 @@ int main(void) {
   }
 
   puts("Event loop done\n");
-  printf("ip addr=%s, use_count=%td\n", cstr_data(&ip_addr.get->ip),
-         *ip_addr.use_count);
 
   IpAddrPtr_drop(&ip_addr);
   SipCorePtr_drop(&sip_core);

@@ -26,20 +26,22 @@ enum SipSessionState {
   SipSessionState_TERMINATED, // <--
 };
 
+struct SipSessionPtr;
 typedef cme_error_t (*sip_session_next_stateh_t)(
     enum SipSessionState next_state, struct SipMessagePtr sip_msg,
-    struct SipCorePtr sip_session, struct GenericPtr arg);
+    struct SipSessionPtr sip_session, struct GenericPtr arg);
 
 struct __SipSession {
   struct SipCorePtr sip_core;
   enum SipSessionState state;
+  struct SipServerTransactionPtr current_strans;
 
   // Sip Session User (SSU) data
   sip_session_next_stateh_t next_stateh;
   struct GenericPtr arg;
 };
 
-static inline void __SipSession_destroy(struct __SipSession *sip_core);
+void __SipSession_destroy(struct __SipSession *sip_core);
 static inline struct __SipSession
 __SipSession_clone(struct __SipSession sip_core) {
   return sip_core;
@@ -51,18 +53,10 @@ __SipSession_clone(struct __SipSession sip_core) {
 #define i_keyclone __SipSession_clone
 #include "stc/arc.h"
 
-static inline void __SipSessionPtr_create(struct SipCorePtr sip_core,
-                                          sip_session_next_stateh_t next_stateh,
-                                          struct GenericPtr arg,
-                                          struct SipSessionPtr *out) {
-  struct __SipSession *sip_session = my_malloc(sizeof(struct __SipSession));
-  cme_error_t err;
-
-  *sip_session = (struct __SipSession){.sip_core = sip_core,
-                                       .next_stateh = next_stateh,
-                                       .arg = arg,
-                                       .state = SipSessionState_INVITED};
-};
-static inline void __SipSession_destroy(struct __SipSession *sip_core);
+cme_error_t __SipSessionPtr_create(struct SipCorePtr sip_core,
+                                   struct SipServerTransactionPtr sip_strans,
+                                   sip_session_next_stateh_t next_stateh,
+                                   struct GenericPtr arg,
+                                   struct SipSessionPtr *out);
 
 #endif // C_MINILIB_SIP_UA_INT_SIP_SESSION_H

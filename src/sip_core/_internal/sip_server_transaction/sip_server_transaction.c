@@ -50,13 +50,13 @@ cme_error_t __SipServerTransactionPtr_create(
   csview strans_id = {0};
   err = __SipServerTransactionPtr_get_id(*out, &strans_id);
   if (err) {
-    goto error_out;
+    goto error_out_cleanup;
   }
 
   err = __SipServerTransactions_insert(strans_id, *out, sip_core.get->stranses,
                                        NULL);
   if (err) {
-    goto error_out;
+    goto error_out_cleanup;
   }
 
   return 0;

@@ -1,25 +1,21 @@
 #include "sip_session/sip_session.h"
 #include "c_minilib_error.h"
+#include "sip_core/_internal/sip_core.h"
 #include "sip_core/sip_core.h"
+#include "stc/cstr.h"
 #include "utils/generic_ptr.h"
 #include "utils/sip_msg.h"
+#include "utils/sip_status_codes.h"
 #include <stdio.h>
-
-static cme_error_t __SipSessionPtr_sip_core_reqh_t(struct SipMessagePtr sip_msg,
-                                                   struct IpAddrPtr peer_ip,
-                                                   struct SipCorePtr sip_core,
-                                                   struct GenericPtr arg);
 static void __SipSessionPtr_sip_core_strans_errh(
-    cme_error_t err, struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
+    cme_error_t err, struct SipMessagePtr sip_msg,
     struct SipServerTransactionPtr sip_strans, struct GenericPtr arg);
 
-cme_error_t SipSessionPtr_listen(struct SipCorePtr sip_core,
-                                 sip_session_next_stateh_t next_stateh,
-                                 struct GenericPtr arg) {
+cme_error_t SipSessionPtr_accept(struct SipSessionPtr *sip_session) {
   cme_error_t err;
 
-  err = SipCorePtr_listen(__SipSessionPtr_sip_core_reqh_t,
-                          GenericPtr_from_arc(SipCorePtr, sip_core), sip_core);
+  err = SipServerTransactionPtr_reply(SIP_STATUS_ACCEPTED, cstr_lit("OK"),
+                                      &sip_session->get->current_strans);
   if (err) {
     goto error_out;
   }
@@ -30,24 +26,29 @@ error_out:
   return cme_return(err);
 }
 
-static cme_error_t __SipSessionPtr_sip_core_reqh_t(struct SipMessagePtr sip_msg,
-                                                   struct IpAddrPtr peer_ip,
-                                                   struct SipCorePtr sip_core,
-                                                   struct GenericPtr arg) {
-  puts(__func__);
-
+cme_error_t __SipSessionPtr_create(struct SipCorePtr sip_core,
+                                   struct SipServerTransactionPtr sip_strans,
+                                   sip_session_next_stateh_t next_stateh,
+                                   struct GenericPtr arg,
+                                   struct SipSessionPtr *out) {
+  struct __SipSession *sip_session = my_malloc(sizeof(struct __SipSession));
   cme_error_t err;
 
-  csview sip_method;
-  void *result = SipMessagePtr_get_method(sip_msg, &sip_method);
-  if (!result || !csview_equals(sip_method, "INVITE")) {
-    return 0;
-  }
+  *sip_session = (struct __SipSession){
+      .sip_core = SipCorePtr_clone(sip_core),
+      .current_strans = SipServerTransactionPtr_clone(sip_strans),
+      .next_stateh = next_stateh,
+      .arg = arg,
+      .state = SipSessionState_INVITED};
 
-  struct SipServerTransactionPtr strans;
-  err = SipServerTransactionPtr_create(sip_msg, sip_core, peer_ip,
-                                       __SipSessionPtr_sip_core_strans_errh,
-                                       arg, &strans);
+  *out = SipSessionPtr_from_ptr(sip_session);
+
+  sip_strans.get->errh = __SipSessionPtr_sip_core_strans_errh;
+  sip_strans.get->errh_arg = GenericPtr_from_arc(SipSessionPtr, *out);
+
+  err =
+      out->get->next_stateh(SipSessionState_INVITED,
+                            sip_strans.get->init_request, *out, out->get->arg);
   if (err) {
     goto error_out;
   }
@@ -55,11 +56,18 @@ static cme_error_t __SipSessionPtr_sip_core_reqh_t(struct SipMessagePtr sip_msg,
   return 0;
 
 error_out:
+  SipSessionPtr_drop(out);
   return cme_return(err);
-}
+};
+
+void __SipSession_destroy(struct __SipSession *sip_core) {
+  SipCorePtr_drop(&sip_core->sip_core);
+  SipServerTransactionPtr_drop(&sip_core->current_strans);
+};
 
 static void __SipSessionPtr_sip_core_strans_errh(
-    cme_error_t err, struct SipMessagePtr sip_msg, struct SipCorePtr sip_core,
+    cme_error_t err, struct SipMessagePtr sip_msg,
     struct SipServerTransactionPtr sip_strans, struct GenericPtr arg) {
+  puts(__func__);
   puts(err->msg);
 }

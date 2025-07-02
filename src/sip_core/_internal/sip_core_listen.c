@@ -79,9 +79,15 @@ static inline cme_error_t __SipCore_sip_transp_recvh(
         __SipServerTransactions_find(branch, sip_core.get->stranses, &strans);
     if (!result) {
       puts("New server transaction");
+      err = SipServerTransactionPtr_create(sip_msg, sip_core, peer_ip, NULL,
+                                           (struct GenericPtr){0}, &strans);
+      if (err) {
+        goto error_out;
+      }
+
       c_foreach(lstner, queue__SipCoreListeners, *sip_core.get->listeners) {
         // We need reqh so the user can reply to incoming message.
-        err = lstner.ref->reqh(sip_msg, sip_core, strans, lstner.ref->arg);
+        err = lstner.ref->reqh(sip_msg, peer_ip, strans, lstner.ref->arg);
         if (err) {
           goto error_strans_cleanup;
         }
