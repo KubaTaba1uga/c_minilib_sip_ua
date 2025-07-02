@@ -62,14 +62,14 @@
   - receive/send BYE -- state:TERMINATED
   - teardown media
 */
-
-cme_error_t SipSessionPtr_create(sip_session_recvh_t recvh,
+cme_error_t SipSessionPtr_listen(struct SipCorePtr sip_core,
+                                 sip_session_recvh_t recvh,
                                  struct GenericPtr arg,
-                                 struct SipCorePtr sip_core,
                                  struct SipSessionPtr *out);
 
 cme_error_t SipSessionPtr_accept(struct SipSessionPtr *sip_session);
 cme_error_t SipSessionPtr_reject(struct SipSessionPtr *sip_session);
+cme_error_t SipSessionPtr_bye(struct SipSessionPtr *sip_session);
 
 /*
   Starting Call in sip looks somethink like this:
