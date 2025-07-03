@@ -19,7 +19,10 @@
 #include "utils/ip.h"
 #include "utils/memory.h"
 
-//--------------------------------------------------------------------------------
+static struct EventLoopPtr evlp;
+static struct UdpSocketPtr udp;
+static struct IpAddrPtr ip;
+
 bool mock_err;
 cme_error_t __UdpSocket_create_fd(struct IpAddrPtr ip_addr, int32_t *fd) {
   (void)ip_addr;
@@ -32,11 +35,6 @@ cme_error_t __UdpSocket_create_fd(struct IpAddrPtr ip_addr, int32_t *fd) {
   *fd = 13;
   return 0;
 }
-//--------------------------------------------------------------------------------
-
-struct EventLoopPtr evlp;
-struct UdpSocketPtr udp;
-struct IpAddrPtr ip;
 
 void setUp(void) {
   cme_init();
@@ -71,7 +69,6 @@ void test_UdpSocketPtr_create_fd_error_is_reported(void) {
 
   err = UdpSocketPtr_create(evlp, ip, &udp);
 
-  // should fail
   MYTEST_ASSERT_ERR_NOT_NULL(err);
   TEST_ASSERT_NULL(udp.get);
 }
@@ -79,28 +76,22 @@ void test_UdpSocketPtr_create_fd_error_is_reported(void) {
 void test_UdpSocketPtr_create_success_inserts_into_event_loop(void) {
   cme_error_t err;
 
-  // Arrange: allow create_fd to succeed
   mock_err = false;
 
   ip = IpAddrPtr_create(cstr_lit("127.0.0.1"), cstr_lit("0"));
   TEST_ASSERT_NOT_NULL(ip.get);
 
-  // Act
   err = UdpSocketPtr_create(evlp, ip, &udp);
   MYTEST_ASSERT_ERR_NULL(err);
 
-  // Assert: we got a valid UdpSocketPtr
   TEST_ASSERT_NOT_NULL(udp.get);
   TEST_ASSERT_EQUAL_INT(13, udp.get->fd);
 
-  // The FD should be in the event loop's poll vector
   TEST_ASSERT_EQUAL_INT(13, evlp.get->fds.data[0].fd);
 
-  // And a helper entry must exist
   struct __FdHelper *helper = __FdHelpersMap_find(13, &evlp.get->fds_helpers);
   TEST_ASSERT_NOT_NULL(helper);
 
-  // The helper data must point back to our udp ptr
   struct UdpSocketPtr udp_from_helper =
       GenericPtr_dump(UdpSocketPtr, helper->data);
   TEST_ASSERT_EQUAL_PTR(udp.get, udp_from_helper.get);

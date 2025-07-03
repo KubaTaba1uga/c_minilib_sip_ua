@@ -14,14 +14,57 @@
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
+#include "sip_transport/_internal/sip_transport_listen.h"
 #include "sip_transport/sip_transport.h"
+#include "utils/buffer_ptr.h"
 #include "utils/generic_ptr.h"
 #include "utils/ip.h"
+#include "utils/sip_msg.h"
 
 static struct EventLoopPtr evlp;
 static struct IpAddrPtr ip;
 static struct SipTransportPtr stptr;
 static bool __UdpSocket_create_fd_mock_err;
+
+// A minimal valid SIP INVITE for testing
+static const char *valid_sip_invite =
+    "INVITE sip:bob@example.com SIP/2.0\r\n"
+    "Via: SIP/2.0/UDP host;branch=z9hG4bK1\r\n"
+    "To: <sip:bob@example.com>\r\n"
+    "From: <sip:alice@example.com>;tag=1\r\n"
+    "Call-ID: 1\r\n"
+    "CSeq: 1 INVITE\r\n"
+    "Content-Length: 0\r\n"
+    "\r\n";
+
+// Globals for handler observation
+static bool g_handler_called;
+static struct GenericPtr g_handler_arg;
+
+// A test handler that simply records it was called
+static cme_error_t test_sip_reqh_ok(struct SipMessagePtr msg,
+                                    struct IpAddrPtr peer,
+                                    struct SipTransportPtr st,
+                                    struct GenericPtr arg) {
+  (void)msg;
+  (void)peer;
+  (void)st;
+  g_handler_called = true;
+  g_handler_arg = arg;
+  return 0;
+}
+
+// A test handler that always fails
+static cme_error_t test_sip_reqh_err(struct SipMessagePtr msg,
+                                     struct IpAddrPtr peer,
+                                     struct SipTransportPtr st,
+                                     struct GenericPtr arg) {
+  (void)msg;
+  (void)peer;
+  (void)st;
+  (void)arg;
+  return cme_error(EIO, "handler error");
+}
 
 cme_error_t __UdpSocket_create_fd(struct IpAddrPtr ip_addr, int32_t *fd) {
   (void)ip_addr;
@@ -57,7 +100,6 @@ void tearDown(void) {
 }
 
 void test_SipTransportPtr_create_udp_fd_error(void) {
-  // Arrange: mock failure in underlying UDP socket creation
   __UdpSocket_create_fd_mock_err = true;
 
   ip = IpAddrPtr_create(cstr_lit("127.0.0.1"), cstr_lit("7337"));
@@ -67,13 +109,11 @@ void test_SipTransportPtr_create_udp_fd_error(void) {
   cme_error_t err =
       SipTransportPtr_create(evlp, ip, SipTransportProtocolType_UDP, &stptr);
 
-  // Assert: error is propagated, and no transport ptr out
   TEST_ASSERT_NOT_NULL(err);
   TEST_ASSERT_NULL(stptr.get);
 }
 
 void test_SipTransportPtr_create_udp_success(void) {
-  // Arrange: underlying UDP socket creation succeeds
   __UdpSocket_create_fd_mock_err = false;
 
   ip = IpAddrPtr_create(cstr_lit("127.0.0.1"), cstr_lit("7337"));
@@ -85,77 +125,29 @@ void test_SipTransportPtr_create_udp_success(void) {
   MYTEST_ASSERT_ERR_NULL(err);
   TEST_ASSERT_NOT_NULL(stptr.get);
 
-  // The proto_type field must be set
   TEST_ASSERT_EQUAL_INT(SipTransportProtocolType_UDP, stptr.get->proto_type);
 
-  // And the cloned event loop pointer must match (same internal pointer)
-  // NOTE: we compare the raw pointer, not the struct:
   TEST_ASSERT_EQUAL_PTR(evlp.get, stptr.get->evl.get);
 
-  // Verify that the UDP socket FD from the mock (13) was stored
   TEST_ASSERT_EQUAL_INT(13, stptr.get->udp_socket.get->fd);
 }
 
 void test_SipTransportPtr_create_unsupported_proto(void) {
-  // Arrange: any IP is fine, underlying mock not used
+  cme_error_t err;
+
   __UdpSocket_create_fd_mock_err = false;
 
   ip = IpAddrPtr_create(cstr_lit("127.0.0.1"), cstr_lit("7337"));
   TEST_ASSERT_NOT_NULL(ip.get);
 
-  // Act: use an out-of-range protocol
-  cme_error_t err = SipTransportPtr_create(
+  err = SipTransportPtr_create(
       evlp, ip, (enum SipTransportProtocolType)0xdeadbeef, &stptr);
 
-  // Assert: unsupported protocol error
   MYTEST_ASSERT_ERR_NOT_NULL(err);
   TEST_ASSERT_NULL(stptr.get);
 }
 
-#include "sip_transport/_internal/sip_transport_listen.h"
-#include "utils/buffer_ptr.h"
-#include "utils/sip_msg.h"
-
-// A minimal valid SIP INVITE for testing
-static const char *kValidInvite = "INVITE sip:bob@example.com SIP/2.0\r\n"
-                                  "Via: SIP/2.0/UDP host;branch=z9hG4bK1\r\n"
-                                  "To: <sip:bob@example.com>\r\n"
-                                  "From: <sip:alice@example.com>;tag=1\r\n"
-                                  "Call-ID: 1\r\n"
-                                  "CSeq: 1 INVITE\r\n"
-                                  "Content-Length: 0\r\n"
-                                  "\r\n";
-
-// Globals for handler observation
-static bool g_handler_called;
-static struct GenericPtr g_handler_arg;
-
-// A test handler that simply records it was called
-static cme_error_t test_sip_reqh_ok(struct SipMessagePtr msg,
-                                    struct IpAddrPtr peer,
-                                    struct SipTransportPtr st,
-                                    struct GenericPtr arg) {
-  (void)msg;
-  (void)peer;
-  (void)st;
-  g_handler_called = true;
-  g_handler_arg = arg;
-  return 0;
-}
-
-// A test handler that always fails
-static cme_error_t test_sip_reqh_err(struct SipMessagePtr msg,
-                                     struct IpAddrPtr peer,
-                                     struct SipTransportPtr st,
-                                     struct GenericPtr arg) {
-  (void)msg;
-  (void)peer;
-  (void)st;
-  (void)arg;
-  return cme_error(EIO, "handler error");
-}
-
-void test___SipTransport_udp_recvh_valid_message(void) {
+void test__SipTransport_udp_recvh_valid_message(void) {
   cme_error_t err;
 
   __UdpSocket_create_fd_mock_err = false;
@@ -164,18 +156,19 @@ void test___SipTransport_udp_recvh_valid_message(void) {
   MYTEST_ASSERT_ERR_NULL(err);
 
   stptr.get->recvh = test_sip_reqh_ok;
-  stptr.get->recvh_arg = GenericPtr_from_arc(SipTransportPtr, &stptr);
+  stptr.get->recvh_arg = GenericPtr_from_arc(SipTransportPtr, stptr);
   g_handler_called = false;
 
   struct BufferPtr bufp;
-  size_t len = strlen(kValidInvite);
+  size_t len = strlen(valid_sip_invite);
 
   err = BufferPtr_create_filled(
-      (struct csview){.size = (long)len, .buf = strdup(kValidInvite)}, &bufp);
+      (struct csview){.size = (long)len, .buf = strdup(valid_sip_invite)},
+      &bufp);
   MYTEST_ASSERT_ERR_NULL(err);
 
   err = __SipTransport_udp_recvh(bufp, ip,
-                                 GenericPtr_from_arc(SipTransportPtr, &stptr));
+                                 GenericPtr_from_arc(SipTransportPtr, stptr));
   MYTEST_ASSERT_ERR_NULL(err);
 
   TEST_ASSERT_TRUE(g_handler_called);
@@ -186,8 +179,7 @@ void test___SipTransport_udp_recvh_valid_message(void) {
   BufferPtr_drop(&bufp);
 }
 
-void test___SipTransport_udp_recvh_malformed_message_ignored(void) {
-
+void test__SipTransport_udp_recvh_malformed_message_ignored(void) {
   cme_error_t err;
 
   __UdpSocket_create_fd_mock_err = false;
@@ -196,7 +188,7 @@ void test___SipTransport_udp_recvh_malformed_message_ignored(void) {
   MYTEST_ASSERT_ERR_NULL(err);
 
   stptr.get->recvh = test_sip_reqh_ok;
-  stptr.get->recvh_arg = GenericPtr_from_arc(SipTransportPtr, &stptr);
+  stptr.get->recvh_arg = GenericPtr_from_arc(SipTransportPtr, stptr);
   g_handler_called = false;
 
   const char *bad = "NOT SIP";
@@ -208,7 +200,7 @@ void test___SipTransport_udp_recvh_malformed_message_ignored(void) {
   // On malformed msg we do not raise err and we do not call lower layer
   // handler. Malformed msg is just silently skipped.
   err = __SipTransport_udp_recvh(bufp, ip,
-                                 GenericPtr_from_arc(SipTransportPtr, &stptr));
+                                 GenericPtr_from_arc(SipTransportPtr, stptr));
   MYTEST_ASSERT_ERR_NULL(err);
 
   TEST_ASSERT_FALSE(g_handler_called);
@@ -216,26 +208,26 @@ void test___SipTransport_udp_recvh_malformed_message_ignored(void) {
   BufferPtr_drop(&bufp);
 }
 
-void test___SipTransport_udp_recvh_handler_error_propagates(void) {
+void test__SipTransport_udp_recvh_handler_error_propagates(void) {
+  cme_error_t err;
 
   __UdpSocket_create_fd_mock_err = false;
   ip = IpAddrPtr_create(cstr_lit("127.0.0.1"), cstr_lit("5060"));
-  cme_error_t err =
-      SipTransportPtr_create(evlp, ip, SipTransportProtocolType_UDP, &stptr);
+  err = SipTransportPtr_create(evlp, ip, SipTransportProtocolType_UDP, &stptr);
   MYTEST_ASSERT_ERR_NULL(err);
 
   stptr.get->recvh = test_sip_reqh_err;
-  stptr.get->recvh_arg = GenericPtr_from_arc(SipTransportPtr, &stptr);
+  stptr.get->recvh_arg = GenericPtr_from_arc(SipTransportPtr, stptr);
 
   struct BufferPtr bufp;
   err = BufferPtr_create_filled(
-      (struct csview){.size = (long)strlen(kValidInvite),
-                      .buf = strdup(kValidInvite)},
+      (struct csview){.size = (long)strlen(valid_sip_invite),
+                      .buf = strdup(valid_sip_invite)},
       &bufp);
   MYTEST_ASSERT_ERR_NULL(err);
 
   err = __SipTransport_udp_recvh(bufp, ip,
-                                 GenericPtr_from_arc(SipTransportPtr, &stptr));
+                                 GenericPtr_from_arc(SipTransportPtr, stptr));
 
   TEST_ASSERT_NOT_NULL(err);
   TEST_ASSERT_EQUAL_INT(EIO, err->code);

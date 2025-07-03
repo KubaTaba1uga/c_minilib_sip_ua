@@ -20,8 +20,8 @@ test_files = [
   'test_event_loop.c',
   'test_event_loop_fd_vec.c',
   'test_event_loop_fdhelper_hmap.c',  
-  # 'test_udp_socket.c',
-  # 'test_sip_transport.c',    
+  'test_udp_socket.c',
+  'test_sip_transport.c',    
   # 'test_pollfd_vec.c',
   # 'test_socket.c',
 ]
