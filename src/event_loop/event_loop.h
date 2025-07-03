@@ -6,12 +6,6 @@
 
 #ifndef C_MINILIB_SIP_UA_EVENT_LOOP_H
 #define C_MINILIB_SIP_UA_EVENT_LOOP_H
-/*
-  This is interface to event_loop module, if you need anything from event_loop
-  module, put interface declaration here and interface implementation in .c but
-  always write real implementation as static inline in _internal.
- */
-
 #include <poll.h>
 #include <stdint.h>
 #include <sys/poll.h>

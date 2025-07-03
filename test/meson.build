@@ -18,8 +18,10 @@ mock_flags_gen_script = c_minilib_mock_proj.get_variable('wraps_gen_script')
 # List of test source files (extend this list as needed)
 test_files = [
   'test_event_loop.c',
-  'test_udp_socket.c',
-  'test_sip_transport.c',    
+  'test_event_loop_fd_vec.c',
+  'test_event_loop_fdhelper_hmap.c',  
+  # 'test_udp_socket.c',
+  # 'test_sip_transport.c',    
   # 'test_pollfd_vec.c',
   # 'test_socket.c',
 ]

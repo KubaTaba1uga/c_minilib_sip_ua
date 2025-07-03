@@ -48,8 +48,12 @@ void tearDown(void) {
 void test_EventLoopPtr_create_success(void) {
   cme_error_t err;
 
+  TEST_ASSERT_NULL(evlp.get);
+
   err = EventLoopPtr_create(&evlp);
   MYTEST_ASSERT_ERR_NULL(err);
+
+  TEST_ASSERT_NOT_NULL(evlp.get);
 }
 
 void test_EventLoopPtr_insert_sockfd_success(void) {
@@ -61,7 +65,7 @@ void test_EventLoopPtr_insert_sockfd_success(void) {
   struct __MyStruct *my_struct = my_malloc(sizeof(struct __MyStruct));
   *my_struct = (struct __MyStruct){.bar = -19, .foo = 19};
   struct MyStructPtr my_struct_ptr = MyStructPtr_from_ptr(my_struct);
-  gptr = GenericPtr_from_arc(MyStructPtr, &my_struct_ptr);
+  gptr = GenericPtr_from_arc(MyStructPtr, my_struct_ptr);
 
   err = EventLoopPtr_insert_socketfd(evlp, 10, event_loop_recvh_mock, gptr);
   MYTEST_ASSERT_ERR_NULL(err);
@@ -89,7 +93,7 @@ void test_EventLoopPtr_insert_timerfd_success(void) {
   struct __MyStruct *my_struct = my_malloc(sizeof(struct __MyStruct));
   *my_struct = (struct __MyStruct){.bar = 123, .foo = 456};
   struct MyStructPtr my_struct_ptr = MyStructPtr_from_ptr(my_struct);
-  gptr = GenericPtr_from_arc(MyStructPtr, &my_struct_ptr);
+  gptr = GenericPtr_from_arc(MyStructPtr, my_struct_ptr);
 
   err = EventLoopPtr_insert_timerfd(evlp, 12, event_loop_recvh_mock, gptr);
   MYTEST_ASSERT_ERR_NULL(err);
@@ -122,7 +126,7 @@ void test_EventLoopPtr_remove_fd_success(void) {
   struct __MyStruct *my_struct = my_malloc(sizeof(struct __MyStruct));
   *my_struct = (struct __MyStruct){.bar = 111, .foo = 222};
   struct MyStructPtr my_struct_ptr = MyStructPtr_from_ptr(my_struct);
-  gptr = GenericPtr_from_arc(MyStructPtr, &my_struct_ptr);
+  gptr = GenericPtr_from_arc(MyStructPtr, my_struct_ptr);
 
   err = EventLoopPtr_insert_timerfd(evlp, 7, event_loop_recvh_mock, gptr);
   MYTEST_ASSERT_ERR_NULL(err);
@@ -154,7 +158,7 @@ void test_EventLoopPtr_set_pollin_success(void) {
   struct __MyStruct *my_struct = my_malloc(sizeof(*my_struct));
   *my_struct = (struct __MyStruct){.bar = 314, .foo = 159};
   struct MyStructPtr my_struct_ptr = MyStructPtr_from_ptr(my_struct);
-  gptr = GenericPtr_from_arc(MyStructPtr, &my_struct_ptr);
+  gptr = GenericPtr_from_arc(MyStructPtr, my_struct_ptr);
 
   err = EventLoopPtr_insert_socketfd(evlp, 30, event_loop_recvh_mock, gptr);
   MYTEST_ASSERT_ERR_NULL(err);
