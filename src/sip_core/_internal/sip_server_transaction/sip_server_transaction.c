@@ -50,11 +50,11 @@ cme_error_t __SipServerTransactionPtr_create(
     goto error_out_cleanup;
   }
 
-  /* err = __SipServerTransactions_insert(strans_id, *out, */
-  /*                                      sip_core.get->__stranses, out); */
-  /* if (err) { */
-  /*   goto error_out_cleanup; */
-  /* } */
+  err = __SipServerTransactions_insert(strans_id, *out,
+                                       sip_core.get->__stranses, out);
+  if (err) {
+    goto error_out_cleanup;
+  }
 
   return 0;
 
@@ -96,7 +96,22 @@ error_out:
 cme_error_t
 __SipServerTransactionPtr_get_id(struct SipServerTransactionPtr strans,
                                  struct csview *out) {
+  csview sip_method = {0};
+  cme_error_t err;
+
+  void *result =
+      SipMessagePtr_get_method(strans.get->__init_request, &sip_method);
+  if (!result) {
+    err = cme_errorf(EINVAL, "Cannot process sip request without SIP method");
+    goto error_out;
+  }
+
+  *out = sip_method;
+
   return 0;
+
+error_out:
+  return cme_return(err);
 };
 
 cme_error_t

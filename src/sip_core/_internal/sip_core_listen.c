@@ -84,37 +84,34 @@ static inline cme_error_t __SipCore_sip_transp_recvh(
       if (err) {
         goto error_out;
       }
-    }
-    /*   c_foreach(lstner, queue__SipCoreListeners,
-     * *sip_core.get->__listeners)
-     * { */
-    /*     // We need reqh so the user can reply to incoming message. */
-    /*     err = lstner.ref->reqh(sip_msg, peer_ip, strans, lstner.ref->arg);
-     */
-    /*     if (err) { */
-    /*       goto error_strans_cleanup; */
-    /*     } */
 
-    /*     // If TU replied we want to stop further processing */
-    /*     if (!__SipServerTransactionPtr_is_responses_empty(strans)) { */
-    /*       break; */
-    /*     } */
-    /*   } */
-    /* } else { */
-    /*   puts("Matched old server transaction"); */
-    /*   err = __SipServerTransactionPtr_recvh(sip_msg, peer_ip, &strans); */
-    /*   if (err) { */
-    /*     goto error_out; */
-    /*   } */
-    /* } */
+      c_foreach(lstner, queue__SipCoreListeners, *sip_core.get->__listeners) {
+        // We need reqh so the user can reply to incoming message.
+        err = lstner.ref->reqh(sip_msg, peer_ip, strans, lstner.ref->arg);
+        if (err) {
+          goto error_strans_cleanup;
+        }
+
+        // If TU replied we want to stop further processing
+        if (!__SipServerTransactionPtr_is_responses_empty(strans)) {
+          break;
+        }
+      }
+    } else {
+      puts("Matched old server transaction");
+      err = __SipServerTransactionPtr_recvh(sip_msg, peer_ip, &strans);
+      if (err) {
+        goto error_out;
+      }
+    }
   } else {
     // TO-DO: handle NONINVITE transaction
   }
 
   return 0;
 
-  /* error_strans_cleanup: */
-  /* SipServerTransactionPtr_drop(&strans); */
+error_strans_cleanup:
+  SipServerTransactionPtr_drop(&strans);
 error_out:
   return cme_return(err);
 }
