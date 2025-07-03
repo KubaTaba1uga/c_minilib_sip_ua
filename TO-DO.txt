@@ -1,2 +1,4 @@
-1. drop all unecessary struct typedefs.
-2. Bring all structs names in funcs uppercase in all minilib projects.
+1. Refactor sip server transaction to use <public header>/_internal structure, let's treat it as module insidfe sip core.
+2. Finish up sip server transaction including timers i/g/h.
+3. Add some TU like Sip message and finish up NON-INVITE server transaction.
+
