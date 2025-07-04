@@ -66,8 +66,6 @@ static inline cme_error_t SipMessagePtr_parse(struct BufferPtr buf,
 
   *out = SipMessagePtr_from_ptr(ptr_payload);
 
-  assert(out->get != NULL);
-
   return 0;
 
 error_out:
@@ -293,9 +291,12 @@ SipMessagePtr_status_from_request(struct SipMessagePtr request,
       .sip_msg = response,
   };
 
-  BufferPtr_create_filled(
+  err = BufferPtr_create_filled(
       (struct csview){.buf = response->_buf.buf, .size = response->_buf.len},
       &ptr_payload->bufp);
+  if (err) {
+    goto error_response_cleanup;
+  }
 
   *out = SipMessagePtr_from_ptr(ptr_payload);
 

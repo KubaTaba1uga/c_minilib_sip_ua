@@ -33,4 +33,7 @@ __SipServerTransactions_find(csview key,
                              struct hmap__SipServerTransactions *stmap,
                              struct SipServerTransactionPtr *out);
 
+void __SipServerTransactions_remove(csview key,
+                                    struct hmap__SipServerTransactions *hmap);
+
 #endif // C_MINILIB_SIP_UA_INT_SIP_CORE_STRANS_MAP_H

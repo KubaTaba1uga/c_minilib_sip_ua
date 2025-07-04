@@ -32,3 +32,11 @@ __SipServerTransactions_find(csview key,
 
   return out;
 }
+
+void __SipServerTransactions_remove(csview key,
+                                    struct hmap__SipServerTransactions *hmap) {
+  cstr cstr_key = cstr_from_sv(key);
+  const char *raw_key = cstr_toraw(&cstr_key);
+
+  hmap__SipServerTransactions_erase(hmap, raw_key);
+}

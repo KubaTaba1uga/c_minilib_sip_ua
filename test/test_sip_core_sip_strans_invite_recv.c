@@ -52,6 +52,10 @@ void setUp(void) {
 }
 
 void tearDown(void) {
+  if (strans.get) {
+    SipServerTransactionPtr_drop(&strans);
+  }
+
   if (sipmsg.get) {
     SipMessagePtr_drop(&sipmsg);
   }

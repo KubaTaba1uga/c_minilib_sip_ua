@@ -1,5 +1,7 @@
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
+#include "sip_core/_internal/sip_core.h"
 #include "sip_core/_internal/sip_core_strans_map.h"
+#include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction.h"
 #include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction_invite.h"
 #include "utils/generic_ptr.h"
 #include "utils/ip.h"
@@ -66,10 +68,7 @@ error_out:
 
 void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
   puts(__func__);
-
   IpAddrPtr_drop(&sip_strans->__last_peer_ip);
-  SipCorePtr_drop(&sip_strans->sip_core);
-
   SipMessagePtr_drop(&sip_strans->__init_request);
   list__SipServerTransactionResponses_drop(&sip_strans->__sip_responses);
 
@@ -84,6 +83,16 @@ void __SipServerTransaction_destroy(struct __SipServerTransaction *sip_strans) {
   if (sip_strans->__invite_i_timer.get) {
     TimerFdPtr_drop(&sip_strans->__invite_i_timer);
   }
+
+  csview strans_id;
+  __SipServerTransactionPtr_get_id(
+      (struct SipServerTransactionPtr){.get = sip_strans, .use_count = NULL},
+      &strans_id);
+
+  __SipServerTransactions_remove(strans_id,
+                                 sip_strans->sip_core.get->__stranses);
+
+  SipCorePtr_drop(&sip_strans->sip_core);
 };
 
 cme_error_t

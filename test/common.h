@@ -27,11 +27,14 @@ static inline struct SipMessagePtr create_dummy_sipmsg(void) {
   cme_error_t err;
 
   err = BufferPtr_create_filled(
-      (csview){.buf = sip_request, .size = (long)strlen(sip_request)}, &buf);
+      (csview){.buf = strdup(sip_request), .size = (long)strlen(sip_request)},
+      &buf);
   assert(err == 0);
 
   err = SipMessagePtr_parse(buf, &sipmsg);
   assert(err == 0);
+
+  BufferPtr_drop(&buf);
 
   return sipmsg;
 }

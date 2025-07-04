@@ -60,6 +60,9 @@ __SipServerTransactionPtr_invite_reply(uint32_t status_code, cstr status_phrase,
     if (err) {
       goto error_bytes_cleanup;
     }
+
+    BufferPtr_drop(&bytes);
+    SipMessagePtr_drop(&sipmsg);
   }
 
   return 0;
