@@ -21,7 +21,8 @@ test_files = [
   'test_event_loop_fd_vec.c',
   'test_event_loop_fdhelper_hmap.c',  
   'test_udp_socket.c',
-  'test_sip_transport.c',    
+  'test_sip_transport.c',
+  'test_sip_core_sip_strans_invite_recv.c',
   # 'test_pollfd_vec.c',
   # 'test_socket.c',
 ]
@@ -36,7 +37,10 @@ foreach test_file : test_files
     dependencies: test_dependencies,
     include_directories: test_include_dirs,
     c_args: ['-DENABLE_MOCKS'],
-    link_args: run_command(mock_flags_gen_script, ['UdpSocket_create_fd'], check: true).stdout().strip().split(' ')	    
+    link_args: [
+       run_command(mock_flags_gen_script, ['UdpSocket_create_fd'], check: true).stdout().strip().split(' '),
+       run_command(mock_flags_gen_script, ['__SipServerTransactionPtr_invite_reply'], check: true).stdout().strip().split(' '),
+    ]
   )
   test(test_name, test_exe)
 endforeach

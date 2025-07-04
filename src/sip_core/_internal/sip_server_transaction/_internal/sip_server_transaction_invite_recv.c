@@ -7,7 +7,9 @@
 #include <c_minilib_sip_codec.h>
 
 #include "sip_core/_internal/sip_core.h"
+#include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction.h"
 #include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction_invite.h"
+#include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction_responses.h"
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
 #include "utils/sip_msg.h"
 #include "utils/sip_status_codes.h"
@@ -74,6 +76,7 @@ error_out:
   return cme_return(err);
 }
 
+// TO-DO test retransmission
 static cme_error_t __SipServerTransactionPtr_recv_handler_INVITE_PROCEEDING(
     struct SipMessagePtr sipmsg, struct SipServerTransactionPtr strans) {
   /*
@@ -83,21 +86,28 @@ static cme_error_t __SipServerTransactionPtr_recv_handler_INVITE_PROCEEDING(
       be passed to the transport layer for retransmission ...
   */
   puts(__func__);
-  /* struct csview reason_phrase; */
-  /* uint32_t status_code; */
-  /* cme_error_t err; */
+  cme_error_t err;
 
-  /* SipMessagePtr_get_status_code_and_reason(strans.get->last_response, */
-  /*                                          &status_code, &reason_phrase); */
+  list__SipServerTransactionResponses_iter iter =
+      list__SipServerTransactionResponses_end(&strans.get->__sip_responses);
 
-  /* err = __SipServerTransactionPtr_invite_reply( */
-  /*     status_code, cstr_from_sv(reason_phrase), strans); */
-  /* if (err) { */
-  /*   goto error_out; */
-  /* } */
+  while (iter.ref) {
+    if (iter.ref->status_code >= 100 && // NOLINT
+        iter.ref->status_code <= 199) { // NOLINT
+      err = __SipServerTransactionPtr_invite_reply(
+          iter.ref->status_code, iter.ref->reason_phrase, strans);
+      if (err) {
+        goto error_out;
+      }
+
+      break;
+    }
+
+    list__SipServerTransactionResponses_next(&iter);
+  }
 
   return 0;
 
-  /* error_out: */
-  /* return cme_return(err); */
+error_out:
+  return cme_return(err);
 }
