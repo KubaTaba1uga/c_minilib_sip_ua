@@ -11,7 +11,22 @@
 cme_error_t SipSessionPtr_accept(struct SipSessionPtr *sip_session) {
   cme_error_t err;
 
-  err = SipServerTransactionPtr_reply(SIP_STATUS_ACCEPTED, cstr_lit("OK"),
+  err = SipServerTransactionPtr_reply(SIP_STATUS_OK, cstr_lit("OK"),
+                                      &sip_session->get->current_strans);
+  if (err) {
+    goto error_out;
+  }
+
+  return 0;
+
+error_out:
+  return cme_return(err);
+}
+
+cme_error_t SipSessionPtr_ring(struct SipSessionPtr *sip_session) {
+  cme_error_t err;
+
+  err = SipServerTransactionPtr_reply(SIP_STATUS_RINGING, cstr_lit("RINGING"),
                                       &sip_session->get->current_strans);
   if (err) {
     goto error_out;

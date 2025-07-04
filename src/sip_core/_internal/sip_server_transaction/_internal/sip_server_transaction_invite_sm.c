@@ -88,7 +88,7 @@ static inline cme_error_t __SipServerTransactionPtr_on_INVITE_PROCEEDING(
   puts(__func__);
   cme_error_t err;
   err = __SipServerTransactionPtr_invite_reply(SIP_STATUS_TRYING,
-                                               cstr_from("Trying"), strans);
+                                               cstr_from("TRYING"), strans);
   if (err) {
     goto error_out;
   }

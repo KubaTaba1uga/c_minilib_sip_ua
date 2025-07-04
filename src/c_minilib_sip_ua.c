@@ -1,5 +1,6 @@
 #include <errno.h>
 #include <stdio.h>
+#include <unistd.h>
 
 #include "c_minilib_error.h"
 #include "event_loop/event_loop.h"
@@ -21,6 +22,15 @@ static cme_error_t __main_sip_session_next_stateh(
 
   switch (next_state) {
   case SipSessionState_INVITED:
+    err = SipSessionPtr_ring(&sip_session);
+    if (err) {
+      goto error_out;
+    }
+
+    puts("Ringing...");
+
+    sleep(1);
+
     err = SipSessionPtr_accept(&sip_session);
     if (err) {
       goto error_out;

@@ -29,6 +29,8 @@ def send_udp_request(port=7337):
     print(f"Received from {sender_addr}:\n{data.decode(errors='ignore')}")
     data, sender_addr = sock.recvfrom(2048)
     print(f"Received from {sender_addr}:\n{data.decode(errors='ignore')}")
+    data, sender_addr = sock.recvfrom(2048)
+    print(f"Received from {sender_addr}:\n{data.decode(errors='ignore')}")
 
 
 if __name__ == "__main__":

@@ -100,6 +100,7 @@ cme_error_t SipSessionPtr_listen(struct SipCorePtr sip_core,
                                  struct GenericPtr arg);
 
 cme_error_t SipSessionPtr_accept(struct SipSessionPtr *sip_session);
+cme_error_t SipSessionPtr_ring(struct SipSessionPtr *sip_session);
 cme_error_t SipSessionPtr_reject(struct SipSessionPtr *sip_session);
 cme_error_t SipSessionPtr_bye(struct SipSessionPtr *sip_session);
 

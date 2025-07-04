@@ -184,9 +184,9 @@ SipMessagePtr_status_from_request(struct SipMessagePtr request,
     goto error_out;
   }
 
-  err =
-      cmsc_sipmsg_insert_status_line(strlen("2.0"), "2.0", cstr_size(&status),
-                                     cstr_data(&status), status_code, response);
+  err = cmsc_sipmsg_insert_status_line(strlen("SIP/2.0"), "SIP/2.0",
+                                       cstr_size(&status), cstr_data(&status),
+                                       status_code, response);
   if (err) {
     goto error_out;
   }

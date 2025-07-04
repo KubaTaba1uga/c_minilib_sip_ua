@@ -1,14 +1,16 @@
-#include "c_minilib_error.h"
-#include "c_minilib_sip_codec.h"
+#include <assert.h>
+#include <stdbool.h>
+#include <stdio.h>
+#include <string.h>
+
+#include <c_minilib_error.h>
+#include <c_minilib_sip_codec.h>
+
 #include "sip_core/_internal/sip_core.h"
 #include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction_invite.h"
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
 #include "utils/sip_msg.h"
 #include "utils/sip_status_codes.h"
-#include <assert.h>
-#include <stdbool.h>
-#include <stdio.h>
-#include <string.h>
 
 static cme_error_t __SipServerTransactionPtr_recv_handler_INVITE_PROCEEDING(
     struct SipMessagePtr sipmsg, struct SipServerTransactionPtr strans);
