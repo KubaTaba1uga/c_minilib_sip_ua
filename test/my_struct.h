@@ -1,3 +1,6 @@
+#ifndef mystruct_h
+#define mystruct_h
+
 struct __MyStruct {
   uint32_t foo;
   int32_t bar;
@@ -13,3 +16,5 @@ static inline struct __MyStruct __MyStruct_clone(struct __MyStruct ms) {
 #define i_keydrop __MyStruct_destroy
 #define i_keyclone __MyStruct_clone
 #include "stc/arc.h"
+
+#endif

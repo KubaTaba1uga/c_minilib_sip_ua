@@ -1,11 +1,11 @@
-#include "c_minilib_error.h"
+#include <assert.h>
+
+#include <c_minilib_error.h>
+
 #include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction_invite.h"
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
-#include "sip_transport/_internal/sip_transport.h"
 #include "sip_transport/sip_transport.h"
-#include "timer_fd/_internal/timer_fd.h"
 #include "timer_fd/timer_fd.h"
-#include <assert.h>
 
 #define __SIP_CORE_STRANS_T1 500000000
 

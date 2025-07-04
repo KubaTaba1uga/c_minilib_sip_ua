@@ -14,12 +14,17 @@
 
 #define MYTEST_ASSERT_ERR_NULL(err)                                            \
   if (err) {                                                                   \
+    puts("ERROR:");                                                            \
+    puts(err->msg);                                                            \
+    puts("ERROR:");                                                            \
     puts(err->msg);                                                            \
   }                                                                            \
   TEST_ASSERT_NULL(err)
 
 #define MYTEST_ASSERT_ERR_NOT_NULL(err)                                        \
   if (err) {                                                                   \
+    puts("ERROR:");                                                            \
     puts(err->msg);                                                            \
+    puts("ERROR:");                                                            \
   }                                                                            \
   TEST_ASSERT_NOT_NULL(err)
