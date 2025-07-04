@@ -51,16 +51,3 @@ cme_error_t SipCorePtr_listen(sip_core_reqh_t reqh, struct GenericPtr arg,
                               struct SipCorePtr sip_core) {
   return __SipCore_listen(reqh, arg, sip_core);
 };
-
-cme_error_t
-SipServerTransactionPtr_reply(uint32_t status_code, cstr status_phrase,
-                              struct SipServerTransactionPtr *sip_strans) {
-  return __SipServerTransactionPtr_reply(status_code, status_phrase,
-                                         sip_strans);
-}
-
-void SipServerTransactionPtr_set_errh(sip_core_strans_errh_t errh,
-                                      struct GenericPtr arg,
-                                      struct SipServerTransactionPtr strans) {
-  return __SipServerTransactionPtr_set_errh(errh, arg, strans);
-}

@@ -1,8 +1,8 @@
 #include "c_minilib_error.h"
 #include "c_minilib_sip_codec.h"
 #include "sip_core/_internal/sip_core.h"
+#include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction_invite.h"
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
-#include "sip_core/_internal/sip_server_transaction/sip_server_transaction_invite.h"
 #include "utils/sip_msg.h"
 #include "utils/sip_status_codes.h"
 #include <assert.h>
@@ -23,7 +23,7 @@ __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
 
   switch (strans->get->__state) {
   case __SipServerTransactionState_NONE:
-    err = __SipServerTransactionPtr_move_to_state(
+    err = __SipServerTransactionPtr_invite_move_to_state(
         __SipServerTransactionState_INVITE_PROCEEDING, *strans);
     if (err) {
       goto error_out;
@@ -48,7 +48,7 @@ __SipServerTransactionPtr_invite_recv(struct SipMessagePtr sipmsg,
     struct cmsc_String method = cmsc_bs_msg_to_string(
         &sipmsg.get->sip_msg->request_line.sip_method, sipmsg.get->sip_msg);
     if (strncmp(method.buf, "ACK", method.len) == 0) {
-      err = __SipServerTransactionPtr_move_to_state(
+      err = __SipServerTransactionPtr_invite_move_to_state(
           __SipServerTransactionState_INVITE_CONFIRMED, *strans);
       if (err) {
         goto error_out;

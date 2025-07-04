@@ -29,7 +29,7 @@ cme_error_t
 __SipServerTransactionPtr_invite_reply(uint32_t status_code, cstr status_phrase,
                                        struct SipServerTransactionPtr strans);
 
-cme_error_t __SipServerTransactionPtr_move_to_state(
+cme_error_t __SipServerTransactionPtr_invite_move_to_state(
     enum __SipServerTransactionState next_state,
     struct SipServerTransactionPtr strans);
 

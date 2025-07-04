@@ -2,29 +2,29 @@
 
 #include "c_minilib_error.h"
 #include "sip_core/_internal/sip_core.h"
+#include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction_invite.h"
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
-#include "sip_core/_internal/sip_server_transaction/sip_server_transaction_invite.h"
 #include "timer_fd/_internal/timer_fd.h"
 
-static cme_error_t __SipServerTransactionPtr_on_INVITE_PROCEEDING(
+static inline cme_error_t __SipServerTransactionPtr_on_INVITE_PROCEEDING(
     struct SipServerTransactionPtr strans);
-static cme_error_t __SipServerTransactionPtr_on_INVITE_COMPLETED(
+static inline cme_error_t __SipServerTransactionPtr_on_INVITE_COMPLETED(
     struct SipServerTransactionPtr strans);
-static cme_error_t __SipServerTransactionPtr_on_INVITE_CONFIRMED(
+static inline cme_error_t __SipServerTransactionPtr_on_INVITE_CONFIRMED(
     struct SipServerTransactionPtr strans);
-static cme_error_t __SipServerTransactionPtr_on_INVITE_TERMINATED(
+static inline cme_error_t __SipServerTransactionPtr_on_INVITE_TERMINATED(
     struct SipServerTransactionPtr strans);
-static cme_error_t
+static inline cme_error_t
 __SipServerTransactionPtr_invite_g_timerh(struct TimerFdPtr timer,
                                           struct GenericPtr arg);
-static cme_error_t
+static inline cme_error_t
 __SipServerTransactionPtr_invite_h_timerh(struct TimerFdPtr timer,
                                           struct GenericPtr arg);
-static cme_error_t
+static inline cme_error_t
 __SipServerTransactionPtr_invite_i_timerh(struct TimerFdPtr timer,
                                           struct GenericPtr arg);
 
-cme_error_t __SipServerTransactionPtr_move_to_state(
+cme_error_t __SipServerTransactionPtr_invite_move_to_state(
     enum __SipServerTransactionState next_state,
     struct SipServerTransactionPtr strans) {
   cme_error_t err;
@@ -77,7 +77,7 @@ error_out:
   return cme_return(err);
 }
 
-static cme_error_t __SipServerTransactionPtr_on_INVITE_PROCEEDING(
+static inline cme_error_t __SipServerTransactionPtr_on_INVITE_PROCEEDING(
     struct SipServerTransactionPtr strans) {
   /*
     According rfc 3261 17.2.1 INVITE Server Transaction:
@@ -99,7 +99,7 @@ error_out:
   return cme_return(err);
 }
 
-static cme_error_t __SipServerTransactionPtr_on_INVITE_COMPLETED(
+static inline cme_error_t __SipServerTransactionPtr_on_INVITE_COMPLETED(
     struct SipServerTransactionPtr strans) {
   SipServerTransactionPtr_drop(&strans);
   /* According rfc 3261 17.2.1 INVITE Server Transaction:
@@ -117,7 +117,7 @@ static cme_error_t __SipServerTransactionPtr_on_INVITE_COMPLETED(
   return 0;
 }
 
-static cme_error_t __SipServerTransactionPtr_on_INVITE_CONFIRMED(
+static inline cme_error_t __SipServerTransactionPtr_on_INVITE_CONFIRMED(
     struct SipServerTransactionPtr strans) {
   /* According rfc 3261 17.2.1 INVITE Server Transaction:
       As Timer G is ignored in this state, any retransmissions of the
@@ -135,7 +135,7 @@ static cme_error_t __SipServerTransactionPtr_on_INVITE_CONFIRMED(
   return 0;
 }
 
-static cme_error_t __SipServerTransactionPtr_on_INVITE_TERMINATED(
+static inline cme_error_t __SipServerTransactionPtr_on_INVITE_TERMINATED(
     struct SipServerTransactionPtr strans) {
   /* According rfc 3261 17.2.1 INVITE Server Transaction:
       Once the transaction is in the "Terminated" state, it MUST be
@@ -150,13 +150,14 @@ static cme_error_t __SipServerTransactionPtr_on_INVITE_TERMINATED(
   return 0;
 }
 
-static cme_error_t
+static inline cme_error_t
 __SipServerTransactionPtr_invite_g_timerh(struct TimerFdPtr timer,
                                           struct GenericPtr arg) {
 
   return 0;
 };
-static cme_error_t
+
+static inline cme_error_t
 __SipServerTransactionPtr_invite_h_timerh(struct TimerFdPtr timer,
                                           struct GenericPtr arg) {
   /* According rfc 3261 17.2.1 INVITE Server Transaction:
@@ -168,7 +169,8 @@ __SipServerTransactionPtr_invite_h_timerh(struct TimerFdPtr timer,
   // TO-DO implement timer
   return 0;
 };
-static cme_error_t
+
+static inline cme_error_t
 __SipServerTransactionPtr_invite_i_timerh(struct TimerFdPtr timer,
                                           struct GenericPtr arg) {
   /* According rfc 3261 17.2.1 INVITE Server Transaction:

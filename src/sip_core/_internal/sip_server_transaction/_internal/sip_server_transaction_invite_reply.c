@@ -1,6 +1,6 @@
 #include "c_minilib_error.h"
+#include "sip_core/_internal/sip_server_transaction/_internal/sip_server_transaction_invite.h"
 #include "sip_core/_internal/sip_server_transaction/sip_server_transaction.h"
-#include "sip_core/_internal/sip_server_transaction/sip_server_transaction_invite.h"
 #include "sip_transport/_internal/sip_transport.h"
 #include "sip_transport/sip_transport.h"
 #include "timer_fd/_internal/timer_fd.h"
@@ -100,7 +100,7 @@ static cme_error_t __SipServerTransactionPtr_reply_handler_INVITE_PROCEEDING(
   */
   if (status_code >= 200 && status_code <= 299) { // NOLINT
     *is_for_transp = true;
-    err = __SipServerTransactionPtr_move_to_state(
+    err = __SipServerTransactionPtr_invite_move_to_state(
         __SipServerTransactionState_INVITE_TERMINATED, strans);
     if (err) {
       goto error_out;
@@ -118,7 +118,7 @@ static cme_error_t __SipServerTransactionPtr_reply_handler_INVITE_PROCEEDING(
   */
   if (status_code >= 300 && status_code <= 699) { // NOLINT
     *is_for_transp = true;
-    err = __SipServerTransactionPtr_move_to_state(
+    err = __SipServerTransactionPtr_invite_move_to_state(
         __SipServerTransactionState_INVITE_COMPLETED, strans);
     if (err) {
       goto error_out;
